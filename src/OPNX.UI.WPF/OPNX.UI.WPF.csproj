@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0-windows7.0</TargetFramework>
-    <UseWPF>true</UseWPF>    
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Product>OPNX.UI.WPF</Product>
+    <Description>OPNX WPF UI library for VMS, NVR, and real-time monitoring applications built on top of OPNX.Lib.</Description>
   </PropertyGroup>
 
   <ItemGroup>

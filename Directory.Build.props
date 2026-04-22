@@ -1,0 +1,31 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Company>OPNX</Company>
+    <Authors>OPNX</Authors>
+    <Product>OPNX.UI</Product>
+    <Copyright>Copyright (c) 2026 OPNX</Copyright>
+
+    <Description>OPNX UI libraries for building stateful video applications on top of OPNX.Lib across multiple client platforms.</Description>
+    <Version>0.1.0-preview.20260410.2</Version>
+    <InformationalVersion>0.1.0-preview.20260410.2</InformationalVersion>
+
+    <PackageProjectUrl>https://www.opnx.kr/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/OPNXLabs</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageId>$(MSBuildProjectName)</PackageId>
+
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)LICENSE.txt" Pack="true" PackagePath="" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="" Visible="false" />
+  </ItemGroup>
+</Project>

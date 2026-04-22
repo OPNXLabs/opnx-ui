@@ -1,0 +1,48 @@
+OPNX License (Learning, Evaluation, Research, and Non-Commercial Use)
+
+Copyright (c) 2026 OPNX
+
+1. Grant of License
+This software and associated documentation (the "Software") are provided
+for learning, evaluation, research, testing, and other non-commercial use only.
+
+2. Permitted Non-Commercial Use
+You may use, copy, modify, and study the Software for personal, educational,
+research, evaluation, and other non-commercial purposes.
+
+3. Commercial Use Restriction
+Any commercial use of the Software, in whole or in part, requires prior
+written permission from OPNX.
+
+Commercial use includes, but is not limited to:
+- selling or licensing the Software;
+- integrating the Software into commercial products or services;
+- using the Software in business or production environments;
+- providing the Software as part of a paid or revenue-generating service;
+- OEM, bundled, embedded, or redistributed use in commercial offerings.
+
+4. Redistribution
+Redistribution of the Software, whether modified or unmodified, requires
+prior written permission from OPNX.
+
+5. Intellectual Property
+All rights, title, and interest in the Software, including all intellectual
+property rights, remain the exclusive property of OPNX.
+
+6. No Warranty
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+7. Limitation of Liability
+IN NO EVENT SHALL OPNX BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF,
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+8. Termination
+This license is automatically terminated if you violate any of its terms.
+
+9. Contact
+For commercial licensing, OEM agreements, or partnership inquiries, contact:
+
+opnx@opnx.kr
