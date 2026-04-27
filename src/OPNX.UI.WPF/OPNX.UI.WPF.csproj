@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controls\OpnxPlaybackTimeline\OpnxPlaybackTimeline.Data.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="8.0.0.1" />
     <PackageReference Include="OPNX.Lib" Version="0.1.0-preview.20260410.2" />
     <PackageReference Include="SharpDX" Version="4.2.0" />
