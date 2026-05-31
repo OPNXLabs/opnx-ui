@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace OPNX.UI.WPF.Controls.OpnxTreeListView
+namespace OPNX.UI.WPF.Controls
 {
     public class TreeListViewTreeBuilder(OpnxTreeListView treeListView)
     {
@@ -105,3 +105,4 @@ namespace OPNX.UI.WPF.Controls.OpnxTreeListView
         }
     }
 }
+

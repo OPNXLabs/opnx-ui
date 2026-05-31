@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace OPNX.UI.WPF.Controls.Primitives
+namespace OPNX.UI.WPF.Controls
 {
     /// <summary>
     /// DefaultControlIcon.xaml에 대한 상호 작용 논리
@@ -13,6 +13,7 @@ namespace OPNX.UI.WPF.Controls.Primitives
         }
     }
 }
+
 
 
 

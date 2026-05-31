@@ -1,0 +1,11 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxMultiView/OpnxMultiView.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxTreeListView/OpnxTreeListView.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxTextBox/OpnxTextBox.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxPasswordBox/OpnxPasswordBox.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxButton/OpnxButton.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxCheckBox/OpnxCheckBox.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

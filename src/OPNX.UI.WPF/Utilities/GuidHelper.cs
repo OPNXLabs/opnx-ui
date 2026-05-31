@@ -1,11 +1,11 @@
-using OPNX.UI.WPF.Controls.Primitives;
+﻿using OPNX.UI.WPF.Controls;
 using OPNX.UI.WPF.Infrastructure;
 using System.Windows;
 
 namespace OPNX.UI.WPF.Utilities
 {
     /// <summary>
-    /// UIElement Guid 매핑을 조회하고 관리하는 도우미.
+    /// UIElement Guid 留ㅽ븨??議고쉶?섍퀬 愿由ы븯???꾩슦誘?
     /// </summary>
     public static class GuidHelper
     {
@@ -138,3 +138,5 @@ namespace OPNX.UI.WPF.Utilities
         }
     }
 }
+
+

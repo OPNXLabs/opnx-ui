@@ -1,5 +1,4 @@
-﻿using OPNX.UI.WPF.Controls.Primitives;
-using OPNX.UI.WPF.Utilities;
+﻿using OPNX.UI.WPF.Utilities;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -7,7 +6,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
-namespace OPNX.UI.WPF.Controls.OpnxMultiView
+namespace OPNX.UI.WPF.Controls
 {
     /// <summary>
     /// Grid 컨트롤을 사용하지 않았다.
@@ -2765,6 +2764,8 @@ namespace OPNX.UI.WPF.Controls.OpnxMultiView
         #endregion
     }
 }
+
+
 
 
 

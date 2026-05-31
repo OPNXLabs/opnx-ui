@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace OPNX.UI.WPF.Controls.OpnxTreeListView
+namespace OPNX.UI.WPF.Controls
 {
     public sealed class OpnxTreeListViewTemplateColumn : System.Windows.Controls.DataGridTemplateColumn
     {
@@ -76,3 +76,4 @@ namespace OPNX.UI.WPF.Controls.OpnxTreeListView
         #endregion Public Properties
     }
 }
+

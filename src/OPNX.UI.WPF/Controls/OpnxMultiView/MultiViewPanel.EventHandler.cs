@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace OPNX.UI.WPF.Controls.OpnxMultiView
+namespace OPNX.UI.WPF.Controls
 {
     /// <summary>
     /// ControlledCellChangedEventArgs class.
@@ -182,4 +182,5 @@ namespace OPNX.UI.WPF.Controls.OpnxMultiView
     //    #endregion
     //}
 }
+
 

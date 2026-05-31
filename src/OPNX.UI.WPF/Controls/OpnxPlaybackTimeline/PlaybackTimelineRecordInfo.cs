@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OPNX.UI.WPF.Controls.OpnxPlaybackTimeline
+namespace OPNX.UI.WPF.Controls
 {
     public enum PlaybackTimelineRecordingType { Normal }
 
@@ -19,3 +19,4 @@ namespace OPNX.UI.WPF.Controls.OpnxPlaybackTimeline
         //}
     }
 }
+

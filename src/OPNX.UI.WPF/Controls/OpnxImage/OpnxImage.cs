@@ -12,7 +12,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace OPNX.UI.WPF.Controls.OpnxImage
+namespace OPNX.UI.WPF.Controls
 {
     public class OpnxImage : Image, IDisposable
     {
@@ -891,5 +891,6 @@ namespace OPNX.UI.WPF.Controls.OpnxImage
         #endregion
     }
 }
+
 
 

@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace OPNX.UI.WPF.Controls.Primitives
+namespace OPNX.UI.WPF.Controls
 {
     /// <summary>
     /// 모든 컨트롤의 최상위 정의.
@@ -1347,6 +1347,7 @@ namespace OPNX.UI.WPF.Controls.Primitives
     }
 
 }
+
 
 
 

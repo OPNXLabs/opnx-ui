@@ -7,7 +7,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace OPNX.UI.WPF.Controls.OpnxMultiView
+namespace OPNX.UI.WPF.Controls
 {
     public class MultiViewCell : ContentControl, IDisposable
     {
@@ -1048,6 +1048,7 @@ namespace OPNX.UI.WPF.Controls.OpnxMultiView
         //}
     }
 }
+
 
 
 

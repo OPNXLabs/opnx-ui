@@ -1,0 +1,85 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:OPNX.UI.WPF.Controls">
+
+    <Style x:Key="DefaultOpnxCheckBoxStyle"
+           TargetType="{x:Type local:OpnxCheckBox}">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="KeyboardNavigation.IsTabStop" Value="True" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:OpnxCheckBox}">
+                    <BulletDecorator HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                                     VerticalAlignment="{TemplateBinding VerticalAlignment}">
+                        <BulletDecorator.Bullet>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="0"
+                                      Width="{TemplateBinding CheckBoxWidth}"
+                                      Height="{TemplateBinding CheckBoxHeight}"
+                                      Background="{TemplateBinding Background}">
+                                    <Border Background="Transparent"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="{TemplateBinding CornerRadius}">
+                                        <Grid x:Name="CheckIconHost"
+                                              Width="{TemplateBinding CheckBoxIConWidth}"
+                                              Height="{TemplateBinding CheckBoxIConHeight}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center">
+                                            <Path x:Name="CheckIcon"
+                                                  Margin="0"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Data="F1 M 2.48437,9L -1.02756e-007,6L -6.30195e-008,3.42969L 2.54687,6.52344L 9,0.507813L 9,3L 2.48437,9 Z"
+                                                  Fill="{TemplateBinding CheckBoxIConForeground}"
+                                                  FlowDirection="LeftToRight"
+                                                  Opacity="1"
+                                                  Stretch="Fill" />
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+
+                                <TextBlock x:Name="ContentTextBlock"
+                                           Grid.Column="1"
+                                           Margin="{TemplateBinding TextMargin}"
+                                           VerticalAlignment="Center"
+                                           Background="Transparent"
+                                           Cursor="Arrow"
+                                           FontFamily="{TemplateBinding FontFamily}"
+                                           FontSize="{TemplateBinding FontSize}"
+                                           FontWeight="{TemplateBinding FontWeight}"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           IsHitTestVisible="False"
+                                           Text="{TemplateBinding Content}" />
+                            </Grid>
+                        </BulletDecorator.Bullet>
+                    </BulletDecorator>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="False">
+                            <Setter TargetName="CheckIcon" Property="Visibility" Value="Hidden" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style BasedOn="{StaticResource DefaultOpnxCheckBoxStyle}"
+           TargetType="{x:Type local:OpnxCheckBox}" />
+</ResourceDictionary>

@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace OPNX.UI.WPF.Controls.OpnxPlaybackTimeline
+namespace OPNX.UI.WPF.Controls
 {
     /// <summary>
     /// OpnxPlaybackTimelineCanvas.xaml에 대한 상호 작용 논리
@@ -1133,3 +1133,4 @@ namespace OPNX.UI.WPF.Controls.OpnxPlaybackTimeline
         //}
     }
 }
+

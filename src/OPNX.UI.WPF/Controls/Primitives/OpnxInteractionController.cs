@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace OPNX.UI.WPF.Controls.Primitives
+namespace OPNX.UI.WPF.Controls
 {
     /// <summary>
     /// 행위들에 대한 정의.
@@ -126,6 +126,7 @@ namespace OPNX.UI.WPF.Controls.Primitives
         public abstract void StylusSystemGesture(object sender, StylusSystemGestureEventArgs e);
     }
 }
+
 
 
 

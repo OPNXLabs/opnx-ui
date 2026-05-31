@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:OPNX.UI.WPF.Controls.OpnxTreeListView">
+                    xmlns:local="clr-namespace:OPNX.UI.WPF.Controls">
 
     <Color x:Key="OpnxTreeListView.SelectedBackgroundColor">#16abbd</Color>
     <Color x:Key="OpnxTreeListView.SelectedUnfocusedColor">#16abbd</Color>
@@ -697,3 +697,4 @@
     </Style>
 
 </ResourceDictionary>
+

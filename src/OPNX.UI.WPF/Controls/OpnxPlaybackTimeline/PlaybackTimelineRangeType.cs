@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OPNX.UI.WPF.Controls.OpnxPlaybackTimeline
+namespace OPNX.UI.WPF.Controls
 {
     public enum PlaybackTimelineRangeType
     {
@@ -18,3 +18,4 @@ namespace OPNX.UI.WPF.Controls.OpnxPlaybackTimeline
         D3,
     }
 }
+

@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace OPNX.UI.WPF.Controls.Primitives
+namespace OPNX.UI.WPF.Controls
 {
     public class SelectionFrame : UserControl, IInternalVisualElement
     {
@@ -183,6 +183,7 @@ namespace OPNX.UI.WPF.Controls.Primitives
         #endregion
     }
 }
+
 
 
 

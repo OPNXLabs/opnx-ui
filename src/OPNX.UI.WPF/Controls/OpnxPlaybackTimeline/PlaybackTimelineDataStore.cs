@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace OPNX.UI.WPF.Controls.OpnxPlaybackTimeline
+namespace OPNX.UI.WPF.Controls
 {
 	public class PlaybackTimelineDataStore
 	{
@@ -270,4 +270,5 @@ namespace OPNX.UI.WPF.Controls.OpnxPlaybackTimeline
 		}
 	}
 }
+
 

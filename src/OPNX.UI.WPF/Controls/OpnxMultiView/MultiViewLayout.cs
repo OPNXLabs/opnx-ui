@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace OPNX.UI.WPF.Controls.OpnxMultiView
+namespace OPNX.UI.WPF.Controls
 {
     public interface IMultiViewLayout
     {
@@ -23,4 +23,5 @@ namespace OPNX.UI.WPF.Controls.OpnxMultiView
         public Rect RectForCanvas { get; set; }
     }
 }
+
 

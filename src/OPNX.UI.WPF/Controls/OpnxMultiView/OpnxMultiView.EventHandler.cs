@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace OPNX.UI.WPF.Controls.OpnxMultiView
+namespace OPNX.UI.WPF.Controls
 {
     public class OpnxMultiViewSelectionChangedForStaticEventArgs(IList<MultiViewCell> selectedCells, OpnxMultiView sourceMultiView) : EventArgs
     {
@@ -165,4 +165,5 @@ namespace OPNX.UI.WPF.Controls.OpnxMultiView
     //    #endregion
     //}
 }
+
 

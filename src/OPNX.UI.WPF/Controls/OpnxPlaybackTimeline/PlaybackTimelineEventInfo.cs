@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Media;
 
-namespace OPNX.UI.WPF.Controls.OpnxPlaybackTimeline
+namespace OPNX.UI.WPF.Controls
 {
     public class PlaybackTimelineEventInfo(
         long startTimeUnixMS,
@@ -24,3 +24,4 @@ namespace OPNX.UI.WPF.Controls.OpnxPlaybackTimeline
         public int DrawHeightGap { get; set; } = 0;
     }
 }
+

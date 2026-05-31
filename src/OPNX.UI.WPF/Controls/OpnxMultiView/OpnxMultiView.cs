@@ -1,5 +1,4 @@
-﻿using OPNX.UI.WPF.Controls.Primitives;
-using OPNX.UI.WPF.Interactivity.DragDrop;
+﻿using OPNX.UI.WPF.Interactivity.DragDrop;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,7 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace OPNX.UI.WPF.Controls.OpnxMultiView
+namespace OPNX.UI.WPF.Controls
 {
     /// <summary>
     /// OpnxMultiView class.
@@ -2612,6 +2611,8 @@ namespace OPNX.UI.WPF.Controls.OpnxMultiView
         #endregion //Sync
     }
 }
+
+
 
 
 

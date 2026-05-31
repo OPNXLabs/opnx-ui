@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
 
-namespace OPNX.UI.WPF.Controls.OpnxTreeListView
+namespace OPNX.UI.WPF.Controls
 {
     public class TreeListViewNode : DependencyObject, INotifyPropertyChanged, INotifyPropertyChanging
     {
@@ -541,3 +541,4 @@ namespace OPNX.UI.WPF.Controls.OpnxTreeListView
         }
     }
 }
+

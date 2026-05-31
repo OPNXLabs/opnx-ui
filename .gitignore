@@ -6,3 +6,15 @@
 /src/OPNX.UI.WPF/.vs
 /src/OPNX.UI.WPF/obj
 /src/OPNX.UI.WPF/bin
+/src/.dotnet/.dotnet
+/src/.dotnet/.nuget/packages/ffmpeg.autogen/8.0.0.1
+/src/.dotnet/.nuget/packages/microsoft.netcore.platforms/1.1.0
+/src/.dotnet/.nuget/packages/netstandard.library/1.6.1
+/src/.dotnet/.nuget/packages/opnx.lib/0.1.0-preview.20260410.2
+/src/.dotnet/.nuget/packages/sharpdx/4.2.0
+/src/.dotnet/.nuget/packages/sharpdx.direct3d9/4.2.0/lib
+/src/.dotnet/.nuget/packages/sharpdx.direct3d9/4.2.0/.nupkg.metadata
+/src/.dotnet/.nuget/packages/sharpdx.direct3d9/4.2.0/.signature.p7s
+/src/.dotnet/.nuget/packages/sharpdx.direct3d9/4.2.0/sharpdx.direct3d9.4.2.0.nupkg
+/src/.dotnet/.nuget/packages/sharpdx.direct3d9/4.2.0/sharpdx.direct3d9.4.2.0.nupkg.sha512
+/src/.dotnet/.nuget/packages/sharpdx.direct3d9/4.2.0/sharpdx.direct3d9.nuspec

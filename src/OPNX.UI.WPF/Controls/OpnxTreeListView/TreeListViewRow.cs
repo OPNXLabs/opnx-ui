@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace OPNX.UI.WPF.Controls.OpnxTreeListView
+namespace OPNX.UI.WPF.Controls
 {
     public class TreeListViewRow : DataGridRow
     {
@@ -208,3 +208,4 @@ namespace OPNX.UI.WPF.Controls.OpnxTreeListView
         #endregion
     }
 }
+

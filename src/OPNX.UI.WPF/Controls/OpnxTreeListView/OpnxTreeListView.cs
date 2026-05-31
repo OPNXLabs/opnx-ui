@@ -9,7 +9,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace OPNX.UI.WPF.Controls.OpnxTreeListView
+namespace OPNX.UI.WPF.Controls
 {
     public class OpnxTreeListView : DataGrid
     {
@@ -493,3 +493,4 @@ namespace OPNX.UI.WPF.Controls.OpnxTreeListView
         }
     }
 }
+

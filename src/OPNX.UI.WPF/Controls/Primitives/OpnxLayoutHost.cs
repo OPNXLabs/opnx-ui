@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
 
-namespace OPNX.UI.WPF.Controls.Primitives
+namespace OPNX.UI.WPF.Controls
 {
     /// <summary>
     /// The process mode.
@@ -243,6 +243,7 @@ namespace OPNX.UI.WPF.Controls.Primitives
         }
     }
 }
+
 
 
 
