@@ -4,24 +4,34 @@
     <TargetFramework>net10.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x64</Platforms>
+    <Configurations>Debug;Release;ReleasePackage</Configurations>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Product>OPNX.UI.WPF</Product>
     <Description>OPNX WPF UI library for VMS, NVR, and real-time monitoring applications built on top of OPNX.Lib.</Description>
+    <UseLocalOpnxLib Condition="'$(UseLocalOpnxLib)' == ''">true</UseLocalOpnxLib>
+    <OpnxLibVersion Condition="'$(OpnxLibVersion)' == ''">0.1.0-preview.20260410.2</OpnxLibVersion>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Controls\OpnxPlaybackTimeline\OpnxPlaybackTimeline.Data.cs" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'ReleasePackage'">
+    <UseLocalOpnxLib>false</UseLocalOpnxLib>
+  </PropertyGroup>  
 
   <ItemGroup>
-    <PackageReference Include="FFmpeg.AutoGen" Version="8.0.0.1" />
-    <PackageReference Include="OPNX.Lib" Version="0.1.0-preview.20260410.2" />
+    <PackageReference Include="FFmpeg.AutoGen" Version="8.1.0" />
     <PackageReference Include="SharpDX" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct3D9" Version="4.2.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controls\OpnxTextBox\" />
+  <ItemGroup Condition="'$(UseLocalOpnxLib)' == 'true'">
+
+    <ProjectReference Include="..\..\..\opnx-lib-dev\src\OPNX.Lib.Common\OPNX.Lib.Common.csproj" />
+    <ProjectReference Include="..\..\..\opnx-lib-dev\src\OPNX.Lib.Data\OPNX.Lib.Data.csproj" />
+    <ProjectReference Include="..\..\..\opnx-lib-dev\src\OPNX.Lib.Media\OPNX.Lib.Media.csproj" />
+    <ProjectReference Include="..\..\..\opnx-lib-dev\src\OPNX.Lib.Network\OPNX.Lib.Network.csproj" />
+    <ProjectReference Include="..\..\..\opnx-lib-dev\src\OPNX.Lib.Streaming\OPNX.Lib.Streaming.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(UseLocalOpnxLib)' != 'true'">
+    <PackageReference Include="OPNX.Lib" Version="$(OpnxLibVersion)" />
+  </ItemGroup>
 </Project>

@@ -6,6 +6,8 @@
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxTextBox/OpnxTextBox.xaml" />
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxPasswordBox/OpnxPasswordBox.xaml" />
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxButton/OpnxButton.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxToggleButton/OpnxToggleButton.xaml" />
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxCheckBox/OpnxCheckBox.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxNavigator/OpnxNavigator.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

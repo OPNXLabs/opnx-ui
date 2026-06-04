@@ -1,8 +1,11 @@
+using OPNX.Lib.Common.Platform.Windows;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 
 namespace OPNX.UI.WPF.Controls
@@ -10,6 +13,7 @@ namespace OPNX.UI.WPF.Controls
     public partial class OpnxTitlebar : UserControl, INotifyPropertyChanged
     {
         private Window? _ownerWindow;
+        private HwndSource? _hwndSource;
         private bool _isWindowMaximized;
 
         public OpnxTitlebar()
@@ -368,16 +372,27 @@ namespace OPNX.UI.WPF.Controls
             if (_ownerWindow == null)
                 return;
 
+            _ownerWindow.SourceInitialized += OwnerWindow_SourceInitialized;
             _ownerWindow.StateChanged += OwnerWindow_StateChanged;
+            AttachWindowHook();
             UpdateWindowState();
         }
 
         private void OpnxTitlebar_Unloaded(object sender, RoutedEventArgs e)
         {
             if (_ownerWindow != null)
+            {
+                _ownerWindow.SourceInitialized -= OwnerWindow_SourceInitialized;
                 _ownerWindow.StateChanged -= OwnerWindow_StateChanged;
+            }
 
+            DetachWindowHook();
             _ownerWindow = null;
+        }
+
+        private void OwnerWindow_SourceInitialized(object? sender, EventArgs e)
+        {
+            AttachWindowHook();
         }
 
         private void OwnerWindow_StateChanged(object? sender, EventArgs e)
@@ -388,8 +403,7 @@ namespace OPNX.UI.WPF.Controls
         private void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
             var window = GetOwnerWindow();
-            if (window != null)
-                window.WindowState = WindowState.Minimized;
+            window?.WindowState = WindowState.Minimized;
         }
 
         private void MaximizeButton_Click(object sender, RoutedEventArgs e)
@@ -444,6 +458,70 @@ namespace OPNX.UI.WPF.Controls
         private void UpdateWindowState()
         {
             IsWindowMaximized = _ownerWindow?.WindowState == WindowState.Maximized;
+        }
+
+        private void AttachWindowHook()
+        {
+            if (_ownerWindow == null || _hwndSource != null)
+                return;
+
+            var windowHandle = new WindowInteropHelper(_ownerWindow).Handle;
+            if (windowHandle == IntPtr.Zero)
+                return;
+
+            _hwndSource = HwndSource.FromHwnd(windowHandle);
+            _hwndSource?.AddHook(WindowProc);
+        }
+
+        private void DetachWindowHook()
+        {
+            _hwndSource?.RemoveHook(WindowProc);
+            _hwndSource = null;
+        }
+
+        private IntPtr WindowProc(
+            IntPtr hwnd,
+            int message,
+            IntPtr wParam,
+            IntPtr lParam,
+            ref bool handled)
+        {
+            if (message == Win32.WM_GETMINMAXINFO)
+            {
+                UpdateMaximizedSize(hwnd, lParam);
+                handled = true;
+            }
+
+            return IntPtr.Zero;
+        }
+
+        private static void UpdateMaximizedSize(IntPtr hwnd, IntPtr lParam)
+        {
+            var monitor = Win32.MonitorFromWindow(
+                hwnd,
+                Win32.MonitorFromWindowFlags.DefaultToNearest);
+
+            if (monitor == IntPtr.Zero ||
+                !Win32.TryGetMonitorInfo(monitor, out var monitorInfo))
+            {
+                return;
+            }
+
+            var minMaxInfo = Marshal.PtrToStructure<Win32.MinMaxInfo>(lParam);
+
+            minMaxInfo.PtMaxPosition.X =
+                monitorInfo.RcWork.Left - monitorInfo.RcMonitor.Left;
+
+            minMaxInfo.PtMaxPosition.Y =
+                monitorInfo.RcWork.Top - monitorInfo.RcMonitor.Top;
+
+            minMaxInfo.PtMaxSize.X =
+                monitorInfo.RcWork.Right - monitorInfo.RcWork.Left;
+
+            minMaxInfo.PtMaxSize.Y =
+                monitorInfo.RcWork.Bottom - monitorInfo.RcWork.Top;
+
+            Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = "")
