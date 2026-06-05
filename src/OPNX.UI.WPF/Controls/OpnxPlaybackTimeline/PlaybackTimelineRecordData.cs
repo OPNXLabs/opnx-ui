@@ -1,7 +1,4 @@
 ﻿using OPNX.Lib.Data.ORM.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace OPNX.UI.WPF.Controls
 {

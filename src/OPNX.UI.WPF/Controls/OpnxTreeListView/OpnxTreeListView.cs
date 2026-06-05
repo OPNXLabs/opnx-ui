@@ -239,7 +239,7 @@ namespace OPNX.UI.WPF.Controls
             finally
             {
                 tree._isChangingItemsSource = false;
-            }         
+            }
         }
 
         protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
@@ -268,7 +268,7 @@ namespace OPNX.UI.WPF.Controls
         private void ApplyTreeColumn()
         {
             if (_treeColumn != null || TreeCellTemplate == null)
-                return;            
+                return;
 
             _treeColumn = TreeCellTemplate;
             base.Columns.Insert(0, _treeColumn);

@@ -2,6 +2,13 @@ OPNX License (Learning, Evaluation, Research, and Non-Commercial Use)
 
 Copyright (c) 2026 OPNX
 
+Important Notice Regarding Third-Party Components
+This license applies only to OPNX-owned code in this repository.
+Third-party components used by this repository remain subject to their own
+license terms, notices, and attribution requirements.
+Nothing in this license limits or replaces rights granted under any applicable
+third-party license.
+
 1. Grant of License
 This software and associated documentation (the "Software") are provided
 for learning, evaluation, research, testing, and other non-commercial use only.

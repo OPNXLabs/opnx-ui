@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace OPNX.UI.WPF.Controls
+﻿namespace OPNX.UI.WPF.Controls
 {
     public enum PlaybackTimelineRecordingType { Normal }
 
