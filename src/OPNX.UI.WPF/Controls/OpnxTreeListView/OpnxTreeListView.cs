@@ -7,12 +7,15 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace OPNX.UI.WPF.Controls
 {
     public class OpnxTreeListView : DataGrid
     {
+        private static readonly Brush DefaultColumnHeaderBackground = CreateDefaultColumnHeaderBackground();
+
         private readonly Dictionary<object, TreeListViewNode> _nodesByItem;
         private readonly List<TreeListViewNode> _rootNodes = [];
         private readonly List<object> _visibleItems;
@@ -24,6 +27,13 @@ namespace OPNX.UI.WPF.Controls
 
         private bool _isChangingItemsSource;
         private bool _wasPreviousLeftButtonDownHandled;
+
+        static OpnxTreeListView()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(typeof(OpnxTreeListView)));
+        }
 
         public OpnxTreeListView()
         {
@@ -46,7 +56,55 @@ namespace OPNX.UI.WPF.Controls
 
         public List<TreeListViewNode> RootNodes => _rootNodes;
 
-        public double IndentWidth { get; set; } = 8d;
+        public Brush ColumnHeaderBackground
+        {
+            get => (Brush)GetValue(ColumnHeaderBackgroundProperty);
+            set => SetValue(ColumnHeaderBackgroundProperty, value);
+        }
+
+        public static readonly DependencyProperty ColumnHeaderBackgroundProperty =
+            DependencyProperty.Register(
+                nameof(ColumnHeaderBackground),
+                typeof(Brush),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(DefaultColumnHeaderBackground));
+
+        private static Brush CreateDefaultColumnHeaderBackground()
+        {
+            var brush = new SolidColorBrush(Color.FromRgb(0x0D, 0x0D, 0x10));
+            brush.Freeze();
+            return brush;
+        }
+
+        public double IndentWidth
+        {
+            get => (double)GetValue(IndentWidthProperty);
+            set => SetValue(IndentWidthProperty, value);
+        }
+
+        public static readonly DependencyProperty IndentWidthProperty =
+            DependencyProperty.Register(
+                nameof(IndentWidth),
+                typeof(double),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(
+                    8d,
+                    FrameworkPropertyMetadataOptions.AffectsMeasure,
+                    OnIndentWidthChanged));
+
+        private static void OnIndentWidthChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var treeListView = (OpnxTreeListView)d;
+            var indentWidth = (double)e.NewValue;
+
+            foreach (object item in treeListView.Items)
+            {
+                if (treeListView.ItemContainerGenerator.ContainerFromItem(item) is TreeListViewRow row)
+                {
+                    row.UpdateIndent(indentWidth);
+                }
+            }
+        }
 
 
         public object TreeCellHeader
@@ -105,6 +163,74 @@ namespace OPNX.UI.WPF.Controls
 
         public static readonly DependencyProperty FilterTextProperty =
             DependencyProperty.Register(nameof(FilterText), typeof(string), typeof(OpnxTreeListView), new PropertyMetadata(string.Empty, OnFilterTextChanged));
+
+
+        public Brush? SelectedBackground
+        {
+            get => (Brush?)GetValue(SelectedBackgroundProperty);
+            set => SetValue(SelectedBackgroundProperty, value);
+        }
+
+        public static readonly DependencyProperty SelectedBackgroundProperty =
+            DependencyProperty.Register(
+                nameof(SelectedBackground),
+                typeof(Brush),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(null));
+
+        public Brush? MouseOverBackground
+        {
+            get => (Brush?)GetValue(MouseOverBackgroundProperty);
+            set => SetValue(MouseOverBackgroundProperty, value);
+        }
+
+        public static readonly DependencyProperty MouseOverBackgroundProperty =
+            DependencyProperty.Register(
+                nameof(MouseOverBackground),
+                typeof(Brush),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(null));
+
+        public double RowSpacing
+        {
+            get => (double)GetValue(RowSpacingProperty);
+            set => SetValue(RowSpacingProperty, value);
+        }
+
+        public static readonly DependencyProperty RowSpacingProperty =
+            DependencyProperty.Register(
+                nameof(RowSpacing),
+                typeof(double),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(
+                    0d,
+                    FrameworkPropertyMetadataOptions.AffectsMeasure,
+                    OnRowSpacingChanged,
+                    CoerceRowSpacing));
+
+        private static object CoerceRowSpacing(DependencyObject d, object baseValue)
+        {
+            return Math.Max(0d, (double)baseValue);
+        }
+
+        private static void OnRowSpacingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var treeListView = (OpnxTreeListView)d;
+
+            foreach (object item in treeListView.Items)
+            {
+                if (treeListView.ItemContainerGenerator.ContainerFromItem(item) is TreeListViewRow row)
+                {
+                    treeListView.ApplyRowSpacing(row);
+                }
+            }
+        }
+
+        private void ApplyRowSpacing(TreeListViewRow row)
+        {
+            row.Margin = new Thickness(0, 0, 0, RowSpacing);
+        }
+
 
         private static void OnFilterTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -301,6 +427,7 @@ namespace OPNX.UI.WPF.Controls
             //row.Resources["Part_TreeGrid_TreeCell_Default"] = this.TreeCellBinding ?? this.TreeCell;
 
             base.PrepareContainerForItemOverride(element, item);
+            ApplyRowSpacing(row);
             //BindingBase binding;
             //if (this.TreeCellBinding == null) { binding = new Binding(nameof(TreeCell)) { Source = this }; }
             //else
@@ -310,6 +437,7 @@ namespace OPNX.UI.WPF.Controls
             if (_nodesByItem.TryGetValue(item, out var node))
             {
                 row.SetNode(node);
+                row.UpdateIndent(IndentWidth);
             }
             //ctlData.TreeGridRow = row;
             //BindingOperations.SetBinding(row.TreeRowCtlData, TreeRowCtlData.TreeCellProperty, binding);

@@ -48,6 +48,24 @@ namespace OPNX.UI.WPF.Controls
             typeof(OpnxTitlebar),
             new PropertyMetadata(new Thickness(16, 0, 16, 0)));
 
+        public static readonly DependencyProperty TitleContentProperty = DependencyProperty.Register(
+            nameof(TitleContent),
+            typeof(object),
+            typeof(OpnxTitlebar),
+            new PropertyMetadata(null));
+
+        public static readonly DependencyProperty TitleContentTemplateProperty = DependencyProperty.Register(
+            nameof(TitleContentTemplate),
+            typeof(DataTemplate),
+            typeof(OpnxTitlebar),
+            new PropertyMetadata(null));
+
+        public static readonly DependencyProperty TitleContentMarginProperty = DependencyProperty.Register(
+            nameof(TitleContentMargin),
+            typeof(Thickness),
+            typeof(OpnxTitlebar),
+            new PropertyMetadata(new Thickness(0)));
+
         public static readonly DependencyProperty RightContentProperty = DependencyProperty.Register(
             nameof(RightContent),
             typeof(object),
@@ -208,6 +226,24 @@ namespace OPNX.UI.WPF.Controls
         {
             get => (Thickness)GetValue(LogoMarginProperty);
             set => SetValue(LogoMarginProperty, value);
+        }
+
+        public object? TitleContent
+        {
+            get => GetValue(TitleContentProperty);
+            set => SetValue(TitleContentProperty, value);
+        }
+
+        public DataTemplate? TitleContentTemplate
+        {
+            get => (DataTemplate?)GetValue(TitleContentTemplateProperty);
+            set => SetValue(TitleContentTemplateProperty, value);
+        }
+
+        public Thickness TitleContentMargin
+        {
+            get => (Thickness)GetValue(TitleContentMarginProperty);
+            set => SetValue(TitleContentMarginProperty, value);
         }
 
         public object? RightContent

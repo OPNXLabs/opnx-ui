@@ -278,7 +278,7 @@
                         <local:MultiViewPanel x:Name="xMultiViewPanel" Background="{TemplateBinding Background}" Margin="0,-1,0,0" Panel.ZIndex="0" ZoomCanvas="{Binding ElementName=xZoomControl}"/>
 
                         <Rectangle x:Name="xSelectionRect" StrokeThickness="2" IsHitTestVisible="False"
-								   Fill="{x:Null}" Stroke="#18B8C9"
+								   Fill="{x:Null}" Stroke="#4A6FE3"
 								   Visibility="{Binding Path=SelectionVisibility, RelativeSource={RelativeSource TemplatedParent}}"
 								   Margin="{Binding Path=SelectionMargin, RelativeSource={RelativeSource TemplatedParent}}"/>
                         <Rectangle x:Name="xHighlightRect" StrokeThickness="2" IsHitTestVisible="False"
@@ -307,7 +307,7 @@
 
                         <Trigger Property="HighlightBorderStyle" Value="SelectionEnabled">
                             <!--<Setter TargetName="xHighlightRect" Property="Fill" Value="#7FFFFF00"/>-->
-                            <Setter TargetName="xHighlightRect" Property="Stroke" Value="#FFB301"/>
+                            <Setter TargetName="xHighlightRect" Property="Stroke" Value="#A5B6C8"/>
                             <Setter TargetName="xHighlightRect" Property="StrokeThickness" Value="1.5"/>
                         </Trigger>
                         <Trigger Property="HighlightBorderStyle" Value="SelectionDisabled">

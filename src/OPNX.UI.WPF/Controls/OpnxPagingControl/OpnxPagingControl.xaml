@@ -1,0 +1,199 @@
+﻿<UserControl x:Class="OPNX.UI.WPF.Controls.OpnxPagingControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:OPNX.UI.WPF.Controls"
+             mc:Ignorable="d"
+             d:DesignHeight="40"
+             d:DesignWidth="300"
+             Background="Transparent"
+             BorderBrush="Transparent"
+             BorderThickness="0"
+             x:Name="pagingControl1"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <UserControl.Resources>
+        <Style x:Key="PagingToggleButtonStyle" TargetType="{x:Type ToggleButton}">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{Binding PageButtonForeground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}" />
+            <Setter Property="FontStyle" Value="Normal" />
+            <Setter Property="FontFamily" Value="NanumBarunGothic" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="{Binding PageButtonBorderBrush, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}"
+                                BorderThickness="{Binding PageButtonBorderThickness, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}"
+                                CornerRadius="{Binding PageButtonCornerRadius, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}"
+                                Background="{Binding PageButtonBackground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}">
+                            <ContentPresenter x:Name="Content"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="OuterBorder" Property="Opacity" Value="{Binding PageButtonMouseOverOpacity, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}" />
+                                <Setter TargetName="Content" Property="Opacity" Value="{Binding PageButtonMouseOverOpacity, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="OuterBorder" Property="Background" Value="{Binding PageButtonSelectedBackground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}" />
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{Binding PageButtonSelectedBorderBrush, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}" />
+                                <Setter Property="Foreground" Value="{Binding PageButtonSelectedForeground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="OuterBorder" Property="Background" Value="{Binding PageButtonDisabledBackground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}" />
+                                <Setter Property="Foreground" Value="{Binding PageButtonDisabledForeground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}" />
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{Binding PageButtonDisabledBorderBrush, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="Transparent">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Button x:Name="btnPrev"
+                Grid.Column="0"
+                Margin="0,0,5,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Cursor="Hand"
+                Click="btnPrev_Click"
+                Visibility="{Binding PrevButtonVisibility, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Polygon x:Name="PrevIcon"
+                                 Points="0,5.5 10,0 10,11"
+                                 Fill="{Binding MoveButtonForeground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}"
+                                 VerticalAlignment="Center"
+                                 Margin="3,0,0,0"
+                                 IsHitTestVisible="True" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="PrevIcon" Property="Opacity" Value="{Binding MoveButtonMouseOverOpacity, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="PrevIcon" Property="Opacity" Value="1" />
+                            <Setter TargetName="PrevIcon" Property="Fill" Value="{Binding MoveButtonPressedForeground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+
+        <ListBox x:Name="listBox1"
+                 Grid.Column="1"
+                 Margin="0"
+                 ItemsSource="{Binding PagingItems, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                 HorizontalContentAlignment="Center"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 VerticalContentAlignment="Center"
+                 SelectionMode="Single"
+                 SelectedItem="{Binding SelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 BorderBrush="Transparent"
+                 BorderThickness="0"
+                 Background="Transparent"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ScrollViewer.VerticalScrollBarVisibility="Disabled">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <!--<WrapPanel Orientation="Horizontal" />-->
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                <ContentPresenter />
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <EventSetter Event="PreviewMouseDown" Handler="ListBoxItem_PreviewMouseDown" />
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <ToggleButton x:Name="tbPageNum"
+                                  Cursor="Hand"
+                                  BorderBrush="Transparent"
+                                  BorderThickness="0"
+                                  Style="{StaticResource PagingToggleButtonStyle}"
+                                  Width="{Binding PageButtonWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}"
+                                  Height="{Binding PageButtonHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}"
+                                  Margin="{Binding PageButtonMargin, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}"
+                                  Content="{Binding Content}"
+                                  IsThreeState="False"
+                                  IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  IsEnabled="{Binding IsEnabled, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Click="ToggleButton_Click"
+                                  ToolTipOpening="ToolTip_ToolTipOpening">
+                        <ToggleButton.ToolTip>
+                            <ToolTip DataContext="{Binding PlacementTarget, RelativeSource={RelativeSource Self}}">
+                                <ToolTip.Template>
+                                    <ControlTemplate TargetType="ToolTip">
+                                        <Border Background="Transparent"
+                                                Padding="0"
+                                                BorderBrush="#55596B"
+                                                BorderThickness="1.75"
+                                                Width="400"
+                                                Height="300">
+                                            <Image Source="{Binding PageNumToolTipContent, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}"
+                                                   Stretch="Fill" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToolTip.Template>
+                            </ToolTip>
+                        </ToggleButton.ToolTip>
+                    </ToggleButton>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <Button x:Name="btnNext"
+                Grid.Column="2"
+                Margin="5,0,0,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Cursor="Hand"
+                Click="btnNext_Click"
+                Visibility="{Binding NextButtonVisibility, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Polygon x:Name="NextIcon"
+                                 Points="0,0 10,5.5 0,10"
+                                 Fill="{Binding MoveButtonForeground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}"
+                                 VerticalAlignment="Center"
+                                 Margin="3,0,0,0"
+                                 IsHitTestVisible="True" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="NextIcon" Property="Opacity" Value="{Binding MoveButtonMouseOverOpacity, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="NextIcon" Property="Opacity" Value="1" />
+                            <Setter TargetName="NextIcon" Property="Fill" Value="{Binding MoveButtonPressedForeground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+    </Grid>
+</UserControl>
+

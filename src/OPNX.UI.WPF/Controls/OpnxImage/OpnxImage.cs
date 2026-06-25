@@ -4,6 +4,7 @@ using SharpDX;
 using SharpDX.Direct3D9;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -112,9 +113,6 @@ namespace OPNX.UI.WPF.Controls
             }
             else
             {
-                if (_backSurface == null)
-                    return;
-
                 Format format = Format.A8R8G8B8;
                 switch ((AVPixelFormat)frame->format)
                 {
@@ -130,10 +128,10 @@ namespace OPNX.UI.WPF.Controls
                         break;
                 }
 
-                if (!CreateBackSurface(d3dDevice, format, frame->width, frame->height))
+                if (!TryCreateBackSurface(d3dDevice, format, frame->width, frame->height, out Surface? backSurface))
                     return;
 
-                DataRectangle dataRectangle = _backSurface.LockRectangle(LockFlags.None);
+                DataRectangle dataRectangle = backSurface.LockRectangle(LockFlags.None);
                 IntPtr dataPointer = dataRectangle.DataPointer;
                 int stride = dataRectangle.Pitch;
 
@@ -393,8 +391,10 @@ namespace OPNX.UI.WPF.Controls
         //    }
         //}
 
-        private bool CreateBackSurface(DeviceEx d3dDevice, Format format, int width, int height)
+        private bool TryCreateBackSurface(DeviceEx d3dDevice, Format format, int width, int height, [NotNullWhen(true)] out Surface? backSurface)
         {
+            backSurface = null;
+
             if (_isDisposed || d3dDevice == null || d3dDevice.IsDisposed)
                 return false;
 
@@ -409,13 +409,15 @@ namespace OPNX.UI.WPF.Controls
                     _backSurface = Surface.CreateOffscreenPlain(d3dDevice, width, height, format, Pool.Default);
                     _backSurfaceFormat = format;
                 }
+
+                backSurface = _backSurface;
+                return backSurface != null;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
+                return false;
             }
-
-            return _backSurface != null;
         }
 
         private void SetBackBuffer(Surface? surface) // surface가 null 가능

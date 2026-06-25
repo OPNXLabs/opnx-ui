@@ -4,10 +4,16 @@
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxMultiView/OpnxMultiView.xaml" />
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxTreeListView/OpnxTreeListView.xaml" />
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxTextBox/OpnxTextBox.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxNumericBox/OpnxNumericBox.xaml" />
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxPasswordBox/OpnxPasswordBox.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxArcButton/OpnxArcButton.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxRoundRectButton/OpnxRoundRectButton.xaml" />
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxButton/OpnxButton.xaml" />
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxToggleButton/OpnxToggleButton.xaml" />
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxCheckBox/OpnxCheckBox.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxTabItem/OpnxTabItem.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxTabControl/OpnxTabControl.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxComboBox/OpnxComboBox.xaml" />
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxNavigator/OpnxNavigator.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

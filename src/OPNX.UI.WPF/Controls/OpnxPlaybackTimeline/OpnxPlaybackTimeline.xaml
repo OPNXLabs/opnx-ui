@@ -205,7 +205,7 @@
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="border" Background="Black" BorderBrush="Transparent" BorderThickness="0" >
-                                        <Image Width="15" Height="15" Source="/OnEyes.Client.Shared;component/Resources/Common/Plus_Normal.png" Stretch="Fill"  HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
+                                        <Image Width="15" Height="15" Source="/OnEyes.Client.Shared;component/Resources/Common/Plus.png" Stretch="Fill"  HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
                                     </Border>
 
                                     <ControlTemplate.Triggers>
@@ -223,7 +223,7 @@
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="border" Background="Black" BorderBrush="Transparent" BorderThickness="0" >
-                                        <Image Width="15" Height="15" Source="/OnEyes.Client.Shared;component/Resources/Common/Minus_Normal.png" Stretch="Fill"  HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
+                                        <Image Width="15" Height="15" Source="/OnEyes.Client.Shared;component/Resources/Common/Minus.png" Stretch="Fill"  HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
                                     </Border>
 
                                     <ControlTemplate.Triggers>

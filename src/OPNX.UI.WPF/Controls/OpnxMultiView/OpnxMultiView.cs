@@ -1065,7 +1065,7 @@ namespace OPNX.UI.WPF.Controls
         /// The is lock all.
         /// </param>
 
-        public void Init(int rowCount, int columnCount, bool isSelectionAll, bool isLocked, FrameworkElement initElement)
+        public void Init(int rowCount, int columnCount, bool isSelectionAll, bool isLocked, FrameworkElement? initElement)
         {
             if (this._multiViewPanel == null)
             {

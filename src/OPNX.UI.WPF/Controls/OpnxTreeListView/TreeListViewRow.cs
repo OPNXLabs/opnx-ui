@@ -8,6 +8,8 @@ namespace OPNX.UI.WPF.Controls
 {
     public class TreeListViewRow : DataGridRow
     {
+        private double _indentWidth;
+
         #region Properties
 
         public TreeListViewNode? Node { get; private set; }
@@ -101,11 +103,35 @@ namespace OPNX.UI.WPF.Controls
                 nameof(TreeLevel),
                 typeof(int),
                 typeof(TreeListViewRow),
-                new PropertyMetadata(0));
+                new PropertyMetadata(0, OnTreeLevelChanged));
+
+        public double Indent
+        {
+            get => (double)GetValue(IndentProperty);
+            private set => SetValue(IndentPropertyKey, value);
+        }
+
+        private static readonly DependencyPropertyKey IndentPropertyKey =
+            DependencyProperty.RegisterReadOnly(
+                nameof(Indent),
+                typeof(double),
+                typeof(TreeListViewRow),
+                new FrameworkPropertyMetadata(
+                    0d,
+                    FrameworkPropertyMetadataOptions.AffectsMeasure));
+
+        public static readonly DependencyProperty IndentProperty =
+            IndentPropertyKey.DependencyProperty;
 
         #endregion
 
         #region Private / Protected Methods
+
+        internal void UpdateIndent(double indentWidth)
+        {
+            _indentWidth = Math.Max(0d, indentWidth);
+            Indent = _indentWidth * TreeLevel;
+        }
 
         internal void SetNode(TreeListViewNode node)
         {
@@ -183,26 +209,43 @@ namespace OPNX.UI.WPF.Controls
                 return;
 
             row.Node?.Expanded = expanded;
-            row?.DetailsVisibility = expanded ? Visibility.Visible : Visibility.Collapsed;
+            if (row.DetailsTemplate != null)
+                row?.DetailsVisibility = expanded ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private static void OnTreeLevelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is TreeListViewRow row)
+            {
+                row.Indent = row._indentWidth * (int)e.NewValue;
+            }
         }
 
         protected override void OnPreviewMouseDoubleClick(MouseButtonEventArgs e)
         {
-            base.OnPreviewMouseDoubleClick(e);
-
             if (e.LeftButton != MouseButtonState.Pressed)
+            {
+                base.OnPreviewMouseDoubleClick(e);
                 return;
+            }
 
             if (HasChild)
             {
+                e.Handled = true;
                 Expanded = !Expanded;
+                return;
             }
-            else if (DetailsTemplate != null)
+
+            if (DetailsTemplate != null)
             {
+                e.Handled = true;
                 DetailsVisibility = DetailsVisibility == Visibility.Collapsed
                     ? Visibility.Visible
                     : Visibility.Collapsed;
+                return;
             }
+
+            base.OnPreviewMouseDoubleClick(e);
         }
 
         #endregion

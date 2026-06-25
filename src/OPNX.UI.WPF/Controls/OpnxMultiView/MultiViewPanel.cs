@@ -382,7 +382,7 @@ namespace OPNX.UI.WPF.Controls
         {
             this.ClearInternal();
 
-            this._selectionArea = Rect.Empty;
+            this.SelectionArea = Rect.Empty;
             this.IsSelectionEnabled = false;
         }
 
@@ -746,7 +746,7 @@ namespace OPNX.UI.WPF.Controls
                 }
             }
 
-            this._selectionArea = Rect.Empty;
+            this.SelectionArea = Rect.Empty;
             this.IsSelectionEnabled = true;
 
             this.CellAdded?.Invoke(this, new CellAddedArgs(addedList));
@@ -936,13 +936,13 @@ namespace OPNX.UI.WPF.Controls
 
         internal void SelectionAll()
         {
-            this._selectionArea = new Rect(0, 0, DEFAULT_SIZE, DEFAULT_SIZE);
+            this.SelectionArea = new Rect(0, 0, DEFAULT_SIZE, DEFAULT_SIZE);
             this.IsSelectionEnabled = true;
         }
 
         internal void SelectionClear()
         {
-            this._selectionArea = Rect.Empty;
+            this.SelectionArea = Rect.Empty;
             this.IsSelectionEnabled = true;
         }
 
@@ -1452,10 +1452,10 @@ namespace OPNX.UI.WPF.Controls
                 var currentZoomedCell = _zoomedCell;
                 if (currentZoomedCell != null)
                 {
-                    ZoomedCellChanged?.Invoke(this, new ZoomedCellChangeEventArgs(currentZoomedCell));
-                    Zoommed(currentZoomedCell);
+                    ZoomedCellChanged?.Invoke(this, new ZoomedCellChangeEventArgs(currentZoomedCell));                    
                 }
 
+                Zoommed(currentZoomedCell);
                 IsBusyForZoom = false;
                 onComplete?.Invoke();
             }
@@ -1789,7 +1789,7 @@ namespace OPNX.UI.WPF.Controls
                 else
                 {
                     this._controlledCell = value;
-                    this._selectionArea = GetLocation(value);
+                    this.SelectionArea = GetLocation(value);
                 }
             }
 
@@ -2416,7 +2416,7 @@ namespace OPNX.UI.WPF.Controls
                 return;
             }
 
-            this._zoomedCell = this._zoomedCell == cell ? null : cell;
+            this.ZoomedCell = this._zoomedCell == cell ? null : cell;
             this._lastClickTime = DateTime.Now;
         }
 
@@ -2439,7 +2439,7 @@ namespace OPNX.UI.WPF.Controls
                 return true;
             }
 
-            this._zoomedCell = this._zoomedCell == cell ? null : cell;
+            this.ZoomedCell = this._zoomedCell == cell ? null : cell;
             this._lastClickTime = DateTime.Now;
 
             return this._zoomedCell == cell;
@@ -2449,7 +2449,7 @@ namespace OPNX.UI.WPF.Controls
         {
             if (sender is MultiViewCell cell)
             {
-                _selectionArea = GetLocation(cell);
+                SelectionArea = GetLocation(cell);
             }
 
             //var cell = sender as Cell;
@@ -2517,13 +2517,13 @@ namespace OPNX.UI.WPF.Controls
             {
                 if (CheckSelectionEnabled(loc) && !RegionHelper.IsRectContains(this._selectionArea, loc, 0))
                 {
-                    _selectionArea = Rect.Union(this._selectionArea, loc);
+                    SelectionArea = Rect.Union(this._selectionArea, loc);
                 }
                 return;
             }
 
             // 단일 선택 모드
-            _selectionArea = loc;
+            SelectionArea = loc;
 
             //// Shift 키가 눌려 있는 경우
             //if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))

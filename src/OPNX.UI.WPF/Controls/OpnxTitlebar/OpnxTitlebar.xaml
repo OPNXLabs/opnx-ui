@@ -67,7 +67,25 @@
                Margin="{Binding LogoMargin, ElementName=titlebar}"
                Source="{Binding LogoSource, ElementName=titlebar}"
                Stretch="Uniform"
-               VerticalAlignment="Center" />
+               VerticalAlignment="Center">
+            <Image.Style>
+                <Style TargetType="{x:Type Image}">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding LogoSource, ElementName=titlebar}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Image.Style>
+        </Image>
+
+        <ContentPresenter Grid.Column="1"
+                          Margin="{Binding TitleContentMargin, ElementName=titlebar}"
+                          Content="{Binding TitleContent, ElementName=titlebar}"
+                          ContentTemplate="{Binding TitleContentTemplate, ElementName=titlebar}"
+                          VerticalAlignment="Center"
+                          WindowChrome.IsHitTestVisibleInChrome="True" />
 
         <ContentPresenter Grid.Column="2"
                           Margin="{Binding RightContentMargin, ElementName=titlebar}"

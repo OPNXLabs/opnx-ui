@@ -1,0 +1,100 @@
+<UserControl x:Class="OPNX.UI.WPF.Controls.OpnxIpTextBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:OPNX.UI.WPF.Controls"
+             x:Name="Root"
+             FocusManager.IsFocusScope="True">
+    <Grid Background="{Binding Background, ElementName=Root}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <local:OpnxTextBox x:Name="FirstSegment"
+                           Grid.Column="0"
+                           Background="Transparent"
+                           BorderThickness="0"
+                           CaretBrush="{Binding Foreground, ElementName=Root}"
+                           ClearButtonEnabled="False"
+                           Foreground="{Binding Foreground, ElementName=Root}"
+                           HorizontalContentAlignment="Center"
+                           MaxLength="3"
+                           Padding="0"
+                           PreviewKeyDown="Segment_PreviewKeyDown"
+                           PreviewTextInput="Segment_PreviewTextInput"
+                           TextChanged="Segment_TextChanged"
+                           VerticalContentAlignment="Center"
+                           DataObject.Pasting="Segment_Pasting" />
+        <TextBlock Grid.Column="1"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="{Binding Foreground, ElementName=Root}"
+                   IsHitTestVisible="False"
+                   Text="." />
+
+        <local:OpnxTextBox x:Name="SecondSegment"
+                           Grid.Column="2"
+                           Background="Transparent"
+                           BorderThickness="0"
+                           CaretBrush="{Binding Foreground, ElementName=Root}"
+                           ClearButtonEnabled="False"
+                           Foreground="{Binding Foreground, ElementName=Root}"
+                           HorizontalContentAlignment="Center"
+                           MaxLength="3"
+                           Padding="0"
+                           PreviewKeyDown="Segment_PreviewKeyDown"
+                           PreviewTextInput="Segment_PreviewTextInput"
+                           TextChanged="Segment_TextChanged"
+                           VerticalContentAlignment="Center"
+                           DataObject.Pasting="Segment_Pasting" />
+        <TextBlock Grid.Column="3"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="{Binding Foreground, ElementName=Root}"
+                   IsHitTestVisible="False"
+                   Text="." />
+
+        <local:OpnxTextBox x:Name="ThirdSegment"
+                           Grid.Column="4"
+                           Background="Transparent"
+                           BorderThickness="0"
+                           CaretBrush="{Binding Foreground, ElementName=Root}"
+                           ClearButtonEnabled="False"
+                           Foreground="{Binding Foreground, ElementName=Root}"
+                           HorizontalContentAlignment="Center"
+                           MaxLength="3"
+                           Padding="0"
+                           PreviewKeyDown="Segment_PreviewKeyDown"
+                           PreviewTextInput="Segment_PreviewTextInput"
+                           TextChanged="Segment_TextChanged"
+                           VerticalContentAlignment="Center"
+                           DataObject.Pasting="Segment_Pasting" />
+        <TextBlock Grid.Column="5"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="{Binding Foreground, ElementName=Root}"
+                   IsHitTestVisible="False"
+                   Text="." />
+
+        <local:OpnxTextBox x:Name="FourthSegment"
+                           Grid.Column="6"
+                           Background="Transparent"
+                           BorderThickness="0"
+                           CaretBrush="{Binding Foreground, ElementName=Root}"
+                           ClearButtonEnabled="False"
+                           Foreground="{Binding Foreground, ElementName=Root}"
+                           HorizontalContentAlignment="Center"
+                           MaxLength="3"
+                           Padding="0"
+                           PreviewKeyDown="Segment_PreviewKeyDown"
+                           PreviewTextInput="Segment_PreviewTextInput"
+                           TextChanged="Segment_TextChanged"
+                           VerticalContentAlignment="Center"
+                           DataObject.Pasting="Segment_Pasting" />
+    </Grid>
+</UserControl>
