@@ -137,18 +137,21 @@
                                  IsReadOnly="{TemplateBinding IsReadOnly}"
                                  Visibility="Hidden" />
 
-                        <TextBlock x:Name="PlaceholderTextBlock"
-                                   Margin="{TemplateBinding Padding}"
-                                   HorizontalAlignment="Stretch"
-                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                   Background="Transparent"
-                                   Focusable="False"
-                                   FontFamily="{TemplateBinding FontFamily}"
-                                   FontSize="{TemplateBinding FontSize}"
-                                   Foreground="{TemplateBinding PlaceholderForeground}"
-                                   IsHitTestVisible="False"
-                                   Text="{TemplateBinding PlaceholderText}"
-                                   Visibility="Collapsed" />
+                        <Grid Margin="{TemplateBinding Padding}"
+                              IsHitTestVisible="False">
+                            <TextBlock x:Name="PlaceholderTextBlock"
+                                       Margin="{TemplateBinding PlaceholderTextMargin}"
+                                       HorizontalAlignment="Stretch"
+                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                       Background="Transparent"
+                                       Focusable="False"
+                                       FontFamily="{TemplateBinding FontFamily}"
+                                       FontSize="{TemplateBinding FontSize}"
+                                       Foreground="{TemplateBinding PlaceholderForeground}"
+                                       IsHitTestVisible="False"
+                                       Text="{TemplateBinding PlaceholderText}"
+                                       Visibility="Collapsed" />
+                        </Grid>
 
                         <Popup x:Name="PART_Popup"
                                AllowsTransparency="True"

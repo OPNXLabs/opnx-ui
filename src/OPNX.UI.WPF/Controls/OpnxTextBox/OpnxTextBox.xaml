@@ -88,7 +88,15 @@
             <Trigger Property="PlaceholderEnabled" Value="False">
                 <Setter TargetName="PlaceholderTextBlock" Property="Visibility" Value="Collapsed" />
             </Trigger>
-            <Trigger Property="ShowClearButton" Value="False">
+            <Trigger Property="ClearButtonEnabled" Value="False">
+                <Setter TargetName="PART_ClearButton" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="PART_ClearButton" Property="Margin" Value="0" />
+            </Trigger>
+            <Trigger Property="Text" Value="">
+                <Setter TargetName="PART_ClearButton" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="PART_ClearButton" Property="Margin" Value="0" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="False">
                 <Setter TargetName="PART_ClearButton" Property="Visibility" Value="Collapsed" />
                 <Setter TargetName="PART_ClearButton" Property="Margin" Value="0" />
             </Trigger>

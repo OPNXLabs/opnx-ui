@@ -5,6 +5,14 @@ using System.Windows.Media;
 
 namespace OPNX.UI.WPF.Controls
 {
+    public enum OpnxIconPlacement
+    {
+        Left,
+        Top,
+        Right,
+        Bottom
+    }
+
     public class OpnxToggleButton : ToggleButton
     {
         static OpnxToggleButton()
@@ -98,11 +106,35 @@ namespace OPNX.UI.WPF.Controls
             typeof(OpnxToggleButton),
             new PropertyMetadata(0.5d));
 
-        public static readonly DependencyProperty IconSourceProperty = DependencyProperty.Register(
-            nameof(IconSource),
+        public static readonly DependencyProperty CheckedIconSourceProperty = DependencyProperty.Register(
+            nameof(CheckedIconSource),
+            typeof(ImageSource),
+            typeof(OpnxToggleButton),
+            new PropertyMetadata(null, OnIconSourceChanged));
+
+        public static readonly DependencyProperty UncheckedIconSourceProperty = DependencyProperty.Register(
+            nameof(UncheckedIconSource),
+            typeof(ImageSource),
+            typeof(OpnxToggleButton),
+            new PropertyMetadata(null, OnIconSourceChanged));
+
+        public static readonly DependencyProperty CurrentIconSourceProperty = DependencyProperty.Register(
+            nameof(CurrentIconSource),
             typeof(ImageSource),
             typeof(OpnxToggleButton),
             new PropertyMetadata(null));
+
+        public static readonly DependencyProperty HasIconSourceProperty = DependencyProperty.Register(
+            nameof(HasIconSource),
+            typeof(bool),
+            typeof(OpnxToggleButton),
+            new PropertyMetadata(false));
+
+        public static readonly DependencyProperty IconPlacementProperty = DependencyProperty.Register(
+            nameof(IconPlacement),
+            typeof(OpnxIconPlacement),
+            typeof(OpnxToggleButton),
+            new PropertyMetadata(OpnxIconPlacement.Top));
 
         public static readonly DependencyProperty IconWidthProperty = DependencyProperty.Register(
             nameof(IconWidth),
@@ -127,6 +159,14 @@ namespace OPNX.UI.WPF.Controls
             typeof(Stretch),
             typeof(OpnxToggleButton),
             new PropertyMetadata(Stretch.Uniform));
+
+        public OpnxToggleButton()
+        {
+            Checked += (_, _) => UpdateCurrentIconSource();
+            Unchecked += (_, _) => UpdateCurrentIconSource();
+            Indeterminate += (_, _) => UpdateCurrentIconSource();
+            UpdateCurrentIconSource();
+        }
 
         [Bindable(true), Category("Appearance")]
         public CornerRadius CornerRadius
@@ -227,10 +267,38 @@ namespace OPNX.UI.WPF.Controls
         }
 
         [Bindable(true), Category("Appearance")]
-        public ImageSource? IconSource
+        public ImageSource? CheckedIconSource
         {
-            get => (ImageSource?)GetValue(IconSourceProperty);
-            set => SetValue(IconSourceProperty, value);
+            get => (ImageSource?)GetValue(CheckedIconSourceProperty);
+            set => SetValue(CheckedIconSourceProperty, value);
+        }
+
+        [Bindable(true), Category("Appearance")]
+        public ImageSource? UncheckedIconSource
+        {
+            get => (ImageSource?)GetValue(UncheckedIconSourceProperty);
+            set => SetValue(UncheckedIconSourceProperty, value);
+        }
+
+        [Bindable(true), Category("Appearance")]
+        public ImageSource? CurrentIconSource
+        {
+            get => (ImageSource?)GetValue(CurrentIconSourceProperty);
+            private set => SetValue(CurrentIconSourceProperty, value);
+        }
+
+        [Bindable(true), Category("Appearance")]
+        public bool HasIconSource
+        {
+            get => (bool)GetValue(HasIconSourceProperty);
+            private set => SetValue(HasIconSourceProperty, value);
+        }
+
+        [Bindable(true), Category("Appearance")]
+        public OpnxIconPlacement IconPlacement
+        {
+            get => (OpnxIconPlacement)GetValue(IconPlacementProperty);
+            set => SetValue(IconPlacementProperty, value);
         }
 
         [Bindable(true), Category("Appearance")]
@@ -259,6 +327,24 @@ namespace OPNX.UI.WPF.Controls
         {
             get => (Stretch)GetValue(IconStretchProperty);
             set => SetValue(IconStretchProperty, value);
+        }
+
+        private static void OnIconSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is OpnxToggleButton button)
+                button.UpdateCurrentIconSource();
+        }
+
+        private void UpdateCurrentIconSource()
+        {
+            CurrentIconSource = IsChecked switch
+            {
+                true => CheckedIconSource,
+                false => UncheckedIconSource,
+                _ => UncheckedIconSource ?? CheckedIconSource
+            };
+
+            HasIconSource = CurrentIconSource is not null;
         }
     }
 }

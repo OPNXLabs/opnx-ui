@@ -1,0 +1,37 @@
+<UserControl x:Class="OPNX.UI.WPF.Controls.OpnxImageViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="viewer"
+             Background="Transparent"
+             Focusable="True">
+    <Border Background="{Binding Background, ElementName=viewer}">
+        <ScrollViewer x:Name="scrollHost"
+                      Background="Transparent"
+                      BorderBrush="Transparent"
+                      BorderThickness="0"
+                      CanContentScroll="False"
+                      HorizontalScrollBarVisibility="Auto"
+                      PreviewMouseWheel="ScrollHost_PreviewMouseWheel"
+                      VerticalScrollBarVisibility="Auto">
+            <Grid x:Name="imageHost"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center">
+                <Image x:Name="image"
+                       Source="{Binding ImageSource, ElementName=viewer}"
+                       Stretch="None"
+                       MouseLeftButtonDown="Image_MouseLeftButtonDown"
+                       MouseLeftButtonUp="Image_MouseLeftButtonUp"
+                       MouseMove="Image_MouseMove"
+                       LostMouseCapture="Image_LostMouseCapture">
+                    <Image.LayoutTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="{Binding Scale, ElementName=viewer}"
+                                            ScaleY="{Binding Scale, ElementName=viewer}" />
+                            <RotateTransform Angle="{Binding RotationAngle, ElementName=viewer}" />
+                        </TransformGroup>
+                    </Image.LayoutTransform>
+                </Image>
+            </Grid>
+        </ScrollViewer>
+    </Border>
+</UserControl>

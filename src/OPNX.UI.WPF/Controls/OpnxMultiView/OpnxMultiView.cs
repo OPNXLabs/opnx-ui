@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading;
 
 namespace OPNX.UI.WPF.Controls
 {
@@ -77,6 +76,7 @@ namespace OPNX.UI.WPF.Controls
         private Canvas? _zoomControl;
 
         //private MultiGridControlInitInfo multiGridControlInitInfo;
+        private MultiViewInitInfo? _pendingInitInfo;
 
         //private Button zoomEndButton;
 
@@ -1069,32 +1069,12 @@ namespace OPNX.UI.WPF.Controls
         {
             if (this._multiViewPanel == null)
             {
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-                {
-                    this.Init(rowCount, columnCount, isSelectionAll, isLocked, initElement);
-                }));
+                _pendingInitInfo = new MultiViewInitInfo(rowCount, columnCount, isSelectionAll, isLocked, initElement);
                 return;
             }
 
-            // 실제 초기화 처리
-            this.Clear();
-            this.Background = new SolidColorBrush(Colors.Transparent);
-            this._multiViewPanel.Init(rowCount, columnCount);
-
-            if (isSelectionAll)
-            {
-                this._multiViewPanel.SelectionAll();
-            }
-
-            if (initElement != null)
-            {
-                SetCellElementSilenceMode(this._multiViewPanel.GetSelectedCells()[0], initElement);
-            }
-
-            if (this.UseMultiViewSync)
-            {
-                this.SendSyncData();
-            }
+            _pendingInitInfo = null;
+            InitCore(rowCount, columnCount, isSelectionAll, isLocked, initElement);
         }
 
         /// <summary>
@@ -1141,6 +1121,19 @@ namespace OPNX.UI.WPF.Controls
 
                 // IsControlMode도 위와 마찬가지로 동작한다.
                 //this.IsControlMode = this.preControlMode;
+
+                if (_pendingInitInfo is not null)
+                {
+                    var pendingInitInfo = _pendingInitInfo;
+                    _pendingInitInfo = null;
+
+                    InitCore(
+                        pendingInitInfo.RowCount,
+                        pendingInitInfo.ColumnCount,
+                        pendingInitInfo.IsSelectionAll,
+                        pendingInitInfo.IsLocked,
+                        pendingInitInfo.InitElement);
+                }
             }
             this._zoomControl = this.Template.FindName("xZoomControl", this) as Canvas;
             if (this._zoomControl != null)
@@ -1169,6 +1162,31 @@ namespace OPNX.UI.WPF.Controls
             this.SelectionVisibility = Visibility.Collapsed;
 
             //this.isApplyTemplate = true;
+        }
+
+        private void InitCore(int rowCount, int columnCount, bool isSelectionAll, bool isLocked, FrameworkElement? initElement)
+        {
+            if (this._multiViewPanel == null)
+                return;
+
+            this.Clear();
+            this.Background = new SolidColorBrush(Colors.Transparent);
+            this._multiViewPanel.Init(rowCount, columnCount);
+
+            if (isSelectionAll)
+            {
+                this._multiViewPanel.SelectionAll();
+            }
+
+            if (initElement != null)
+            {
+                SetCellElementSilenceMode(this._multiViewPanel.GetSelectedCells()[0], initElement);
+            }
+
+            if (this.UseMultiViewSync)
+            {
+                this.SendSyncData();
+            }
         }
 
         /// <summary>
@@ -2562,44 +2580,23 @@ namespace OPNX.UI.WPF.Controls
         /// <summary>
         /// MultiGridControlInitInfo class.
         /// </summary>
-        //private class MultiGridControlInitInfo
-        //{
-        //    #region Constructors and Destructors
+        private sealed class MultiViewInitInfo(
+            int rowCount,
+            int columnCount,
+            bool isSelectionAll,
+            bool isLocked,
+            FrameworkElement? initElement)
+        {
+            internal int RowCount { get; } = rowCount;
 
-        //    /// <summary>
-        //    /// Initializes a new instance of the <see cref="MultiGridControlInitInfo"/> class.
-        //    /// </summary>
-        //    /// <param name="initRow">
-        //    /// The init row.
-        //    /// </param>
-        //    /// <param name="initColumn">
-        //    /// The init column.
-        //    /// </param>
-        //    /// <param name="isSelectionAll">
-        //    /// The is selection all.
-        //    /// </param>
-        //    internal MultiGridControlInitInfo(int initRow, int initColumn, bool isSelectionAll, FrameworkElement initElement)
-        //    {
-        //        this.InitRow = initRow;
-        //        this.InitColumn = initColumn;
-        //        this.InitIsSelectionAll = isSelectionAll;
-        //        this.InitElement = initElement;
-        //    }
+            internal int ColumnCount { get; } = columnCount;
 
-        //    #endregion
+            internal bool IsSelectionAll { get; } = isSelectionAll;
 
-        //    #region Properties
+            internal bool IsLocked { get; } = isLocked;
 
-        //    internal int InitColumn { get; private set; }
-
-        //    internal bool InitIsSelectionAll { get; private set; }
-
-        //    internal int InitRow { get; private set; }
-
-        //    internal FrameworkElement InitElement { get; private set; }
-
-        //    #endregion
-        //}
+            internal FrameworkElement? InitElement { get; } = initElement;
+        }
 
         #region Sync
 

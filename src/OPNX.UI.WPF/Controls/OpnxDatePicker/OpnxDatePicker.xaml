@@ -1,0 +1,159 @@
+<UserControl x:Class="OPNX.UI.WPF.Controls.OpnxDatePicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:OPNX.UI.WPF.Controls"
+             mc:Ignorable="d"
+             d:DesignHeight="30"
+             d:DesignWidth="180"
+             x:Name="Root">
+    <UserControl.Resources>
+        <ControlTemplate x:Key="DefaultCalendarButtonTemplate"
+                         TargetType="{x:Type Button}">
+            <Grid x:Name="content" Background="Transparent">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Width="75"
+                           Grid.Column="1"
+                           Margin="6,0,0,0"
+                           FontSize="{TemplateBinding FontSize}"
+                           FontWeight="{TemplateBinding FontWeight}"
+                           FontFamily="{TemplateBinding FontFamily}"
+                           Foreground="{TemplateBinding Foreground}"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Center"
+                           TextAlignment="Center"
+                           Focusable="False"
+                           Text="{TemplateBinding Content}" />
+
+                <Grid Grid.Column="2"
+                      Margin="0,0,9,0"
+                      Width="24"
+                      Height="24"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center">
+                    <Grid HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+                        <Grid.Style>
+                            <Style TargetType="{x:Type Grid}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:OpnxDatePicker}}, Path=CalendarButtonContent}"
+                                                 Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+
+                        <Border Width="17"
+                                Height="16"
+                                Background="Transparent"
+                                BorderBrush="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:OpnxDatePicker}}, Path=IconBrush}"
+                                BorderThickness="1"
+                                CornerRadius="2"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+
+                        <Path Width="9"
+                              Height="4"
+                              Margin="0,-12,0,0"
+                              Data="M0,0 0,1 M4,0 4,1"
+                              RenderOptions.EdgeMode="Aliased"
+                              Stretch="Uniform"
+                              Stroke="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:OpnxDatePicker}}, Path=IconBrush}"
+                              StrokeThickness="1"
+                              UseLayoutRounding="True"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+
+                        <Path Width="11"
+                              Height="9"
+                              Data="M 9,3 12,3 12,6 9,6Z M 15,3 18,3 18,6 15,6 M 3,9 6,9 6,12 3,12Z M 9,9 12,9 12,12 9,12Z M 15,9 18,9 18,12 15,12 M 3,15 6,15 6,18 3,18Z M 9,15 12,15 12,18 9,18Z"
+                              Fill="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:OpnxDatePicker}}, Path=IconBrush}"
+                              RenderOptions.EdgeMode="Aliased"
+                              Stretch="Uniform"
+                              StrokeThickness="1"
+                              UseLayoutRounding="True"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+                    </Grid>
+
+                    <ContentControl HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Content="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:OpnxDatePicker}}, Path=CalendarButtonContent}"
+                                    ContentTemplate="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:OpnxDatePicker}}, Path=CalendarButtonContentTemplate}">
+                        <ContentControl.Style>
+                            <Style TargetType="{x:Type ContentControl}">
+                                <Setter Property="Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:OpnxDatePicker}}, Path=CalendarButtonContent}"
+                                                 Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                    </ContentControl>
+                </Grid>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="content" Property="Opacity" Value="0.8" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter TargetName="content" Property="Opacity" Value="0.5" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="content" Property="Opacity" Value="0.55" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </UserControl.Resources>
+
+    <Grid HorizontalAlignment="Stretch">
+        <Border BorderBrush="{Binding ElementName=Root, Path=BorderBrush}" 
+                BorderThickness="{Binding ElementName=Root, Path=BorderThickness}"
+                Background="{Binding ElementName=Root, Path=Background}">
+            <Grid>
+                <Button x:Name="PART_Button"
+                        Content="{Binding ElementName=Root, Path=DisplayText}"
+                        Cursor="Hand"
+                        FontFamily="{Binding ElementName=Root, Path=FontFamily}"
+                        FontSize="{Binding ElementName=Root, Path=FontSize}"
+                        FontWeight="{Binding ElementName=Root, Path=FontWeight}"
+                        Foreground="{Binding ElementName=Root, Path=Foreground}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        BorderThickness="0"
+                        Template="{StaticResource DefaultCalendarButtonTemplate}"
+                        Click="Button_Click">
+                </Button>
+
+                <Popup x:Name="PART_CalendarPopup"
+                       PlacementTarget="{Binding ElementName=PART_Button}"
+                       Placement="Bottom"
+                       StaysOpen="{Binding ElementName=Root, Path=StaysOpen}">
+                    <Border Background="{Binding ElementName=Root, Path=CalendarBackground}"
+                            BorderBrush="{Binding ElementName=Root, Path=CalendarBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="0">
+                        <Calendar BorderBrush="Transparent"
+                                  BorderThickness="0"
+                                  SelectedDate="{Binding ElementName=Root, Path=SelectedDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  DisplayDate="{Binding ElementName=Root, Path=SelectedDate}"
+                                  SelectedDatesChanged="Calendar_SelectedDatesChanged" />
+                    </Border>
+                </Popup>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

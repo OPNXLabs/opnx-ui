@@ -123,6 +123,12 @@ namespace OPNX.UI.WPF.Controls
             typeof(PlaybackTimelineRangeType),
             typeof(OpnxPlaybackTimeline),
             new PropertyMetadata(PlaybackTimelineRangeType.None, OnCurrentTimeRangeChanged));
+
+        public static readonly DependencyProperty IsLeftPanelVisibleProperty = DependencyProperty.Register(
+            nameof(IsLeftPanelVisible),
+            typeof(bool),
+            typeof(OpnxPlaybackTimeline),
+            new PropertyMetadata(true, OnIsLeftPanelVisibleChanged));
         #endregion
 
         #region Events
@@ -142,6 +148,12 @@ namespace OPNX.UI.WPF.Controls
         {
             get => (PlaybackTimelineRangeType)GetValue(CurrentTimeRangeProperty);
             set => SetValue(CurrentTimeRangeProperty, value);
+        }
+
+        public bool IsLeftPanelVisible
+        {
+            get => (bool)GetValue(IsLeftPanelVisibleProperty);
+            set => SetValue(IsLeftPanelVisibleProperty, value);
         }
 
         public long VisibleTimeRangeMS { get; private set; }
@@ -231,6 +243,18 @@ namespace OPNX.UI.WPF.Controls
                     TimeRange = newTimeRange
                 });
             }
+        }
+
+        private static void OnIsLeftPanelVisibleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is OpnxPlaybackTimeline control)
+                control.UpdateLeftPanelVisibility();
+        }
+
+        private void UpdateLeftPanelVisibility()
+        {
+            xLeftPanel.Visibility = IsLeftPanelVisible ? Visibility.Visible : Visibility.Collapsed;
+            xLeftPanelColumn.Width = IsLeftPanelVisible ? new GridLength(150) : new GridLength(0);
         }
 
         private void ClearTimeline()

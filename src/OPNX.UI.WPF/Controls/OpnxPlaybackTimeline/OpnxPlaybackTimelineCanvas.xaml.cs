@@ -88,16 +88,17 @@ namespace OPNX.UI.WPF.Controls
         }
 
         public static readonly DependencyProperty ParentTimelineControlProperty =
-            DependencyProperty.Register(nameof(ParentTimelineControl), typeof(OpnxPlaybackTimeline), typeof(OpnxPlaybackTimelineCanvas));
+            DependencyProperty.Register(
+                nameof(ParentTimelineControl), 
+                typeof(OpnxPlaybackTimeline), 
+                typeof(OpnxPlaybackTimelineCanvas),
+                new PropertyMetadata(null, OnParentTimelineControlChanged));
         #endregion
 
         #region Public Methods
         public override void OnApplyTemplate()
         {
-            base.OnApplyTemplate();
-
-            //Timeline쪽 전체 UI의 Anti-Aliasing을 없앰 !! Event쪽 Line이 번져서 나오는걸 방지하기 위함 !!
-            this.ParentTimelineControl.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);
+            base.OnApplyTemplate(); 
         }
 
         public PlaybackTimelineRecordData? AddEntity(IEntity entity)
@@ -113,6 +114,12 @@ namespace OPNX.UI.WPF.Controls
             this.InvalidateVisual();
 
             return newRecordData;
+        }
+
+        private static void OnParentTimelineControlChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is OpnxPlaybackTimeline timeline)
+                timeline.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);
         }
 
         private PlaybackTimelineRecordData GetOrAddEntity(IEntity entity)

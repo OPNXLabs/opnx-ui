@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -15,6 +16,8 @@ namespace OPNX.UI.WPF.Controls
     public class OpnxTreeListView : DataGrid
     {
         private static readonly Brush DefaultColumnHeaderBackground = CreateDefaultColumnHeaderBackground();
+        private static readonly Brush DefaultRowDropLineBrush = CreateDefaultRowDropLineBrush();
+        private static readonly string RowDropDataFormat = typeof(OpnxTreeListView).FullName + ".RowDrop";
 
         private readonly Dictionary<object, TreeListViewNode> _nodesByItem;
         private readonly List<TreeListViewNode> _rootNodes = [];
@@ -27,6 +30,13 @@ namespace OPNX.UI.WPF.Controls
 
         private bool _isChangingItemsSource;
         private bool _wasPreviousLeftButtonDownHandled;
+        private Point? _rowDropDragStartPoint;
+        private object? _rowDropDraggedItem;
+        private TreeListViewRow? _rowDropTargetRow;
+        private RowDropLineAdorner? _rowDropLineAdorner;
+        private OpnxTreeListViewRowDropPosition _rowDropPosition;
+
+        public event EventHandler<OpnxTreeListViewRowDropEventArgs>? RowDrop;
 
         static OpnxTreeListView()
         {
@@ -75,6 +85,77 @@ namespace OPNX.UI.WPF.Controls
             brush.Freeze();
             return brush;
         }
+
+        private static Brush CreateDefaultRowDropLineBrush()
+        {
+            var brush = new SolidColorBrush(Color.FromRgb(0x4A, 0x6F, 0xE3));
+            brush.Freeze();
+            return brush;
+        }
+
+        public bool CanDropRows
+        {
+            get => (bool)GetValue(CanDropRowsProperty);
+            set => SetValue(CanDropRowsProperty, value);
+        }
+
+        public static readonly DependencyProperty CanDropRowsProperty =
+            DependencyProperty.Register(
+                nameof(CanDropRows),
+                typeof(bool),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(false, OnCanDropRowsChanged));
+
+        private static void OnCanDropRowsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is OpnxTreeListView treeListView)
+            {
+                treeListView.AllowDrop = (bool)e.NewValue;
+                if ((bool)e.NewValue == false)
+                {
+                    treeListView.ClearRowDropState();
+                }
+            }
+        }
+
+        public Brush RowDropLineBrush
+        {
+            get => (Brush)GetValue(RowDropLineBrushProperty);
+            set => SetValue(RowDropLineBrushProperty, value);
+        }
+
+        public static readonly DependencyProperty RowDropLineBrushProperty =
+            DependencyProperty.Register(
+                nameof(RowDropLineBrush),
+                typeof(Brush),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(DefaultRowDropLineBrush));
+
+        public double RowDropLineThickness
+        {
+            get => (double)GetValue(RowDropLineThicknessProperty);
+            set => SetValue(RowDropLineThicknessProperty, value);
+        }
+
+        public static readonly DependencyProperty RowDropLineThicknessProperty =
+            DependencyProperty.Register(
+                nameof(RowDropLineThickness),
+                typeof(double),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(2d));
+
+        public ICommand? RowDropCommand
+        {
+            get => (ICommand?)GetValue(RowDropCommandProperty);
+            set => SetValue(RowDropCommandProperty, value);
+        }
+
+        public static readonly DependencyProperty RowDropCommandProperty =
+            DependencyProperty.Register(
+                nameof(RowDropCommand),
+                typeof(ICommand),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(null));
 
         public double IndentWidth
         {
@@ -506,6 +587,12 @@ namespace OPNX.UI.WPF.Controls
             if (ItemsControl.ContainerFromElement((OpnxTreeListView)this, e.OriginalSource as DependencyObject) is not TreeListViewRow treeListControlRow)
                 return;
 
+            if (CanDropRows && IsRowDropIgnoredSource(e.OriginalSource as DependencyObject) == false)
+            {
+                _rowDropDragStartPoint = e.GetPosition(this);
+                _rowDropDraggedItem = treeListControlRow.DataContext;
+            }
+
             var selectedItems = SelectedItems.Cast<dynamic>();
             if (selectedItems?.Skip(1).Any() == true && selectedItems.Any(x => x == treeListControlRow.DataContext))
             {
@@ -525,6 +612,8 @@ namespace OPNX.UI.WPF.Controls
         protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
         {
             base.OnPreviewMouseLeftButtonUp(e);
+            _rowDropDragStartPoint = null;
+            _rowDropDraggedItem = null;
 
             if (_wasPreviousLeftButtonDownHandled)
             {
@@ -539,6 +628,182 @@ namespace OPNX.UI.WPF.Controls
         protected override void OnPreviewMouseMove(MouseEventArgs e)
         {
             base.OnPreviewMouseMove(e);
+
+            if (!CanDropRows ||
+                _rowDropDragStartPoint is not Point dragStartPoint ||
+                _rowDropDraggedItem is null ||
+                e.LeftButton != MouseButtonState.Pressed)
+                return;
+
+            Point currentPoint = e.GetPosition(this);
+            if (Math.Abs(currentPoint.X - dragStartPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
+                Math.Abs(currentPoint.Y - dragStartPoint.Y) < SystemParameters.MinimumVerticalDragDistance)
+                return;
+
+            var dataObject = new DataObject(RowDropDataFormat, new RowDropPayload(this, _rowDropDraggedItem));
+            DragDrop.DoDragDrop(this, dataObject, DragDropEffects.Move);
+            ClearRowDropState();
+            e.Handled = true;
+        }
+
+        protected override void OnDragOver(DragEventArgs e)
+        {
+            base.OnDragOver(e);
+
+            if (!CanDropRows || !TryGetRowDropPayload(e.Data, out var payload) || payload.Source != this)
+            {
+                ClearRowDropLine();
+                e.Effects = DragDropEffects.None;
+                e.Handled = true;
+                return;
+            }
+
+            if (GetRowFromElement(e.OriginalSource as DependencyObject) is not TreeListViewRow targetRow ||
+                ReferenceEquals(targetRow.DataContext, payload.Item))
+            {
+                ClearRowDropLine();
+                e.Effects = DragDropEffects.None;
+                e.Handled = true;
+                return;
+            }
+
+            Point rowPoint = e.GetPosition(targetRow);
+            var position = rowPoint.Y < targetRow.ActualHeight / 2
+                ? OpnxTreeListViewRowDropPosition.Before
+                : OpnxTreeListViewRowDropPosition.After;
+
+            ShowRowDropLine(targetRow, position);
+            e.Effects = DragDropEffects.Move;
+            e.Handled = true;
+        }
+
+        protected override void OnDrop(DragEventArgs e)
+        {
+            base.OnDrop(e);
+
+            if (CanDropRows &&
+                TryGetRowDropPayload(e.Data, out var payload) &&
+                payload.Source == this &&
+                _rowDropTargetRow is not null)
+            {
+                object targetItem = _rowDropTargetRow.DataContext;
+                int draggedIndex = VisibleItems.IndexOf(payload.Item);
+                int targetIndex = VisibleItems.IndexOf(targetItem);
+                int insertIndex = _rowDropPosition == OpnxTreeListViewRowDropPosition.After
+                    ? targetIndex + 1
+                    : targetIndex;
+
+                var dropEventArgs = new OpnxTreeListViewRowDropEventArgs(
+                    payload.Item,
+                    targetItem,
+                    draggedIndex,
+                    targetIndex,
+                    insertIndex,
+                    _rowDropPosition);
+
+                RowDrop?.Invoke(this, dropEventArgs);
+                if (RowDropCommand?.CanExecute(dropEventArgs) == true)
+                {
+                    RowDropCommand.Execute(dropEventArgs);
+                }
+
+                e.Effects = DragDropEffects.Move;
+                e.Handled = true;
+            }
+
+            ClearRowDropState();
+        }
+
+        protected override void OnDragLeave(DragEventArgs e)
+        {
+            base.OnDragLeave(e);
+
+            if (!IsMouseOver)
+            {
+                ClearRowDropLine();
+            }
+        }
+
+        private static bool TryGetRowDropPayload(IDataObject dataObject, out RowDropPayload payload)
+        {
+            if (dataObject.GetDataPresent(RowDropDataFormat) &&
+                dataObject.GetData(RowDropDataFormat) is RowDropPayload rowDropPayload)
+            {
+                payload = rowDropPayload;
+                return true;
+            }
+
+            payload = default;
+            return false;
+        }
+
+        private static bool IsRowDropIgnoredSource(DependencyObject? source)
+        {
+            while (source is not null)
+            {
+                if (source is TreeListViewRow)
+                    return false;
+
+                if (source is TextBoxBase ||
+                    source is ButtonBase ||
+                    source is Selector ||
+                    source is PasswordBox ||
+                    source is Slider)
+                    return true;
+
+                source = VisualTreeHelper.GetParent(source);
+            }
+
+            return false;
+        }
+
+        private TreeListViewRow? GetRowFromElement(DependencyObject? source)
+        {
+            while (source is not null)
+            {
+                if (source is TreeListViewRow row)
+                    return row;
+
+                source = VisualTreeHelper.GetParent(source);
+            }
+
+            return null;
+        }
+
+        private void ShowRowDropLine(TreeListViewRow targetRow, OpnxTreeListViewRowDropPosition position)
+        {
+            if (_rowDropTargetRow == targetRow && _rowDropPosition == position && _rowDropLineAdorner is not null)
+                return;
+
+            ClearRowDropLine();
+
+            var layer = AdornerLayer.GetAdornerLayer(targetRow);
+            if (layer is null)
+                return;
+
+            _rowDropTargetRow = targetRow;
+            _rowDropPosition = position;
+            _rowDropLineAdorner = new RowDropLineAdorner(targetRow, position, RowDropLineBrush, RowDropLineThickness);
+            layer.Add(_rowDropLineAdorner);
+        }
+
+        private void ClearRowDropState()
+        {
+            _rowDropDragStartPoint = null;
+            _rowDropDraggedItem = null;
+            ClearRowDropLine();
+        }
+
+        private void ClearRowDropLine()
+        {
+            if (_rowDropLineAdorner is not null && _rowDropTargetRow is not null)
+            {
+                var layer = AdornerLayer.GetAdornerLayer(_rowDropTargetRow);
+                layer?.Remove(_rowDropLineAdorner);
+            }
+
+            _rowDropTargetRow = null;
+            _rowDropLineAdorner = null;
         }
 
         //private static T FindAncestor<T>(DependencyObject current) where T : DependencyObject
@@ -620,5 +885,47 @@ namespace OPNX.UI.WPF.Controls
             this.UpdateLayout();
         }
     }
-}
 
+    public enum OpnxTreeListViewRowDropPosition
+    {
+        Before,
+        After
+    }
+
+    public sealed class OpnxTreeListViewRowDropEventArgs(
+        object draggedItem,
+        object targetItem,
+        int draggedIndex,
+        int targetIndex,
+        int insertIndex,
+        OpnxTreeListViewRowDropPosition dropPosition) : EventArgs
+    {
+        public object DraggedItem { get; } = draggedItem;
+        public object TargetItem { get; } = targetItem;
+        public int DraggedIndex { get; } = draggedIndex;
+        public int TargetIndex { get; } = targetIndex;
+        public int InsertIndex { get; } = insertIndex;
+        public OpnxTreeListViewRowDropPosition DropPosition { get; } = dropPosition;
+    }
+
+    internal readonly record struct RowDropPayload(OpnxTreeListView Source, object Item);
+
+    internal sealed class RowDropLineAdorner(
+        UIElement adornedElement,
+        OpnxTreeListViewRowDropPosition position,
+        Brush brush,
+        double thickness) : Adorner(adornedElement)
+    {
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            base.OnRender(drawingContext);
+
+            var pen = new Pen(brush, Math.Max(1d, thickness));
+            double y = position == OpnxTreeListViewRowDropPosition.Before
+                ? pen.Thickness / 2
+                : RenderSize.Height - pen.Thickness / 2;
+
+            drawingContext.DrawLine(pen, new Point(0, y), new Point(RenderSize.Width, y));
+        }
+    }
+}

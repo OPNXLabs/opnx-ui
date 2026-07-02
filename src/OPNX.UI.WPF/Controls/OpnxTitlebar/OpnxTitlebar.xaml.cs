@@ -463,9 +463,15 @@ namespace OPNX.UI.WPF.Controls
                 return;
             }
 
+            var window = GetOwnerWindow();
+            if (window == null)
+                return;
+
+            RestoreMaximizedWindowForDrag(window, e);
+
             try
             {
-                GetOwnerWindow()?.DragMove();
+                window.DragMove();
             }
             catch
             {
@@ -489,6 +495,27 @@ namespace OPNX.UI.WPF.Controls
             window.WindowState = window.WindowState == WindowState.Maximized
                 ? WindowState.Normal
                 : WindowState.Maximized;
+        }
+
+        private void RestoreMaximizedWindowForDrag(Window window, MouseButtonEventArgs e)
+        {
+            if (window.WindowState != WindowState.Maximized)
+                return;
+
+            var mousePositionInWindow = e.GetPosition(window);
+            var mousePositionOnScreen = PointToScreen(e.GetPosition(this));
+            var restoreBounds = window.RestoreBounds;
+            var restoreWidth = restoreBounds.Width > 0 ? restoreBounds.Width : window.MinWidth;
+            var restoreHeight = restoreBounds.Height > 0 ? restoreBounds.Height : window.MinHeight;
+            var horizontalRatio = window.ActualWidth > 0
+                ? Math.Clamp(mousePositionInWindow.X / window.ActualWidth, 0d, 1d)
+                : 0.5d;
+
+            window.WindowState = WindowState.Normal;
+            window.Width = restoreWidth;
+            window.Height = restoreHeight;
+            window.Left = mousePositionOnScreen.X - restoreWidth * horizontalRatio;
+            window.Top = mousePositionOnScreen.Y - Math.Min(mousePositionInWindow.Y, restoreHeight);
         }
 
         private void UpdateWindowState()

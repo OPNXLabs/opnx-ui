@@ -30,6 +30,12 @@ namespace OPNX.UI.WPF.Controls
             typeof(OpnxTabItem),
             new PropertyMetadata(VerticalAlignment.Center));
 
+        public static readonly DependencyProperty CornerRadiusProperty = DependencyProperty.Register(
+            nameof(CornerRadius),
+            typeof(CornerRadius),
+            typeof(OpnxTabItem),
+            new PropertyMetadata(new CornerRadius(0)));
+
         public static readonly DependencyProperty MouseOverForegroundProperty = DependencyProperty.Register(
             nameof(MouseOverForeground),
             typeof(Brush),
@@ -83,6 +89,12 @@ namespace OPNX.UI.WPF.Controls
         {
             get => (VerticalAlignment)GetValue(VerticalHeaderContentAlignmentProperty);
             set => SetValue(VerticalHeaderContentAlignmentProperty, value);
+        }
+
+        public CornerRadius CornerRadius
+        {
+            get => (CornerRadius)GetValue(CornerRadiusProperty);
+            set => SetValue(CornerRadiusProperty, value);
         }
 
         public Brush MouseOverForeground

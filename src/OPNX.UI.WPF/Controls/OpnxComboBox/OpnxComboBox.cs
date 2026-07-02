@@ -36,6 +36,12 @@ namespace OPNX.UI.WPF.Controls
             typeof(OpnxComboBox),
             new PropertyMetadata(new SolidColorBrush(Color.FromArgb(135, 255, 255, 255))));
 
+        public static readonly DependencyProperty PlaceholderTextMarginProperty = DependencyProperty.Register(
+            nameof(PlaceholderTextMargin),
+            typeof(Thickness),
+            typeof(OpnxComboBox),
+            new PropertyMetadata(new Thickness(0)));
+
         public static readonly DependencyProperty ButtonVisibilityProperty = DependencyProperty.Register(
             nameof(ButtonVisibility),
             typeof(Visibility),
@@ -122,6 +128,12 @@ namespace OPNX.UI.WPF.Controls
         {
             get => (Brush)GetValue(PlaceholderForegroundProperty);
             set => SetValue(PlaceholderForegroundProperty, value);
+        }
+
+        public Thickness PlaceholderTextMargin
+        {
+            get => (Thickness)GetValue(PlaceholderTextMarginProperty);
+            set => SetValue(PlaceholderTextMarginProperty, value);
         }
 
         public Visibility ButtonVisibility

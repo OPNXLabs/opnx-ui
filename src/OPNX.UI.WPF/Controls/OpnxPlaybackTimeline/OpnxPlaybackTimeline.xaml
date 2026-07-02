@@ -143,7 +143,7 @@
         <Border Margin="0" BorderBrush="Transparent" BorderThickness="0" SnapsToDevicePixels="True">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="150"></ColumnDefinition>
+                    <ColumnDefinition x:Name="xLeftPanelColumn" Width="150"></ColumnDefinition>
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <Grid x:Name="xLeftPanel" Grid.Column="0" Margin="0,0,0,0" Background="Transparent">
@@ -151,7 +151,7 @@
                         <RowDefinition Height="60"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0" Background="#55596B">
+                    <Grid Grid.Row="0" Background="Transparent">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -243,7 +243,7 @@
                              Style="{StaticResource ListBoxStyRecordData}"
                              ItemsSource="{Binding ElementName=xTimelineCanvas, Path=TimelineRecords}" >
                     </ListBox>
-                    <Rectangle Fill="#FF444444" Height="1" Margin="0" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True" Grid.Row="0"></Rectangle>
+                    <Rectangle Fill="Transparent" Height="1" Margin="0" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True" Grid.Row="0"></Rectangle>
                     <!--<Rectangle Fill="#FF444444" Height="1" Margin="0" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True" Grid.Row="1"></Rectangle>-->
                 </Grid>
                 <Grid x:Name="xTimeLineGrid" Grid.Column="1">
@@ -256,33 +256,33 @@
                             <RowDefinition Height="0.5*"/>
                             <RowDefinition Height="0.5*"/>
                         </Grid.RowDefinitions>
-                        <TextBlock x:Name="xTextBlockVisibleStartDate" Margin="0" TextWrapping="Wrap" d:LayoutOverrides="Height" Foreground="#FFCCCCCC" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="2011년 11월 17일 목요일" FontSize="10.667"/>
-                        <TextBlock x:Name="xTextBlockVisibleStartTime" TextWrapping="Wrap" Text="13:24:24.143" Margin="0" d:LayoutOverrides="Height" Grid.Row="1" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="10.667"/>
+                        <TextBlock x:Name="xTextBlockVisibleStartDate" Margin="0" TextWrapping="Wrap" d:LayoutOverrides="Height" Foreground="#8FA3B8" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="2011년 11월 17일 목요일" FontSize="10.667"/>
+                        <TextBlock x:Name="xTextBlockVisibleStartTime" TextWrapping="Wrap" Text="13:24:24.143" Margin="0" d:LayoutOverrides="Height" Grid.Row="1" Foreground="#8FA3B8" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="10.667"/>
                     </Grid>
                     <Grid HorizontalAlignment="Center" Margin="0" Grid.Row="0" VerticalAlignment="Center">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="0.5*"/>
                             <RowDefinition Height="0.5*"/>
                         </Grid.RowDefinitions>
-                        <TextBlock x:Name="xTextBlockVisibleCenterDate" TextWrapping="Wrap" d:LayoutOverrides="Height" Foreground="#FFCCCCCC" HorizontalAlignment="Center" VerticalAlignment="Top" Text="2011년 11월 17일 목요일" FontSize="10.667"/>
-                        <TextBlock x:Name="xTextBlockVisibleCenterTime" TextWrapping="Wrap" Text="13:24:24.143" Margin="0" d:LayoutOverrides="Height" Grid.Row="1" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10.667"/>
+                        <TextBlock x:Name="xTextBlockVisibleCenterDate" TextWrapping="Wrap" d:LayoutOverrides="Height" Foreground="#C94A46" HorizontalAlignment="Center" VerticalAlignment="Top" Text="2011년 11월 17일 목요일" FontSize="10.667"/>
+                        <TextBlock x:Name="xTextBlockVisibleCenterTime" TextWrapping="Wrap" Text="13:24:24.143" Margin="0" d:LayoutOverrides="Height" Grid.Row="1" Foreground="#C94A46" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10.667"/>
                     </Grid>
                     <Grid HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="0" VerticalAlignment="Center">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="0.5*"/>
                             <RowDefinition Height="0.5*"/>
                         </Grid.RowDefinitions>
-                        <TextBlock x:Name="xTextBlockVisibleEndDate" Margin="0" TextWrapping="Wrap" d:LayoutOverrides="Height" Foreground="#FFCCCCCC" HorizontalAlignment="Right" VerticalAlignment="Bottom" Text="2011년 11월 17일 목요일" FontSize="10.667"/>
-                        <TextBlock x:Name="xTextBlockVisibleEndTime" TextWrapping="Wrap" Text="13:24:24.143" Margin="0" d:LayoutOverrides="Height" Grid.Row="1" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="10.667"/>
+                        <TextBlock x:Name="xTextBlockVisibleEndDate" Margin="0" TextWrapping="Wrap" d:LayoutOverrides="Height" Foreground="#8FA3B8" HorizontalAlignment="Right" VerticalAlignment="Bottom" Text="2011년 11월 17일 목요일" FontSize="10.667"/>
+                        <TextBlock x:Name="xTextBlockVisibleEndTime" TextWrapping="Wrap" Text="13:24:24.143" Margin="0" d:LayoutOverrides="Height" Grid.Row="1" Foreground="#8FA3B8" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="10.667"/>
                     </Grid>
                     <Canvas x:Name="xCanvasOuter" Grid.Row="1" Background="Transparent" ClipToBounds="True">
                         <Canvas x:Name="xCanvasTime" Height="20" Width="1613" Canvas.Left="0" Canvas.Top="0">
-                            <TextBlock x:Name="xTextBlockTime01" TextWrapping="Wrap" Text="13  10" Width="50" Foreground="White" Canvas.Left="121.764" Canvas.Top="0" TextAlignment="Center"/>
-                            <TextBlock x:Name="xTextBlockTime02" TextWrapping="Wrap" Text="13  20" Width="50" Foreground="White" Canvas.Left="387.165" Canvas.Top="0" TextAlignment="Center"/>
-                            <TextBlock x:Name="xTextBlockTime03" TextWrapping="Wrap" Text="13  30" Width="50" Foreground="White" Canvas.Left="659.612" Canvas.Top="0" TextAlignment="Center"/>
-                            <TextBlock x:Name="xTextBlockTime04" TextWrapping="Wrap" Text="13  40" VerticalAlignment="Bottom" Width="50" Foreground="White" Canvas.Left="938" Canvas.Top="0" TextAlignment="Center"/>
-                            <TextBlock x:Name="xTextBlockTime05" TextWrapping="Wrap" Text="13  50" VerticalAlignment="Bottom" Width="50" Foreground="White" Canvas.Left="1196.863" Canvas.Top="0" TextAlignment="Center"/>
-                            <TextBlock x:Name="xTextBlockTime06" TextWrapping="Wrap" Text="14  00" VerticalAlignment="Bottom" Width="50" Foreground="White" Canvas.Left="1454.984" Canvas.Top="0" TextAlignment="Center"/>
+                            <TextBlock x:Name="xTextBlockTime01" TextWrapping="Wrap" Text="13  10" Width="50" Foreground="#8FA3B8" Canvas.Left="121.764" Canvas.Top="0" TextAlignment="Center"/>
+                            <TextBlock x:Name="xTextBlockTime02" TextWrapping="Wrap" Text="13  20" Width="50" Foreground="#8FA3B8" Canvas.Left="387.165" Canvas.Top="0" TextAlignment="Center"/>
+                            <TextBlock x:Name="xTextBlockTime03" TextWrapping="Wrap" Text="13  30" Width="50" Foreground="#8FA3B8" Canvas.Left="659.612" Canvas.Top="0" TextAlignment="Center"/>
+                            <TextBlock x:Name="xTextBlockTime04" TextWrapping="Wrap" Text="13  40" VerticalAlignment="Bottom" Width="50" Foreground="#8FA3B8" Canvas.Left="938" Canvas.Top="0" TextAlignment="Center"/>
+                            <TextBlock x:Name="xTextBlockTime05" TextWrapping="Wrap" Text="13  50" VerticalAlignment="Bottom" Width="50" Foreground="#8FA3B8" Canvas.Left="1196.863" Canvas.Top="0" TextAlignment="Center"/>
+                            <TextBlock x:Name="xTextBlockTime06" TextWrapping="Wrap" Text="14  00" VerticalAlignment="Bottom" Width="50" Foreground="#8FA3B8" Canvas.Left="1454.984" Canvas.Top="0" TextAlignment="Center"/>
                         </Canvas>
 
                         <ScrollViewer x:Name="xScrollViewer" Width="1613" Height="215" Canvas.Left="0" Canvas.Top="20">
@@ -310,12 +310,12 @@
                                     <TextBlock TextWrapping="Wrap" Foreground="White" Canvas.Left="5" Canvas.Top="159" Width="99.368"><Run Language="ko-kr" Text="camera10928 AC"/></TextBlock>
                                     -->
 
-                                <Rectangle x:Name="xRectangleLine01" Fill="#FF666666" Height="235" Width="1" Canvas.Left="144.264" SnapsToDevicePixels="True"/>
-                                <Rectangle x:Name="xRectangleLine02" Fill="#FF666666" Height="235" Width="1" Canvas.Left="410.665" SnapsToDevicePixels="True"/>
-                                <Rectangle x:Name="xRectangleLine03" Fill="#FF666666" Height="235" Width="1" Canvas.Left="685.112" SnapsToDevicePixels="True"/>
-                                <Rectangle x:Name="xRectangleLine04" Fill="#FF666666" Height="235" Width="1" Canvas.Left="962.5" SnapsToDevicePixels="True"/>
-                                <Rectangle x:Name="xRectangleLine05" Fill="#FF666666" Height="235" Width="1" Canvas.Left="1221.363" SnapsToDevicePixels="True"/>
-                                <Rectangle x:Name="xRectangleLine06" Fill="#FF666666" Height="235" Width="1" Canvas.Left="1479.484" SnapsToDevicePixels="True"/>
+                                <Rectangle x:Name="xRectangleLine01" Fill="#0E1621" Height="235" Width="1" Canvas.Left="144.264" SnapsToDevicePixels="True"/>
+                                <Rectangle x:Name="xRectangleLine02" Fill="#0E1621" Height="235" Width="1" Canvas.Left="410.665" SnapsToDevicePixels="True"/>
+                                <Rectangle x:Name="xRectangleLine03" Fill="#0E1621" Height="235" Width="1" Canvas.Left="685.112" SnapsToDevicePixels="True"/>
+                                <Rectangle x:Name="xRectangleLine04" Fill="#0E1621" Height="235" Width="1" Canvas.Left="962.5" SnapsToDevicePixels="True"/>
+                                <Rectangle x:Name="xRectangleLine05" Fill="#0E1621" Height="235" Width="1" Canvas.Left="1221.363" SnapsToDevicePixels="True"/>
+                                <Rectangle x:Name="xRectangleLine06" Fill="#0E1621" Height="235" Width="1" Canvas.Left="1479.484" SnapsToDevicePixels="True"/>
 
 
 
@@ -329,14 +329,14 @@
                         </ScrollViewer>
 
                         <Grid x:Name="xRectangleLineCenter">
-                            <Rectangle Fill="#FF73A8F2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="1" Canvas.Top="0"/>
-                            <Rectangle Fill="#FF73A8F2" Width="7" Height="7" VerticalAlignment="Bottom" Canvas.Bottom="0"/>
+                            <Rectangle Fill="#C94A46" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="2" Canvas.Top="0"/>
+                            <!--<Rectangle Fill="#FF73A8F2" Width="7" Height="7" VerticalAlignment="Bottom" Canvas.Bottom="0"/>-->
                         </Grid>
                     </Canvas>
                     <!--<Rectangle x:Name="xRectangleLineCenter" Fill="White" HorizontalAlignment="Center" Margin="0" Grid.Row="1" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="1"/>-->
-                    <Rectangle Fill="#FF444444" Height="1" Margin="0" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True"/>
+                    <Rectangle Fill="#0E1621" Height="2" Margin="0" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True"/>
                     <!--<Rectangle Fill="#FF444444" Height="1" Margin="0" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True" Grid.Row="1"/>-->
-                    <Rectangle Fill="#FF444444" Width="1" Margin="0" HorizontalAlignment="Left" StrokeThickness="0" SnapsToDevicePixels="True" Grid.RowSpan="2"/>
+                    <Rectangle Fill="#FF444444" Width="1" Margin="0" HorizontalAlignment="Left" StrokeThickness="0" SnapsToDevicePixels="True" Grid.RowSpan="2" Visibility="Collapsed"/>
                 </Grid>
             </Grid>
         </Border>

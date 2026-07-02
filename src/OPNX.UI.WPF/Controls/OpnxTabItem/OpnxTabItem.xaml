@@ -17,13 +17,14 @@
                     <Grid x:Name="Root"
                           Width="{TemplateBinding TabHeaderWidth}"
                           Height="{TemplateBinding TabHeaderHeight}"
-                          Background="{TemplateBinding Background}"
+                          Background="Transparent"
                           Cursor="Hand"
                           SnapsToDevicePixels="True">
                         <Border x:Name="HeaderBorder"
-                                Background="Transparent"
+                                Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}">
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}">
                             <ContentPresenter x:Name="HeaderPresenter"
                                               Margin="{TemplateBinding Padding}"
                                               HorizontalAlignment="{TemplateBinding HorizontalHeaderContentAlignment}"
@@ -40,7 +41,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Panel.ZIndex" Value="100" />
-                            <Setter TargetName="Root" Property="Background" Value="{Binding SelectedBackground, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <Setter TargetName="HeaderBorder" Property="Background" Value="{Binding SelectedBackground, RelativeSource={RelativeSource TemplatedParent}}" />
                             <Setter TargetName="HeaderPresenter" Property="TextBlock.Foreground" Value="{Binding SelectedForeground, RelativeSource={RelativeSource TemplatedParent}}" />
                         </Trigger>
                         <MultiTrigger>
@@ -48,7 +49,7 @@
                                 <Condition Property="IsSelected" Value="False" />
                                 <Condition Property="IsMouseOver" Value="True" />
                             </MultiTrigger.Conditions>
-                            <Setter TargetName="Root" Property="Background" Value="{Binding MouseOverBackground, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <Setter TargetName="HeaderBorder" Property="Background" Value="{Binding MouseOverBackground, RelativeSource={RelativeSource TemplatedParent}}" />
                             <Setter TargetName="HeaderPresenter" Property="TextBlock.Foreground" Value="{Binding MouseOverForeground, RelativeSource={RelativeSource TemplatedParent}}" />
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="False">

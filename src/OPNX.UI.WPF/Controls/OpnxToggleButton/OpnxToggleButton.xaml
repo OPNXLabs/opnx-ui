@@ -3,27 +3,6 @@
                     xmlns:local="clr-namespace:OPNX.UI.WPF.Controls">
 
     <Style x:Key="DefaultOpnxToggleButtonStyle" TargetType="{x:Type local:OpnxToggleButton}">
-        <Style.Resources>
-            <DataTemplate x:Key="IconContentTemplate">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Image Grid.Row="0"
-                           Width="{Binding IconWidth, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxToggleButton}}}"
-                           Height="{Binding IconHeight, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxToggleButton}}}"
-                           Margin="{Binding IconMargin, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxToggleButton}}}"
-                           Source="{Binding IconSource, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxToggleButton}}}"
-                           Stretch="{Binding IconStretch, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxToggleButton}}}" />
-                    <TextBlock Grid.Row="1"
-                               HorizontalAlignment="Center"
-                               Text="{Binding Content, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxToggleButton}}}"
-                               TextAlignment="Center"
-                               TextWrapping="Wrap" />
-                </Grid>
-            </DataTemplate>
-        </Style.Resources>
         <Setter Property="Background" Value="White" />
         <Setter Property="Foreground" Value="Black" />
         <Setter Property="BorderBrush" Value="Gray" />
@@ -51,23 +30,158 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{TemplateBinding CornerRadius}">
-                        <ContentPresenter x:Name="ContentPresenter"
-                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          Content="{TemplateBinding Content}"
-                                          ContentStringFormat="{TemplateBinding ContentStringFormat}"
-                                          ContentTemplate="{TemplateBinding ContentTemplate}"
-                                          ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
-                                          RecognizesAccessKey="True"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            TextElement.Foreground="{TemplateBinding Foreground}">
+                        <Grid>
+                            <Image x:Name="IconOnlyPresenter"
+                                   Width="{Binding IconWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                   Height="{Binding IconHeight, RelativeSource={RelativeSource TemplatedParent}}"
+                                   Margin="{Binding IconMargin, RelativeSource={RelativeSource TemplatedParent}}"
+                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                   Source="{Binding CurrentIconSource, RelativeSource={RelativeSource TemplatedParent}}"
+                                   Stretch="{Binding IconStretch, RelativeSource={RelativeSource TemplatedParent}}"
+                                   Visibility="Collapsed" />
+
+                            <ContentPresenter x:Name="ContentOnlyPresenter"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Content="{TemplateBinding Content}"
+                                              ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
+                                              RecognizesAccessKey="True"
+                                              Visibility="Collapsed" />
+
+                            <StackPanel x:Name="TopContentPresenter"
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                        Orientation="Vertical"
+                                        Visibility="Collapsed">
+                                <Image Width="{Binding IconWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Height="{Binding IconHeight, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Margin="{Binding IconMargin, RelativeSource={RelativeSource TemplatedParent}}"
+                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                       Source="{Binding CurrentIconSource, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Stretch="{Binding IconStretch, RelativeSource={RelativeSource TemplatedParent}}" />
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  Content="{TemplateBinding Content}"
+                                                  ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                  ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
+                                                  RecognizesAccessKey="True" />
+                            </StackPanel>
+
+                            <StackPanel x:Name="BottomContentPresenter"
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                        Orientation="Vertical"
+                                        Visibility="Collapsed">
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  Content="{TemplateBinding Content}"
+                                                  ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                  ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
+                                                  RecognizesAccessKey="True" />
+                                <Image Width="{Binding IconWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Height="{Binding IconHeight, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Margin="{Binding IconMargin, RelativeSource={RelativeSource TemplatedParent}}"
+                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                       Source="{Binding CurrentIconSource, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Stretch="{Binding IconStretch, RelativeSource={RelativeSource TemplatedParent}}" />
+                            </StackPanel>
+
+                            <StackPanel x:Name="LeftContentPresenter"
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                        Orientation="Horizontal"
+                                        Visibility="Collapsed">
+                                <Image Width="{Binding IconWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Height="{Binding IconHeight, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Margin="{Binding IconMargin, RelativeSource={RelativeSource TemplatedParent}}"
+                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                       Source="{Binding CurrentIconSource, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Stretch="{Binding IconStretch, RelativeSource={RelativeSource TemplatedParent}}" />
+                                <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  Content="{TemplateBinding Content}"
+                                                  ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                  ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
+                                                  RecognizesAccessKey="True" />
+                            </StackPanel>
+
+                            <StackPanel x:Name="RightContentPresenter"
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                        Orientation="Horizontal"
+                                        Visibility="Collapsed">
+                                <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  Content="{TemplateBinding Content}"
+                                                  ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                  ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
+                                                  RecognizesAccessKey="True" />
+                                <Image Width="{Binding IconWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Height="{Binding IconHeight, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Margin="{Binding IconMargin, RelativeSource={RelativeSource TemplatedParent}}"
+                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                       Source="{Binding CurrentIconSource, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Stretch="{Binding IconStretch, RelativeSource={RelativeSource TemplatedParent}}" />
+                            </StackPanel>
+                        </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="HasIconSource" Value="True" />
+                                <Condition Property="HasContent" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="IconOnlyPresenter" Property="Visibility" Value="Visible" />
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="HasIconSource" Value="False" />
+                                <Condition Property="HasContent" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="ContentOnlyPresenter" Property="Visibility" Value="Visible" />
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="HasIconSource" Value="True" />
+                                <Condition Property="HasContent" Value="True" />
+                                <Condition Property="IconPlacement" Value="{x:Static local:OpnxIconPlacement.Top}" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="TopContentPresenter" Property="Visibility" Value="Visible" />
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="HasIconSource" Value="True" />
+                                <Condition Property="HasContent" Value="True" />
+                                <Condition Property="IconPlacement" Value="{x:Static local:OpnxIconPlacement.Bottom}" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="BottomContentPresenter" Property="Visibility" Value="Visible" />
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="HasIconSource" Value="True" />
+                                <Condition Property="HasContent" Value="True" />
+                                <Condition Property="IconPlacement" Value="{x:Static local:OpnxIconPlacement.Left}" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="LeftContentPresenter" Property="Visibility" Value="Visible" />
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="HasIconSource" Value="True" />
+                                <Condition Property="HasContent" Value="True" />
+                                <Condition Property="IconPlacement" Value="{x:Static local:OpnxIconPlacement.Right}" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="RightContentPresenter" Property="Visibility" Value="Visible" />
+                        </MultiTrigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="ContentBorder" Property="Background" Value="{Binding CheckedBackground, RelativeSource={RelativeSource TemplatedParent}}" />
                             <Setter TargetName="ContentBorder" Property="BorderBrush" Value="{Binding CheckedBorderBrush, RelativeSource={RelativeSource TemplatedParent}}" />
                             <Setter TargetName="ContentBorder" Property="Opacity" Value="{Binding CheckedOpacity, RelativeSource={RelativeSource TemplatedParent}}" />
-                            <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="{Binding CheckedForeground, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <Setter TargetName="ContentBorder" Property="TextElement.Foreground" Value="{Binding CheckedForeground, RelativeSource={RelativeSource TemplatedParent}}" />
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -78,13 +192,13 @@
                             <Setter TargetName="ContentBorder" Property="Background" Value="{Binding MouseOverBackground, RelativeSource={RelativeSource TemplatedParent}}" />
                             <Setter TargetName="ContentBorder" Property="BorderBrush" Value="{Binding MouseOverBorderBrush, RelativeSource={RelativeSource TemplatedParent}}" />
                             <Setter TargetName="ContentBorder" Property="Opacity" Value="{Binding MouseOverOpacity, RelativeSource={RelativeSource TemplatedParent}}" />
-                            <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="{Binding MouseOverForeground, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <Setter TargetName="ContentBorder" Property="TextElement.Foreground" Value="{Binding MouseOverForeground, RelativeSource={RelativeSource TemplatedParent}}" />
                         </MultiTrigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="ContentBorder" Property="Background" Value="{Binding PressedBackground, RelativeSource={RelativeSource TemplatedParent}}" />
                             <Setter TargetName="ContentBorder" Property="BorderBrush" Value="{Binding PressedBorderBrush, RelativeSource={RelativeSource TemplatedParent}}" />
                             <Setter TargetName="ContentBorder" Property="Opacity" Value="{Binding PressedOpacity, RelativeSource={RelativeSource TemplatedParent}}" />
-                            <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="{Binding PressedForeground, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <Setter TargetName="ContentBorder" Property="TextElement.Foreground" Value="{Binding PressedForeground, RelativeSource={RelativeSource TemplatedParent}}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="ContentBorder" Property="Opacity" Value="{Binding DisabledOpacity, RelativeSource={RelativeSource TemplatedParent}}" />
@@ -96,13 +210,6 @@
     </Style>
 
     <Style BasedOn="{StaticResource DefaultOpnxToggleButtonStyle}"
-           TargetType="{x:Type local:OpnxToggleButton}">
-        <Setter Property="ContentTemplate" Value="{StaticResource IconContentTemplate}" />
-        <Style.Triggers>
-            <Trigger Property="IconSource" Value="{x:Null}">
-                <Setter Property="ContentTemplate" Value="{x:Null}" />
-            </Trigger>
-        </Style.Triggers>
-    </Style>
+           TargetType="{x:Type local:OpnxToggleButton}" />
 
 </ResourceDictionary>

@@ -38,13 +38,7 @@ namespace OPNX.UI.WPF.Controls
             nameof(ClearButtonEnabled),
             typeof(bool),
             typeof(OpnxTextBox),
-            new PropertyMetadata(true, OnClearButtonStatePropertyChanged));
-
-        public static readonly DependencyProperty ShowClearButtonProperty = DependencyProperty.Register(
-            nameof(ShowClearButton),
-            typeof(bool),
-            typeof(OpnxTextBox),
-            new PropertyMetadata(false));
+            new PropertyMetadata(true));
 
         private ButtonBase? _clearButton;
 
@@ -85,12 +79,6 @@ namespace OPNX.UI.WPF.Controls
             set => SetValue(ClearButtonEnabledProperty, value);
         }
 
-        public bool ShowClearButton
-        {
-            get => (bool)GetValue(ShowClearButtonProperty);
-            set => SetValue(ShowClearButtonProperty, value);
-        }
-
         public override void OnApplyTemplate()
         {
             if (_clearButton is not null)
@@ -107,25 +95,25 @@ namespace OPNX.UI.WPF.Controls
                 _clearButton.Click += ClearButton_Click;
             }
 
-            UpdatePlaceholderAndClearButton();
+            UpdatePlaceholder();
         }
 
         protected override void OnTextChanged(TextChangedEventArgs e)
         {
             base.OnTextChanged(e);
-            UpdatePlaceholderAndClearButton();
+            UpdatePlaceholder();
         }
 
         protected override void OnGotKeyboardFocus(System.Windows.Input.KeyboardFocusChangedEventArgs e)
         {
             base.OnGotKeyboardFocus(e);
-            UpdatePlaceholderAndClearButton();
+            UpdatePlaceholder();
         }
 
         protected override void OnLostKeyboardFocus(System.Windows.Input.KeyboardFocusChangedEventArgs e)
         {
             base.OnLostKeyboardFocus(e);
-            UpdatePlaceholderAndClearButton();
+            UpdatePlaceholder();
         }
 
         protected virtual void OnClearButtonClick()
@@ -137,32 +125,18 @@ namespace OPNX.UI.WPF.Controls
             }
         }
 
-        private static void OnClearButtonStatePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is OpnxTextBox textBox)
-            {
-                textBox.UpdatePlaceholderAndClearButton();
-            }
-        }
-
         private void ClearButton_Click(object sender, RoutedEventArgs e)
         {
             OnClearButtonClick();
             e.Handled = true;
         }
 
-        private void UpdatePlaceholderAndClearButton()
+        private void UpdatePlaceholder()
         {
             bool shouldEnablePlaceholder = Text.Length == 0;
             if (PlaceholderEnabled != shouldEnablePlaceholder)
             {
                 PlaceholderEnabled = shouldEnablePlaceholder;
-            }
-
-            bool shouldShowClearButton = ClearButtonEnabled && IsKeyboardFocusWithin && Text.Length > 0;
-            if (ShowClearButton != shouldShowClearButton)
-            {
-                ShowClearButton = shouldShowClearButton;
             }
         }
     }
