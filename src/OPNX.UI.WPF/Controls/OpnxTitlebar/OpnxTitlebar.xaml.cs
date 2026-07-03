@@ -15,6 +15,7 @@ namespace OPNX.UI.WPF.Controls
         private Window? _ownerWindow;
         private HwndSource? _hwndSource;
         private bool _isWindowMaximized;
+        private Point? _dragStartPosition;
 
         public OpnxTitlebar()
         {
@@ -459,15 +460,40 @@ namespace OPNX.UI.WPF.Controls
 
             if (e.ClickCount == 2)
             {
+                ClearDragStartPosition();
                 ToggleMaximize();
                 return;
             }
+
+            _dragStartPosition = e.GetPosition(this);
+        }
+
+        private void Titlebar_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_dragStartPosition == null)
+                return;
+
+            if (e.LeftButton != MouseButtonState.Pressed)
+            {
+                ClearDragStartPosition();
+                return;
+            }
+
+            var currentPosition = e.GetPosition(this);
+            var dragOffset = currentPosition - _dragStartPosition.Value;
+            if (Math.Abs(dragOffset.X) < SystemParameters.MinimumHorizontalDragDistance &&
+                Math.Abs(dragOffset.Y) < SystemParameters.MinimumVerticalDragDistance)
+            {
+                return;
+            }
+
+            ClearDragStartPosition();
 
             var window = GetOwnerWindow();
             if (window == null)
                 return;
 
-            RestoreMaximizedWindowForDrag(window, e);
+            RestoreMaximizedWindowForDrag(window, currentPosition);
 
             try
             {
@@ -476,6 +502,19 @@ namespace OPNX.UI.WPF.Controls
             catch
             {
             }
+        }
+
+        private void Titlebar_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                ClearDragStartPosition();
+        }
+
+        private void ClearDragStartPosition()
+        {
+            _dragStartPosition = null;
+            if (IsMouseCaptured)
+                ReleaseMouseCapture();
         }
 
         private Window? GetOwnerWindow()
@@ -497,13 +536,13 @@ namespace OPNX.UI.WPF.Controls
                 : WindowState.Maximized;
         }
 
-        private void RestoreMaximizedWindowForDrag(Window window, MouseButtonEventArgs e)
+        private void RestoreMaximizedWindowForDrag(Window window, Point mousePositionInTitlebar)
         {
             if (window.WindowState != WindowState.Maximized)
                 return;
 
-            var mousePositionInWindow = e.GetPosition(window);
-            var mousePositionOnScreen = PointToScreen(e.GetPosition(this));
+            var mousePositionInWindow = TranslatePoint(mousePositionInTitlebar, window);
+            var mousePositionOnScreen = PointToScreen(mousePositionInTitlebar);
             var restoreBounds = window.RestoreBounds;
             var restoreWidth = restoreBounds.Width > 0 ? restoreBounds.Width : window.MinWidth;
             var restoreHeight = restoreBounds.Height > 0 ? restoreBounds.Height : window.MinHeight;

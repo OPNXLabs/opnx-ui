@@ -53,7 +53,9 @@
     </UserControl.Resources>
 
     <Grid Background="{Binding Background, ElementName=titlebar}"
-          MouseDown="Titlebar_MouseDown">
+          MouseDown="Titlebar_MouseDown"
+          MouseMove="Titlebar_MouseMove"
+          MouseUp="Titlebar_MouseUp">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
