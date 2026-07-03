@@ -1,27 +1,59 @@
-# OPNX.UI.WPF
+# OPNX.UI
 
-OPNX.UI.WPF is a WPF UI library for building stateful video applications such as VMS, NVR, live monitoring clients, and playback/review tools.
+[Korean](README.ko.md)
 
-It provides reusable controls for video display, multi-tile layouts, navigation, playback timelines, hierarchical data views, and WPF application composition on top of OPNX.Lib.
+OPNX.UI is the UI solution family for OPNX client applications.
 
-## Status
+The goal of OPNX.UI is to provide reusable .NET-based UI foundations for building video client applications across operating systems and client environments, including monitoring clients, playback/review tools, and video-platform desktop applications.
 
-OPNX.UI.WPF is under active development.
+The current implementation in this repository is `OPNX.UI.WPF`, a WPF control library for Windows-based OPNX video clients.
 
-The control set is still evolving, and samples/API documentation will be added separately. The current README describes the intended component surface and project direction without treating every control as final.
+## Why OPNX.UI Exists
 
-## Features
+OPNX client applications need more than ordinary desktop UI controls.
 
-- `OpnxMultiView` for grid-based video tile layouts
-- `OpnxImage` for DirectX-backed image and rendering scenarios
-- `OpnxPlaybackTimeline` for playback timeline and recorded media navigation workflows
-- `OpnxTreeListView` for hierarchical list/tree management screens
-- `OpnxNavigator` for selectable application navigation surfaces
-- `OpnxTitlebar` for custom WPF window chrome scenarios
-- `OpnxButton`, `OpnxToggleButton`, `OpnxCheckBox`, `OpnxTextBox`, and `OpnxPasswordBox` for reusable input primitives
-- Drag-and-drop interaction infrastructure
-- Shared WPF primitives for building custom controls
-- Rendering and utility helpers for UI composition
+Real VMS, NVR, monitoring, playback, and review clients repeatedly need the same difficult UI foundations:
+
+- dense multi-channel video layouts
+- rendering-oriented image and media display controls
+- playback timelines and recorded media review workflows
+- hierarchical device, channel, user, resource, and configuration views
+- navigation surfaces for operational applications
+- platform-specific window and shell integration
+- reusable input controls that fit video-operation screens
+- drag-and-drop interaction infrastructure
+- integration with OPNX.Lib-based networking, media, data, and streaming infrastructure
+
+OPNX.UI exists so these UI foundations do not have to be rebuilt separately for every OPNX-based client application or operating system target.
+
+The repository currently focuses on WPF for Windows desktop clients through `OPNX.UI.WPF`. Future UI modules may target other .NET UI stacks, AOT-oriented clients, or platform-specific client applications as the OPNX ecosystem grows.
+
+## Current Implementation
+
+### OPNX.UI.WPF
+
+`OPNX.UI.WPF` is a WPF UI library for building stateful video applications, including VMS, NVR, live monitoring clients, playback/review tools, and Windows desktop video-platform applications.
+
+It provides reusable WPF controls and UI infrastructure for video display, multi-tile monitoring layouts, navigation, playback timelines, hierarchical data views, custom window chrome, and application composition on top of OPNX.Lib.
+
+## What OPNX.UI.WPF Provides
+
+`OPNX.UI.WPF` is organized around the following areas.
+
+- Video display and layout  
+  Controls for multi-tile video layouts and rendering-oriented image/media display scenarios.
+
+- Playback and review workflows  
+  Timeline controls and UI building blocks for recorded media navigation and review.
+
+- Operational navigation and data views  
+  Navigation controls and hierarchical list/tree components for dense monitoring and management screens.
+
+- WPF application composition  
+  Custom title bar, input primitives, shared control bases, drag-and-drop infrastructure, and UI utility helpers.
+
+- OPNX platform integration  
+  UI components intended to work with OPNX.Lib-based application, media, data, and streaming layers.
 
 ## Main Components
 
@@ -48,20 +80,45 @@ The control set is still evolving, and samples/API documentation will be added s
 
 ## Design Direction
 
-OPNX.UI.WPF is intended to provide application-grade controls rather than isolated visual samples.
+OPNX.UI is designed as a UI foundation for OPNX client applications across platforms. `OPNX.UI.WPF` is the current Windows/WPF implementation of that direction.
 
+- The solution name `OPNX.UI` represents the broader UI family.
+- Platform-specific UI modules can be added under the OPNX.UI family over time.
 - Controls are designed for dense operational UIs such as VMS/NVR clients.
 - Components are expected to work together with OPNX.Lib and OPNX.V-style applications.
+- UI behavior should remain reusable across products instead of being tied to one application screen.
 - Public APIs and examples will be refined as the sample applications mature.
 - Logging and diagnostics should remain abstraction-based through the underlying application stack.
+- Native media and rendering dependencies are kept separate from OPNX-owned code in both licensing and distribution responsibility.
+
+## Potential Future Directions
+
+The repository currently provides `OPNX.UI.WPF`. Future OPNX.UI modules may include additional .NET-based client UI layers, such as:
+
+- AOT-oriented client UI/runtime support
+- cross-platform .NET UI controls
+- macOS-focused client UI layers
+- other operating-system-specific client UI foundations
+
+These future directions are not part of the current public API surface unless they are added as explicit projects.
 
 ## Use Cases
 
-- Video Management Systems (VMS / NVR)
+- Video Management Systems, VMS
+- Network Video Recorders, NVR
 - Multi-channel monitoring clients
 - Playback and recorded media review tools
-- WPF-based media and surveillance applications
-- Platform UI development on top of `OPNX.Lib`
+- Windows WPF video clients through `OPNX.UI.WPF`
+- Future .NET-based video clients for other operating systems
+- Desktop platform UI development on top of OPNX.Lib
+
+## Current Status
+
+OPNX.UI is under active development.
+
+The current implementation is `OPNX.UI.WPF`. Its control set is still evolving, and samples/API documentation will be added separately as the project matures.
+
+The current repository should be treated as a preview-quality UI library for evaluation, integration testing, research, non-commercial experimentation, and early feedback rather than as a production-ready UI SDK.
 
 ## Build
 
@@ -76,43 +133,61 @@ Build:
 dotnet build OPNX.UI.slnx -c Debug
 ```
 
-## Samples And Documentation
+## Samples And Documentation Roadmap
 
-Samples and API documentation are planned but are not included yet.
+Samples, API documentation, and integration guides are not included yet.
 
-Planned documentation topics include:
+Initial documentation targets are expected to cover:
 
 - basic control usage
 - layout composition
+- video display and rendering integration
 - playback timeline integration
 - tree/list data binding
 - window title bar integration
+- OPNX.Lib integration
 
 ## Dependency
 
 `OPNX.UI.WPF` is designed to be used together with `OPNX.Lib`.
 
+During local development, the project can reference local OPNX.Lib projects. Package builds can reference the configured OPNX.Lib package version.
+
 ## License
 
-This repository is source-available for learning, evaluation, research, testing, and other non-commercial use.
+OPNX.UI is source-available, but it is not licensed as permissive open-source software.
+
+OPNX-owned code in this repository may be used for learning, evaluation, research, testing, and other non-commercial purposes.
 
 Commercial use, redistribution, OEM integration, or inclusion in commercial products or services requires prior written permission from OPNX.
 
-See [LICENSE.txt](LICENSE.txt) for full terms.
+See [LICENSE.txt](LICENSE.txt) for full terms. A Korean reference translation is available at [LICENSE.ko.txt](LICENSE.ko.txt).
 
 ## Third-Party Components
 
 This repository uses third-party software components under their respective licenses.
 
+Important notes:
+
+- `OPNX.Lib` is used under the OPNX source-available license.
+- `FFmpeg.AutoGen`, `SharpDX`, and `SharpDX.Direct3D9` are used under the MIT License.
+- Native `FFmpeg` binaries are not covered by the OPNX license.
+- OPNX recommends that users obtain and configure native FFmpeg binaries separately.
+- Any party that bundles or redistributes native FFmpeg binaries is responsible for complying with the license terms that apply to the selected FFmpeg build.
+- OPNX.Lib and its own third-party dependencies remain subject to their respective license terms and notices.
+
 See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for details.
 
 ## Related Projects
 
-- `OPNX.Lib` - core SDK for networking, media, streaming, and data infrastructure.
-- `OPNX.V` - video platform applications built on top of OPNX.Lib and OPNX.UI.
+- `OPNX.Lib`  
+  Core SDK for networking, media, streaming, and data infrastructure.
+
+- `OPNX.V`  
+  Video platform applications built on top of OPNX.Lib and OPNX.UI.
 
 ## Commercial And OEM Inquiries
 
-For commercial licensing, OEM agreements, or partnership inquiries:
+For commercial licensing, OEM agreements, or partnership inquiries, contact:
 
 - `opnx@opnx.kr`

@@ -10,6 +10,9 @@
     <Description>OPNX WPF UI library for VMS, NVR, and real-time monitoring applications built on top of OPNX.Lib.</Description>
     <UseLocalOpnxLib Condition="'$(UseLocalOpnxLib)' == ''">true</UseLocalOpnxLib>
     <OpnxLibVersion Condition="'$(OpnxLibVersion)' == ''">0.1.0-preview.20260410.2</OpnxLibVersion>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'ReleasePackage'">
@@ -33,5 +36,14 @@
 
   <ItemGroup Condition="'$(UseLocalOpnxLib)' != 'true'">
     <PackageReference Include="OPNX.Lib" Version="$(OpnxLibVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE.txt" Pack="true" PackagePath="" Visible="false" />
+    <None Include="..\..\LICENSE.ko.txt" Pack="true" PackagePath="" Visible="false" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="" Visible="false" />
+    <None Include="..\..\README.ko.md" Pack="true" PackagePath="" Visible="false" />
+    <None Include="..\..\THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="" Visible="false" />
+    <None Include="..\..\third_party_licenses\MIT.txt" Pack="true" PackagePath="third_party_licenses/" Visible="false" />
   </ItemGroup>
 </Project>
