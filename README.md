@@ -120,6 +120,18 @@ The current implementation is `OPNX.UI.WPF`. Its control set is still evolving, 
 
 The current repository should be treated as a preview-quality UI library for evaluation, integration testing, research, non-commercial experimentation, and early feedback rather than as a production-ready UI SDK.
 
+## NuGet Package
+
+`OPNX.UI.WPF` is published as a preview NuGet package.
+
+Install:
+
+```powershell
+dotnet add package OPNX.UI.WPF --version 0.1.0-preview.20260704.1
+```
+
+This package is intended for preview evaluation and integration testing. API compatibility, package structure, and documentation may change before a stable release.
+
 ## Build
 
 Requirements:

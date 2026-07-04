@@ -11,23 +11,18 @@
     <Copyright>Copyright (c) 2026 OPNX</Copyright>
 
     <Description>OPNX UI libraries for building stateful video applications on top of OPNX.Lib across multiple client platforms.</Description>
-    <Version>0.1.0-preview.20260410.2</Version>
-    <InformationalVersion>0.1.0-preview.20260410.2</InformationalVersion>
+    <Version>0.1.0-preview.20260704.1</Version>
+    <InformationalVersion>0.1.0-preview.20260704.1</InformationalVersion>
 
     <PackageProjectUrl>https://www.opnx.kr/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/OPNXLabs</RepositoryUrl>
+    <RepositoryUrl>https://github.com/OPNXLabs/opnx-ui</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageId>$(MSBuildProjectName)</PackageId>
 
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>opnx;ui;wpf;video;vms;nvr;monitoring;dotnet</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)LICENSE.txt" Pack="true" PackagePath="" Visible="false" />
-    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="" Visible="false" />
-    <None Include="$(MSBuildThisFileDirectory)THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="" Visible="false" />
-    <None Include="$(MSBuildThisFileDirectory)third_party_licenses\MIT.txt" Pack="true" PackagePath="third_party_licenses/" Visible="false" />
-  </ItemGroup>
 </Project>

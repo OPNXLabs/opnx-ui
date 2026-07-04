@@ -9,7 +9,7 @@
     <Product>OPNX.UI.WPF</Product>
     <Description>OPNX WPF UI library for VMS, NVR, and real-time monitoring applications built on top of OPNX.Lib.</Description>
     <UseLocalOpnxLib Condition="'$(UseLocalOpnxLib)' == ''">true</UseLocalOpnxLib>
-    <OpnxLibVersion Condition="'$(OpnxLibVersion)' == ''">0.1.0-preview.20260410.2</OpnxLibVersion>
+    <OpnxLibVersion Condition="'$(OpnxLibVersion)' == ''">0.1.0-preview.20260704.1</OpnxLibVersion>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
