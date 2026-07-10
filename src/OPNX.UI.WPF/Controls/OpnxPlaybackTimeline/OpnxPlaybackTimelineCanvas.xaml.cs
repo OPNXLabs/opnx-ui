@@ -1,5 +1,6 @@
 ﻿using OPNX.Lib.Data.ORM.Interfaces;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,7 +15,7 @@ namespace OPNX.UI.WPF.Controls
     {
         #region Fields
         private const double drawCameraStartY = 7;
-        private const double drawCameraHeight = 15;
+        private const double drawCameraHeight = 16;
         private const double drawCameraEmptySpace = 10;
 
         private readonly SolidColorBrush? cameraBackBrush = new BrushConverter().ConvertFromString("#66000000") as SolidColorBrush;
@@ -71,6 +72,11 @@ namespace OPNX.UI.WPF.Controls
             //this.realTimeRefreshTimer.Start();
             this.MouseMove += DrawPopup;
             this.MouseLeave += HidePopup;
+            this.Loaded += (_, _) =>
+            {
+                UpdateTimelineExtent();
+                InvalidateVisual();
+            };
             //this.popup.xPopup.Placement = PlacementMode.RelativePoint;
             //this.popup.xPopup.PlacementTarget = this;
         }
@@ -110,7 +116,7 @@ namespace OPNX.UI.WPF.Controls
 
             timelineRecords.Add(newRecordData);
 
-            //this.RefreshTimeline_BackgroundWorker();
+            UpdateTimelineExtent();
             this.InvalidateVisual();
 
             return newRecordData;
@@ -130,6 +136,7 @@ namespace OPNX.UI.WPF.Controls
 
             recordData = new PlaybackTimelineRecordData(entity);
             timelineRecords.Add(recordData);
+            UpdateTimelineExtent();
             return recordData;
         }
 
@@ -143,6 +150,7 @@ namespace OPNX.UI.WPF.Controls
 
             timelineRecords.Remove(findRecordData);
 
+            UpdateTimelineExtent();
             this.InvalidateVisual();
         }
 
@@ -153,6 +161,7 @@ namespace OPNX.UI.WPF.Controls
 
             findRecordData.AddRecordInfo(recordInfo);
 
+            UpdateTimelineExtent();
             this.InvalidateVisual();
         }
 
@@ -167,9 +176,46 @@ namespace OPNX.UI.WPF.Controls
 
             findRecordData.AddEventInfo(eventInfo);
 
+            UpdateTimelineExtent();
             this.InvalidateVisual();
         }
         #endregion
+
+        public void UpdateTimelineExtent()
+        {
+            if (ParentTimelineControl == null)
+                return;
+
+            double desiredHeight = drawCameraStartY +
+                (drawCameraHeight + drawCameraEmptySpace) * timelineRecords.Count - drawCameraEmptySpace;
+
+            double viewportHeight = ParentTimelineControl.xScrollViewer.ViewportHeight;
+            if (double.IsNaN(viewportHeight) || viewportHeight <= 0)
+                viewportHeight = ParentTimelineControl.xScrollViewer.ActualHeight;
+
+            if (!double.IsNaN(viewportHeight) && viewportHeight > 0 && desiredHeight < viewportHeight)
+                desiredHeight = viewportHeight;
+
+            if (desiredHeight > 0)
+            {
+                if (Math.Abs(ParentTimelineControl.xCanvasInner.Height - desiredHeight) > 0.1)
+                    ParentTimelineControl.xCanvasInner.Height = desiredHeight;
+
+                if (Math.Abs(Height - desiredHeight) > 0.1)
+                    Height = desiredHeight;
+            }
+
+            double desiredWidth = ParentTimelineControl.xCanvasInner.ActualWidth;
+            if (double.IsNaN(desiredWidth) || desiredWidth <= 0)
+                desiredWidth = ParentTimelineControl.xScrollViewer.ViewportWidth;
+            if (double.IsNaN(desiredWidth) || desiredWidth <= 0)
+                desiredWidth = ParentTimelineControl.xScrollViewer.ActualWidth;
+            if (double.IsNaN(desiredWidth) || desiredWidth <= 0)
+                desiredWidth = ParentTimelineControl.xTimeLineGrid.ActualWidth;
+
+            if (!double.IsNaN(desiredWidth) && desiredWidth > 0 && Math.Abs(Width - desiredWidth) > 0.1)
+                Width = desiredWidth;
+        }
 
         private void HidePopup(object sender, MouseEventArgs e)
         {
@@ -610,15 +656,6 @@ namespace OPNX.UI.WPF.Controls
             if (recordDatas == null || recordDatas.Count == 0)
                 return;
 
-            double canvasInnerHeight = drawCameraStartY +
-                (drawCameraHeight + drawCameraEmptySpace) * recordDatas.Count - drawCameraEmptySpace;
-
-            if (canvasInnerHeight < ParentTimelineControl.xScrollViewer.ViewportHeight)
-                canvasInnerHeight = ParentTimelineControl.xScrollViewer.ViewportHeight;
-
-            if (Math.Abs(ParentTimelineControl.xCanvasInner.Height - canvasInnerHeight) > 0.1)
-                ParentTimelineControl.xCanvasInner.Height = canvasInnerHeight;
-
             long visibleTimeRangeMS = ParentTimelineControl.VisibleTimeRangeMS;
             long centerTimeUnixMS = ParentTimelineControl.CenterTimeUnixMS;
             long leftTimeUnixMS = centerTimeUnixMS - (visibleTimeRangeMS / 2);
@@ -664,6 +701,21 @@ namespace OPNX.UI.WPF.Controls
                     if (right > 0 && left < this.Width)
                         dc.DrawRectangle(ev.EventColor, null, new Rect(left, entityTop - ev.DrawHeightGap, width, drawCameraHeight + ev.DrawHeightGap * 2));
                 }
+
+                if (!ParentTimelineControl.ShowEntityNameOnTimeline)
+                    continue;
+
+                string entityName = string.IsNullOrEmpty(recordData.Entity.DisplayText) ? "No Name" : recordData.Entity.DisplayText;
+                double pixelsPerDip = VisualTreeHelper.GetDpi(this).PixelsPerDip;
+                var formattedText = new FormattedText(entityName, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, new Typeface("Verdana"), 10, Brushes.White, pixelsPerDip)
+                {
+                    MaxTextWidth = 150,
+                    MaxTextHeight = drawCameraHeight,
+                    MaxLineCount = 1,
+                    Trimming = TextTrimming.CharacterEllipsis
+                };
+
+                dc.DrawText(formattedText, new Point(5, entityTop));
             }
         }
 

@@ -151,107 +151,59 @@
                         <RowDefinition Height="60"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0" Background="Transparent">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                    <Grid Grid.Row="0" Background="Transparent">                        
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="35"></RowDefinition>
                             <RowDefinition Height="*"></RowDefinition>
                         </Grid.RowDefinitions>
-                        <Border Grid.Column="0" Grid.Row="0" Background="#14151A" Margin="0,0,1,1">
-                            <TextBlock Grid.Row="0" Text="시간간격" FontFamily="NanumBarunGothic" Foreground="White" FontSize="13" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center"></TextBlock>
+                        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="Transparent" Margin="0">
+                            <TextBlock Grid.Row="0"
+                                       Text="{Binding RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}, Path=TimeRangeHeader}"
+                                       FontFamily="NanumBarunGothic"
+                                       Foreground="White"
+                                       FontSize="13"
+                                       HorizontalAlignment="Center"
+                                       Margin="0"
+                                       VerticalAlignment="Center"></TextBlock>
                         </Border>
-                        <Border Grid.Column="0" Grid.Row="1" Background="#14151A" Margin="0,0,1,0">
-                            <TextBlock Grid.Row="1" FontFamily="NanumBarunGothic" Foreground="White" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource  Mode=FindAncestor, AncestorType=local:OpnxPlaybackTimeline}, Path=CurrentTimeRange}" Value="{x:Static local:PlaybackTimelineRangeType.M5}">
-                                                <Setter Property="Text" Value="5분"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource  Mode=FindAncestor, AncestorType=local:OpnxPlaybackTimeline}, Path=CurrentTimeRange}" Value="{x:Static local:PlaybackTimelineRangeType.M15}">
-                                                <Setter Property="Text" Value="15분"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource  Mode=FindAncestor, AncestorType=local:OpnxPlaybackTimeline}, Path=CurrentTimeRange}" Value="{x:Static local:PlaybackTimelineRangeType.M30}">
-                                                <Setter Property="Text" Value="30분"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource  Mode=FindAncestor, AncestorType=local:OpnxPlaybackTimeline}, Path=CurrentTimeRange}" Value="{x:Static local:PlaybackTimelineRangeType.H1}">
-                                                <Setter Property="Text" Value="1시간"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource  Mode=FindAncestor, AncestorType=local:OpnxPlaybackTimeline}, Path=CurrentTimeRange}" Value="{x:Static local:PlaybackTimelineRangeType.H3}">
-                                                <Setter Property="Text" Value="3시간"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource  Mode=FindAncestor, AncestorType=local:OpnxPlaybackTimeline}, Path=CurrentTimeRange}" Value="{x:Static local:PlaybackTimelineRangeType.H6}">
-                                                <Setter Property="Text" Value="6시간"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource  Mode=FindAncestor, AncestorType=local:OpnxPlaybackTimeline}, Path=CurrentTimeRange}" Value="{x:Static local:PlaybackTimelineRangeType.H12}">
-                                                <Setter Property="Text" Value="12시간"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource  Mode=FindAncestor, AncestorType=local:OpnxPlaybackTimeline}, Path=CurrentTimeRange}" Value="{x:Static local:PlaybackTimelineRangeType.H24}">
-                                                <Setter Property="Text" Value="24시간"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource  Mode=FindAncestor, AncestorType=local:OpnxPlaybackTimeline}, Path=CurrentTimeRange}" Value="{x:Static local:PlaybackTimelineRangeType.D3}">
-                                                <Setter Property="Text" Value="3일"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
+                        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Background="Transparent" Margin="0">
+                            <local:OpnxStepSelector VerticalAlignment="Center"
+                                                    VerticalContentAlignment="Center"
+                                                    Foreground="White"
+                                                    ButtonWidth="30"
+                                                    ButtonHeight="30"
+                                                    ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}, Path=TimelineRangeItems}"
+                                                    SelectedItem="{Binding RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}, Path=SelectedTimeRangeItem, Mode=TwoWay}">
+                                <local:OpnxStepSelector.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding DisplayName}"
+                                                   FontFamily="NanumBarunGothic"
+                                                   Foreground="White"
+                                                   FontSize="13"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </local:OpnxStepSelector.ItemTemplate>
+                            </local:OpnxStepSelector>
                         </Border>
-
-                <Button Grid.Column="1" Grid.Row="0" x:Name="btnIncTimeRange" Width="30" Height="30" Cursor="Hand" Margin="0,0,0,1" Click="HandleIncreaseTimeRangeClick">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="border" Background="Black" BorderBrush="Transparent" BorderThickness="0" >
-                                        <Image Width="15" Height="15" Source="/OnEyes.Client.Shared;component/Resources/Common/Plus.png" Stretch="Fill"  HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
-                                    </Border>
-
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="Button.IsMouseOver" Value="true">
-                                            <Setter Property="Opacity" TargetName="border" Value="0.8" />
-                                        </Trigger>
-                                        <Trigger Property="Button.IsPressed" Value="true">
-                                            <Setter Property="Opacity" TargetName="border" Value="1.0" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
-                <Button Grid.Column="1" Grid.Row="1" x:Name="btnDecTimeRange" Width="30" Height="30" Cursor="Hand" Click="HandleDecreaseTimeRangeClick" Margin="0,0,0,0">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="border" Background="Black" BorderBrush="Transparent" BorderThickness="0" >
-                                        <Image Width="15" Height="15" Source="/OnEyes.Client.Shared;component/Resources/Common/Minus.png" Stretch="Fill"  HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
-                                    </Border>
-
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="Button.IsMouseOver" Value="true">
-                                            <Setter Property="Opacity" TargetName="border" Value="0.8" />
-                                        </Trigger>
-                                        <Trigger Property="Button.IsPressed" Value="true">
-                                            <Setter Property="Opacity" TargetName="border" Value="1.0" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
+                        <Rectangle Fill="#0E1621" Height="2" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True" Grid.Row="0" ></Rectangle>
+                        <Rectangle Fill="#0E1621" Height="2" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True" Grid.Row="1" ></Rectangle>
                     </Grid>
                     <ListBox Grid.Row="1" x:Name="xEntityListBox"  BorderBrush="Transparent"  BorderThickness="1" Margin="0,0,0,0"
                              Foreground="White" FontSize="12" FontFamily="NanumBarunGothic"
                              Style="{StaticResource ListBoxStyRecordData}"
                              ItemsSource="{Binding ElementName=xTimelineCanvas, Path=TimelineRecords}" >
                     </ListBox>
-                    <Rectangle Fill="Transparent" Height="1" Margin="0" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True" Grid.Row="0"></Rectangle>
-                    <!--<Rectangle Fill="#FF444444" Height="1" Margin="0" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True" Grid.Row="1"></Rectangle>-->
+
+                    <Rectangle Fill="#0E1621" Width="2" Margin="0" HorizontalAlignment="Right" StrokeThickness="0" SnapsToDevicePixels="True" Grid.Row="0" Grid.RowSpan="2"></Rectangle>
                 </Grid>
+                
                 <Grid x:Name="xTimeLineGrid" Grid.Column="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="35"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Grid HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Center">
+                    <Grid HorizontalAlignment="Left" Margin="20,0,0,0" Grid.Row="0" VerticalAlignment="Center">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="0.5*"/>
                             <RowDefinition Height="0.5*"/>
@@ -267,7 +219,7 @@
                         <TextBlock x:Name="xTextBlockVisibleCenterDate" TextWrapping="Wrap" d:LayoutOverrides="Height" Foreground="#C94A46" HorizontalAlignment="Center" VerticalAlignment="Top" Text="2011년 11월 17일 목요일" FontSize="10.667"/>
                         <TextBlock x:Name="xTextBlockVisibleCenterTime" TextWrapping="Wrap" Text="13:24:24.143" Margin="0" d:LayoutOverrides="Height" Grid.Row="1" Foreground="#C94A46" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10.667"/>
                     </Grid>
-                    <Grid HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="0" VerticalAlignment="Center">
+                    <Grid HorizontalAlignment="Right" Margin="0,0,20,0" Grid.Row="0" VerticalAlignment="Center">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="0.5*"/>
                             <RowDefinition Height="0.5*"/>
@@ -289,36 +241,12 @@
                             <Canvas x:Name="xCanvasInner" Background="Transparent" ClipToBounds="True">
                                 <local:OpnxPlaybackTimelineCanvas x:Name="xTimelineCanvas" ParentTimelineControl="{Binding RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" />
 
-                                <!--
-    								<Rectangle x:Name="xRectangleCameraSelected" Fill="#FF73B2F2" Height="21" Canvas.Top="7" Width="1596"/>
-    								<Rectangle x:Name="xRectangleCameraBackground01" Fill="#66000000" Height="15" Canvas.Top="10" Width="1596"/>
-                                    <Rectangle x:Name="xRectangleCameraBackground02" Fill="#33000000" Height="15" Canvas.Top="40" Width="1596"/>
-                                    <Rectangle x:Name="xRectangleCameraBackground03" Fill="#33000000" Height="15" Canvas.Top="70" Width="1596"/>
-                                    <Rectangle x:Name="xRectangleCameraBackground04" Fill="#33000000" Height="15" Canvas.Top="100" Width="1596"/>
-                                    <Rectangle x:Name="xRectangleCameraBackground05" Fill="#33000000" Height="15" Canvas.Top="130" Width="1596"/>
-                                    <Rectangle x:Name="xRectangleCameraBackground05_Copy" Fill="#33000000" Height="15" Canvas.Top="160" Width="1596"/>
-                                    <Rectangle x:Name="xRectangleCameraBackground05_Copy1" Fill="#33000000" Height="15" Canvas.Top="190" Width="1596"/>
-                                    
-    								<Rectangle x:Name="xRectangleTemp01" Fill="Green" Height="15" Canvas.Left="80" Canvas.Top="70" Width="422"/>
-                                    <Rectangle x:Name="xRectangleTemp02" Fill="Green" Height="15" Canvas.Left="415.665" Canvas.Top="160" Width="1082"/>
-                                    <Rectangle x:Name="xRectangleTemp03" Fill="Green" Height="15" Canvas.Left="546.5" Canvas.Top="40" Width="679.863"/>
-                                    <Rectangle x:Name="xRectangleTemp08" Fill="Green" Height="15" Canvas.Left="164.264" Canvas.Top="10" Width="422"/>
-                                    
-                                    <TextBlock TextWrapping="Wrap" Foreground="White" Canvas.Left="5" Canvas.Top="9" Width="104.243"><Run Language="ko-kr" Text="Sony Camera Test "/></TextBlock>
-                                    <TextBlock TextWrapping="Wrap" Foreground="White" Canvas.Left="5" Canvas.Top="39" Width="99.368"><Run Language="ko-kr" Text="9층 회의실"/></TextBlock>
-                                    <TextBlock TextWrapping="Wrap" Foreground="White" Canvas.Left="5" Canvas.Top="69" Width="99.368"><Run Language="ko-kr" Text="10층 회의실"/></TextBlock>
-                                    <TextBlock TextWrapping="Wrap" Foreground="White" Canvas.Left="5" Canvas.Top="159" Width="99.368"><Run Language="ko-kr" Text="camera10928 AC"/></TextBlock>
-                                    -->
-
                                 <Rectangle x:Name="xRectangleLine01" Fill="#0E1621" Height="235" Width="1" Canvas.Left="144.264" SnapsToDevicePixels="True"/>
                                 <Rectangle x:Name="xRectangleLine02" Fill="#0E1621" Height="235" Width="1" Canvas.Left="410.665" SnapsToDevicePixels="True"/>
                                 <Rectangle x:Name="xRectangleLine03" Fill="#0E1621" Height="235" Width="1" Canvas.Left="685.112" SnapsToDevicePixels="True"/>
                                 <Rectangle x:Name="xRectangleLine04" Fill="#0E1621" Height="235" Width="1" Canvas.Left="962.5" SnapsToDevicePixels="True"/>
                                 <Rectangle x:Name="xRectangleLine05" Fill="#0E1621" Height="235" Width="1" Canvas.Left="1221.363" SnapsToDevicePixels="True"/>
                                 <Rectangle x:Name="xRectangleLine06" Fill="#0E1621" Height="235" Width="1" Canvas.Left="1479.484" SnapsToDevicePixels="True"/>
-
-
-
 
                                 <Grid x:Name="xGridEventInfo" Visibility="Collapsed">
                                     <Border x:Name="xBorderEventInfo" BorderBrush="Yellow" BorderThickness="1">

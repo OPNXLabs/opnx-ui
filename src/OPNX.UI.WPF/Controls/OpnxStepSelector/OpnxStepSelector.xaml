@@ -40,6 +40,8 @@
                           ContentTemplate="{Binding ElementName=Root, Path=PreviousButtonContentTemplate}"
                           ToolTip="{Binding ElementName=Root, Path=PreviousButtonToolTip}"
                           Style="{Binding ElementName=Root, Path=PreviousButtonStyle}"
+                          VerticalAlignment="{Binding ElementName=Root, Path=VerticalAlignment}"
+                          VerticalContentAlignment="{Binding ElementName=Root, Path=VerticalContentAlignment}"
                           Click="BtnPrevious_Click" />
 
         <ContentControl Grid.Column="1"
@@ -73,6 +75,8 @@
                           ContentTemplate="{Binding ElementName=Root, Path=NextButtonContentTemplate}"
                           ToolTip="{Binding ElementName=Root, Path=NextButtonToolTip}"
                           Style="{Binding ElementName=Root, Path=NextButtonStyle}"
+                          VerticalAlignment="{Binding ElementName=Root, Path=VerticalAlignment}"
+                          VerticalContentAlignment="{Binding ElementName=Root, Path=VerticalContentAlignment}"
                           Click="BtnNext_Click" />
     </Grid>
 </UserControl>

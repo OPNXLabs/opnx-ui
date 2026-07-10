@@ -1,4 +1,4 @@
-using OPNX.Lib.Common.Platform.Windows;
+﻿using OPNX.Lib.Common.Platform.Windows;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Shell;
 
 namespace OPNX.UI.WPF.Controls
 {
@@ -21,6 +22,7 @@ namespace OPNX.UI.WPF.Controls
         {
             InitializeComponent();
 
+            Initialized += OpnxTitlebar_Initialized;
             Loaded += OpnxTitlebar_Loaded;
             Unloaded += OpnxTitlebar_Unloaded;
         }
@@ -205,6 +207,42 @@ namespace OPNX.UI.WPF.Controls
             typeof(OpnxTitlebar),
             new PropertyMetadata("Close"));
 
+        public static readonly DependencyProperty AutoApplyWindowChromeProperty = DependencyProperty.Register(
+            nameof(AutoApplyWindowChrome),
+            typeof(bool),
+            typeof(OpnxTitlebar),
+            new PropertyMetadata(true, OnWindowChromePropertyChanged));
+
+        public static readonly DependencyProperty ChromeCaptionHeightProperty = DependencyProperty.Register(
+            nameof(ChromeCaptionHeight),
+            typeof(double),
+            typeof(OpnxTitlebar),
+            new PropertyMetadata(0d, OnWindowChromePropertyChanged));
+
+        public static readonly DependencyProperty ChromeResizeBorderThicknessProperty = DependencyProperty.Register(
+            nameof(ChromeResizeBorderThickness),
+            typeof(Thickness),
+            typeof(OpnxTitlebar),
+            new PropertyMetadata(new Thickness(5), OnWindowChromePropertyChanged));
+
+        public static readonly DependencyProperty ChromeGlassFrameThicknessProperty = DependencyProperty.Register(
+            nameof(ChromeGlassFrameThickness),
+            typeof(Thickness),
+            typeof(OpnxTitlebar),
+            new PropertyMetadata(new Thickness(0), OnWindowChromePropertyChanged));
+
+        public static readonly DependencyProperty ChromeCornerRadiusProperty = DependencyProperty.Register(
+            nameof(ChromeCornerRadius),
+            typeof(CornerRadius),
+            typeof(OpnxTitlebar),
+            new PropertyMetadata(new CornerRadius(0), OnWindowChromePropertyChanged));
+
+        public static readonly DependencyProperty ChromeUseAeroCaptionButtonsProperty = DependencyProperty.Register(
+            nameof(ChromeUseAeroCaptionButtons),
+            typeof(bool),
+            typeof(OpnxTitlebar),
+            new PropertyMetadata(false, OnWindowChromePropertyChanged));
+
         public ImageSource? LogoSource
         {
             get => (ImageSource?)GetValue(LogoSourceProperty);
@@ -385,6 +423,42 @@ namespace OPNX.UI.WPF.Controls
             set => SetValue(CloseToolTipProperty, value);
         }
 
+        public bool AutoApplyWindowChrome
+        {
+            get => (bool)GetValue(AutoApplyWindowChromeProperty);
+            set => SetValue(AutoApplyWindowChromeProperty, value);
+        }
+
+        public double ChromeCaptionHeight
+        {
+            get => (double)GetValue(ChromeCaptionHeightProperty);
+            set => SetValue(ChromeCaptionHeightProperty, value);
+        }
+
+        public Thickness ChromeResizeBorderThickness
+        {
+            get => (Thickness)GetValue(ChromeResizeBorderThicknessProperty);
+            set => SetValue(ChromeResizeBorderThicknessProperty, value);
+        }
+
+        public Thickness ChromeGlassFrameThickness
+        {
+            get => (Thickness)GetValue(ChromeGlassFrameThicknessProperty);
+            set => SetValue(ChromeGlassFrameThicknessProperty, value);
+        }
+
+        public CornerRadius ChromeCornerRadius
+        {
+            get => (CornerRadius)GetValue(ChromeCornerRadiusProperty);
+            set => SetValue(ChromeCornerRadiusProperty, value);
+        }
+
+        public bool ChromeUseAeroCaptionButtons
+        {
+            get => (bool)GetValue(ChromeUseAeroCaptionButtonsProperty);
+            set => SetValue(ChromeUseAeroCaptionButtonsProperty, value);
+        }
+
         public bool IsWindowMaximized
         {
             get => _isWindowMaximized;
@@ -403,12 +477,31 @@ namespace OPNX.UI.WPF.Controls
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        private void OpnxTitlebar_Initialized(object? sender, EventArgs e)
+        {
+            AttachOwnerWindow();
+        }
+
         private void OpnxTitlebar_Loaded(object sender, RoutedEventArgs e)
         {
+            AttachOwnerWindow();
+        }
+
+        private void AttachOwnerWindow()
+        {
+            if (_ownerWindow != null)
+            {
+                ApplyWindowChromeToOwner();
+                AttachWindowHook();
+                UpdateWindowState();
+                return;
+            }
+
             _ownerWindow = Window.GetWindow(this);
             if (_ownerWindow == null)
                 return;
 
+            ApplyWindowChromeToOwner();
             _ownerWindow.SourceInitialized += OwnerWindow_SourceInitialized;
             _ownerWindow.StateChanged += OwnerWindow_StateChanged;
             AttachWindowHook();
@@ -429,7 +522,32 @@ namespace OPNX.UI.WPF.Controls
 
         private void OwnerWindow_SourceInitialized(object? sender, EventArgs e)
         {
+            ApplyWindowChromeToOwner();
             AttachWindowHook();
+        }
+
+        private static void OnWindowChromePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is OpnxTitlebar titlebar && titlebar.IsLoaded)
+                titlebar.ApplyWindowChromeToOwner(force: true);
+        }
+
+        private void ApplyWindowChromeToOwner(bool force = false)
+        {
+            if (!AutoApplyWindowChrome || _ownerWindow == null)
+                return;
+
+            if (!force && WindowChrome.GetWindowChrome(_ownerWindow) != null)
+                return;
+
+            WindowChrome.SetWindowChrome(_ownerWindow, new WindowChrome
+            {
+                CaptionHeight = ChromeCaptionHeight,
+                ResizeBorderThickness = ChromeResizeBorderThickness,
+                GlassFrameThickness = ChromeGlassFrameThickness,
+                CornerRadius = ChromeCornerRadius,
+                UseAeroCaptionButtons = ChromeUseAeroCaptionButtons
+            });
         }
 
         private void OwnerWindow_StateChanged(object? sender, EventArgs e)
@@ -632,3 +750,11 @@ namespace OPNX.UI.WPF.Controls
         }
     }
 }
+
+
+
+
+
+
+
+

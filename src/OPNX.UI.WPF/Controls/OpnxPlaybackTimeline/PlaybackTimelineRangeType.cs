@@ -13,5 +13,12 @@
         H24,
         D3,
     }
+
+    public sealed class PlaybackTimelineRangeItem
+    {
+        public PlaybackTimelineRangeType RangeType { get; init; }
+
+        public string DisplayName { get; init; } = string.Empty;
+    }
 }
 

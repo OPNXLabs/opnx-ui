@@ -1,5 +1,7 @@
 ﻿using OPNX.Lib.Data.ORM.Interfaces;
 using OPNX.UI.WPF.Utilities;
+using System.Collections;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -12,6 +14,19 @@ namespace OPNX.UI.WPF.Controls
     /// </summary>
     public partial class OpnxPlaybackTimeline : UserControl
     {
+        private static readonly IReadOnlyList<PlaybackTimelineRangeItem> DefaultTimeRangeItems =
+        [
+            new() { RangeType = PlaybackTimelineRangeType.M5, DisplayName = "5M" },
+            new() { RangeType = PlaybackTimelineRangeType.M15, DisplayName = "15M" },
+            new() { RangeType = PlaybackTimelineRangeType.M30, DisplayName = "30M" },
+            new() { RangeType = PlaybackTimelineRangeType.H1, DisplayName = "1H" },
+            new() { RangeType = PlaybackTimelineRangeType.H3, DisplayName = "3H" },
+            new() { RangeType = PlaybackTimelineRangeType.H6, DisplayName = "6H" },
+            new() { RangeType = PlaybackTimelineRangeType.H12, DisplayName = "12H" },
+            new() { RangeType = PlaybackTimelineRangeType.H24, DisplayName = "24H" },
+            new() { RangeType = PlaybackTimelineRangeType.D3, DisplayName = "3D" },
+        ];
+
         #region Fields
 
 
@@ -124,11 +139,38 @@ namespace OPNX.UI.WPF.Controls
             typeof(OpnxPlaybackTimeline),
             new PropertyMetadata(PlaybackTimelineRangeType.None, OnCurrentTimeRangeChanged));
 
+        public static readonly DependencyProperty TimelineRangeItemsProperty = DependencyProperty.Register(
+            nameof(TimelineRangeItems),
+            typeof(IEnumerable),
+            typeof(OpnxPlaybackTimeline),
+            new PropertyMetadata(DefaultTimeRangeItems, OnTimelineRangeItemsChanged));
+
+        public static readonly DependencyProperty TimeRangeHeaderProperty = DependencyProperty.Register(
+            nameof(TimeRangeHeader),
+            typeof(string),
+            typeof(OpnxPlaybackTimeline),
+            new PropertyMetadata("Time Range"));
+
+        public static readonly DependencyProperty SelectedTimeRangeItemProperty = DependencyProperty.Register(
+            nameof(SelectedTimeRangeItem),
+            typeof(PlaybackTimelineRangeItem),
+            typeof(OpnxPlaybackTimeline),
+            new FrameworkPropertyMetadata(
+                null,
+                FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                OnSelectedTimeRangeItemChanged));
+
         public static readonly DependencyProperty IsLeftPanelVisibleProperty = DependencyProperty.Register(
             nameof(IsLeftPanelVisible),
             typeof(bool),
             typeof(OpnxPlaybackTimeline),
             new PropertyMetadata(true, OnIsLeftPanelVisibleChanged));
+
+        public static readonly DependencyProperty ShowEntityNameOnTimelineProperty = DependencyProperty.Register(
+            nameof(ShowEntityNameOnTimeline),
+            typeof(bool),
+            typeof(OpnxPlaybackTimeline),
+            new PropertyMetadata(true, OnShowEntityNameOnTimelineChanged));
         #endregion
 
         #region Events
@@ -150,10 +192,34 @@ namespace OPNX.UI.WPF.Controls
             set => SetValue(CurrentTimeRangeProperty, value);
         }
 
+        public IEnumerable? TimelineRangeItems
+        {
+            get => (IEnumerable?)GetValue(TimelineRangeItemsProperty);
+            set => SetValue(TimelineRangeItemsProperty, value);
+        }
+
+        public string TimeRangeHeader
+        {
+            get => (string)GetValue(TimeRangeHeaderProperty);
+            set => SetValue(TimeRangeHeaderProperty, value);
+        }
+
+        public PlaybackTimelineRangeItem? SelectedTimeRangeItem
+        {
+            get => (PlaybackTimelineRangeItem?)GetValue(SelectedTimeRangeItemProperty);
+            set => SetValue(SelectedTimeRangeItemProperty, value);
+        }
+
         public bool IsLeftPanelVisible
         {
             get => (bool)GetValue(IsLeftPanelVisibleProperty);
             set => SetValue(IsLeftPanelVisibleProperty, value);
+        }
+
+        public bool ShowEntityNameOnTimeline
+        {
+            get => (bool)GetValue(ShowEntityNameOnTimelineProperty);
+            set => SetValue(ShowEntityNameOnTimelineProperty, value);
         }
 
         public long VisibleTimeRangeMS { get; private set; }
@@ -236,12 +302,31 @@ namespace OPNX.UI.WPF.Controls
                     _ => throw new ArgumentOutOfRangeException(newTimeRange.ToString(), newTimeRange, null)
                 };
 
-                control.ClearTimeline();
                 control.RedrawTimelineUI();
+                control.xTimelineCanvas.UpdateTimelineExtent();
+                control.xTimelineCanvas.InvalidateVisual();
                 control.TimeRangeChanged?.Invoke(control, new PlaybackTimelineRangeChangedEventArgs()
                 {
                     TimeRange = newTimeRange
                 });
+
+                control.UpdateSelectedTimeRangeItem(newTimeRange);
+            }
+        }
+
+        private static void OnTimelineRangeItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is OpnxPlaybackTimeline control)
+                control.UpdateSelectedTimeRangeItem(control.CurrentTimeRange);
+        }
+
+        private static void OnSelectedTimeRangeItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is OpnxPlaybackTimeline control &&
+                e.NewValue is PlaybackTimelineRangeItem item &&
+                control.CurrentTimeRange != item.RangeType)
+            {
+                control.CurrentTimeRange = item.RangeType;
             }
         }
 
@@ -249,6 +334,36 @@ namespace OPNX.UI.WPF.Controls
         {
             if (d is OpnxPlaybackTimeline control)
                 control.UpdateLeftPanelVisibility();
+        }
+
+        private static void OnShowEntityNameOnTimelineChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is OpnxPlaybackTimeline control)
+                control.xTimelineCanvas.InvalidateVisual();
+        }
+
+        private void UpdateSelectedTimeRangeItem(PlaybackTimelineRangeType timeRange)
+        {
+            var items = GetTimeRangeItems();
+            var selectedItem = items.FirstOrDefault(item => item.RangeType == timeRange);
+
+            if (selectedItem is null && items.Count > 0)
+            {
+                selectedItem = items[0];
+                if (CurrentTimeRange != selectedItem.RangeType)
+                    CurrentTimeRange = selectedItem.RangeType;
+            }
+
+            if (!Equals(SelectedTimeRangeItem, selectedItem))
+                SelectedTimeRangeItem = selectedItem;
+        }
+
+        private List<PlaybackTimelineRangeItem> GetTimeRangeItems()
+        {
+            if (TimelineRangeItems is null)
+                return [];
+
+            return TimelineRangeItems.OfType<PlaybackTimelineRangeItem>().ToList();
         }
 
         private void UpdateLeftPanelVisibility()
@@ -326,18 +441,19 @@ namespace OPNX.UI.WPF.Controls
         {
             long centerUnixTime = this.CenterTimeUnixMS;
             DateTime centerDT = DateTimeOffset.FromUnixTimeMilliseconds(centerUnixTime).LocalDateTime;
+            CultureInfo culture = CultureInfo.DefaultThreadCurrentCulture ?? CultureInfo.CurrentCulture;
 
             DateTime startDT = centerDT.AddMilliseconds(-VisibleTimeRangeMS / 2);
             DateTime endDT = centerDT.AddMilliseconds(VisibleTimeRangeMS / 2);
 
             // UI 날짜/시간 갱신
-            xTextBlockVisibleStartDate.Text = startDT.ToString("yyyy. MM. dd. dddd");
-            xTextBlockVisibleCenterDate.Text = centerDT.ToString("yyyy. MM. dd. dddd");
-            xTextBlockVisibleEndDate.Text = endDT.ToString("yyyy. MM. dd. dddd");
+            xTextBlockVisibleStartDate.Text = startDT.ToString("yyyy. MM. dd. dddd", culture);
+            xTextBlockVisibleCenterDate.Text = centerDT.ToString("yyyy. MM. dd. dddd", culture);
+            xTextBlockVisibleEndDate.Text = endDT.ToString("yyyy. MM. dd. dddd", culture);
 
-            xTextBlockVisibleStartTime.Text = startDT.ToString("tt hh:mm:ss.fff");
-            xTextBlockVisibleCenterTime.Text = centerDT.ToString("tt hh:mm:ss.fff");
-            xTextBlockVisibleEndTime.Text = endDT.ToString("tt hh:mm:ss.fff");
+            xTextBlockVisibleStartTime.Text = startDT.ToString("tt hh:mm:ss.fff", culture);
+            xTextBlockVisibleCenterTime.Text = centerDT.ToString("tt hh:mm:ss.fff", culture);
+            xTextBlockVisibleEndTime.Text = endDT.ToString("tt hh:mm:ss.fff", culture);
 
             // 라인과 시간 텍스트 위치 계산
             int gapMinutes = GetLineIntervalMinutes();
@@ -662,12 +778,14 @@ namespace OPNX.UI.WPF.Controls
         {
             this.xCanvasInner.Width = this.xScrollViewer.Width;
             this.xCanvasInner.Height = this.xScrollViewer.Height;
+            this.xTimelineCanvas.UpdateTimelineExtent();
         }
 
         private void HandleInnerCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
             this.xTimelineCanvas.Width = this.xCanvasInner.Width;
             this.xTimelineCanvas.Height = this.xCanvasInner.Height;
+            this.xTimelineCanvas.UpdateTimelineExtent();
 
             //TimelineControlViewModel timelineControlViewModel = this.DataContext as TimelineControlViewModel;
             //if (timelineControlViewModel != null)
@@ -822,26 +940,22 @@ namespace OPNX.UI.WPF.Controls
 
         private void HandleIncreaseTimeRangeClick(object sender, RoutedEventArgs e)
         {
-            var values = Enum.GetValues<PlaybackTimelineRangeType>();
+            var items = GetTimeRangeItems();
 
-            int currentIndex = Array.IndexOf(values, CurrentTimeRange);
+            int currentIndex = items.FindIndex(item => item.RangeType == CurrentTimeRange);
 
-            if (currentIndex < values.Length - 1)
-            {
-                CurrentTimeRange = values[currentIndex + 1];
-            }
+            if (currentIndex >= 0 && currentIndex < items.Count - 1)
+                CurrentTimeRange = items[currentIndex + 1].RangeType;
         }
 
         private void HandleDecreaseTimeRangeClick(object sender, RoutedEventArgs e)
         {
-            var values = Enum.GetValues<PlaybackTimelineRangeType>();
+            var items = GetTimeRangeItems();
 
-            int currentIndex = Array.IndexOf(values, CurrentTimeRange);
+            int currentIndex = items.FindIndex(item => item.RangeType == CurrentTimeRange);
 
-            if (currentIndex > 1)
-            {
-                CurrentTimeRange = values[currentIndex - 1];
-            }
+            if (currentIndex > 0)
+                CurrentTimeRange = items[currentIndex - 1].RangeType;
         }
         #endregion
     }
