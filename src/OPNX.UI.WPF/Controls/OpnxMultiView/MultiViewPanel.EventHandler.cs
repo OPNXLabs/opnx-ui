@@ -1,10 +1,7 @@
-﻿using System.Windows;
+using System.Windows;
 
 namespace OPNX.UI.WPF.Controls
 {
-    /// <summary>
-    /// ControlledCellChangedEventArgs class.
-    /// </summary>
     internal class ControlledCellChangedEventArgs : EventArgs
     {
         #region Constructors and Destructors
@@ -23,9 +20,6 @@ namespace OPNX.UI.WPF.Controls
         #endregion
     }
 
-    /// <summary>
-    /// CellAddedArgs class.
-    /// </summary>
     internal class CellAddedArgs : EventArgs
     {
         #region Constructors and Destructors
@@ -44,9 +38,6 @@ namespace OPNX.UI.WPF.Controls
         #endregion
     }
 
-    /// <summary>
-    /// Cell Drop Completed Args class.
-    /// </summary>
     internal class CellDropCompletedArgs : EventArgs
     {
         #region Constructors and Destructors
@@ -69,9 +60,6 @@ namespace OPNX.UI.WPF.Controls
         #endregion
     }
 
-    /// <summary>
-    /// CellRemovedArgs class.
-    /// </summary>
     internal class CellRemovedArgs : EventArgs
     {
         #region Constructors and Destructors
@@ -90,9 +78,6 @@ namespace OPNX.UI.WPF.Controls
         #endregion
     }
 
-    /// <summary>
-    /// SelectionChangedArgs class.
-    /// </summary>
     internal class SelectionChangedArgs : EventArgs
     {
         #region Constructors and Destructors
@@ -114,9 +99,6 @@ namespace OPNX.UI.WPF.Controls
         #endregion
     }
 
-    /// <summary>
-    /// SelectionEnableChangedArgs class.
-    /// </summary>
     internal class SelectionEnableChangedArgs : EventArgs
     {
         #region Constructors and Destructors
@@ -135,9 +117,6 @@ namespace OPNX.UI.WPF.Controls
         #endregion
     }
 
-    /// <summary>
-    /// ZoomedCellChangeEventArgs class.
-    /// </summary>
     internal class ZoomedCellChangeEventArgs : EventArgs
     {
         #region Constructors and Destructors
@@ -155,32 +134,6 @@ namespace OPNX.UI.WPF.Controls
 
         #endregion
     }
-
-    ///// <summary>
-    ///// DeserializeFavoriteDataEventArgs class.
-    ///// </summary>
-    //internal class DeserializeFavoriteDataEventArgs : EventArgs
-    //{
-    //    #region Constructors and Destructors
-
-    //    internal DeserializeFavoriteDataEventArgs(MultiGridDataForFavorite favoriteData, List<NewMultiGridElementInfo> favoriteNewElementInfoList,
-    //        List<CameraInformation> cameraInfos)
-    //    {
-    //        this.FavoriteData = favoriteData;
-    //        this.FavoriteNewElementInfoList = favoriteNewElementInfoList;
-    //        this.FavoriteCameraInfoList = cameraInfos;
-    //    }
-
-    //    #endregion
-
-    //    #region Properties
-
-    //    internal MultiGridDataForFavorite FavoriteData { get; private set; }
-    //    internal List<NewMultiGridElementInfo> FavoriteNewElementInfoList { get; private set; }
-    //    internal List<CameraInformation> FavoriteCameraInfoList { get; private set; }
-
-    //    #endregion
-    //}
 }
 
 

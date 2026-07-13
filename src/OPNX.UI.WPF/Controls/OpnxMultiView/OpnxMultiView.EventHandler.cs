@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 
 namespace OPNX.UI.WPF.Controls
 {
@@ -65,105 +65,6 @@ namespace OPNX.UI.WPF.Controls
     {
         public UIElement Element { get; } = element;
     }
-
-    ///// <summary>
-    ///// SlideChangedEventArgs class.
-    ///// </summary>
-    //public class SlideUpdatedEventArgs : EventArgs
-    //{
-    //    #region Constructors and Destructors
-
-    //    /// <summary>
-    //    /// Initializes a new instance of the <see cref="SlideUpdatedEventArgs"/> class. 
-    //    /// </summary>
-    //    /// <param name="gridControlGuid">
-    //    /// The grid control guid.
-    //    /// </param>
-    //    /// <param name="cellGuid">
-    //    /// The cell guid.
-    //    /// </param>
-    //    /// <param name="element">
-    //    /// The element.
-    //    /// </param>
-    //    public SlideUpdatedEventArgs(Guid gridControlGuid, Guid cellGuid)
-    //    {
-    //        this.GridControlGuid = gridControlGuid;
-    //        this.CellGuid = cellGuid;
-    //    }
-
-    //    #endregion
-
-    //    #region Properties
-
-    //    /// <summary>
-    //    /// Gets CellGuid.
-    //    /// </summary>
-    //    public Guid CellGuid { get; private set; }
-
-    //    /// <summary>
-    //    /// Gets or sets GridControlGuid.
-    //    /// </summary>
-    //    public Guid GridControlGuid { get; set; }
-
-    //    #endregion
-    //}
-
-    ///// <summary>
-    ///// SlideChangedEventArgs class.
-    ///// </summary>
-    //public class SlideChangedEventArgs : EventArgs
-    //{
-    //    #region Constructors and Destructors
-
-    //    /// <summary>
-    //    /// Initializes a new instance of the <see cref="SlideChangedEventArgs"/> class.
-    //    /// </summary>
-    //    /// <param name="gridControlGuid">
-    //    /// The grid control guid.
-    //    /// </param>
-    //    /// <param name="cellGuid">
-    //    /// The cell guid.
-    //    /// </param>
-    //    /// <param name="element">
-    //    /// The element.
-    //    /// </param>
-    //    /// <param name="index">
-    //    /// The index.
-    //    /// </param>
-    //    public SlideChangedEventArgs(Guid gridControlGuid, Guid cellGuid, UIElement element, int index)
-    //    {
-    //        this.GridControlGuid = gridControlGuid;
-    //        this.CellGuid = cellGuid;
-    //        this.Element = element;
-    //        this.Index = index;
-    //    }
-
-    //    #endregion
-
-    //    #region Properties
-
-    //    /// <summary>
-    //    /// Gets CellGuid.
-    //    /// </summary>
-    //    public Guid CellGuid { get; private set; }
-
-    //    /// <summary>
-    //    /// Gets Element.
-    //    /// </summary>
-    //    public UIElement Element { get; private set; }
-
-    //    /// <summary>
-    //    /// Gets or sets GridControlGuid.
-    //    /// </summary>
-    //    public Guid GridControlGuid { get; set; }
-
-    //    /// <summary>
-    //    /// Gets Index.
-    //    /// </summary>
-    //    public int Index { get; private set; }
-
-    //    #endregion
-    //}
 }
 
 

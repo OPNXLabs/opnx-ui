@@ -967,7 +967,7 @@ namespace OPNX.UI.WPF.Controls
         /// </summary>
         /// <param name="parentCanvasScreenRegion">Parent Canvas Screen Region.</param>
         /// <param name="parentsScreenRegion">All Parent Elements Screen Region.</param>
-        public virtual void UpdateViewArea(Rect parentCanvasScreenRegion, List<Rect> parentsScreenRegion)
+        public virtual void UpdateViewArea(Rect parentCanvasScreenRegion, List<Rect>? parentsScreenRegion)
         {
         }
 

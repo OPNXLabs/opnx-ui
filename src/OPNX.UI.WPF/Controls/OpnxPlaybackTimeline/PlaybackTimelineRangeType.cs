@@ -1,4 +1,4 @@
-﻿namespace OPNX.UI.WPF.Controls
+namespace OPNX.UI.WPF.Controls
 {
     public enum PlaybackTimelineRangeType
     {

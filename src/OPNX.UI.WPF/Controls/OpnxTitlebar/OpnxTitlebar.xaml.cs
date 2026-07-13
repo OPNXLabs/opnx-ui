@@ -477,6 +477,13 @@ namespace OPNX.UI.WPF.Controls
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        protected override void OnVisualParentChanged(DependencyObject oldParent)
+        {
+            base.OnVisualParentChanged(oldParent);
+
+            AttachOwnerWindow();
+        }
+
         private void OpnxTitlebar_Initialized(object? sender, EventArgs e)
         {
             AttachOwnerWindow();

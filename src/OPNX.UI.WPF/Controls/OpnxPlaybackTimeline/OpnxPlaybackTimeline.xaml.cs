@@ -1,17 +1,17 @@
-﻿using OPNX.Lib.Data.ORM.Interfaces;
+using OPNX.Lib.Data.ORM;
+using OPNX.Lib.Data.ORM.Interfaces;
 using OPNX.UI.WPF.Utilities;
+using SharpDX.Direct3D9;
 using System.Collections;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace OPNX.UI.WPF.Controls
 {
-    /// <summary>
-    /// OpnxPlaybackTimeline.xaml에 대한 상호 작용 논리
-    /// </summary>
     public partial class OpnxPlaybackTimeline : UserControl
     {
         private static readonly IReadOnlyList<PlaybackTimelineRangeItem> DefaultTimeRangeItems =
@@ -35,12 +35,11 @@ namespace OPNX.UI.WPF.Controls
         private Point clickPoint = new(0, 0);
         private long clickCenterUnixTime = 0;
 
-        //private long timelineKeyLastTime = 0;
-        //private bool isTypingAllowed = false;
 
         private readonly DispatcherTimer scrollTimer = new();
 
         private bool isListBoxWheelHooked = false;
+        private bool suppressSelectionChangedEvent = false;
         #endregion
 
         #region Constructors
@@ -91,37 +90,6 @@ namespace OPNX.UI.WPF.Controls
                     listBoxScrollViewer.ScrollToVerticalOffset(ev.VerticalOffset);
                 }
             };
-
-
-            //this.PreviewKeyUp += (a, e) =>
-            //{
-            //    //timelineKeyLastTime = 0;
-            //};
-
-            //this.Loaded += (a1, e2) =>
-            //{
-            //    //App.PlaybackWindow.xPlaybackControl.xMultiGridControl.PreviewMouseUp += (a, e) =>
-            //    //{
-            //    //    isTypingAllowed = false;
-            //    //};
-
-            //};
-            //this.xCanvasInner.GotMouseCapture += (a, e) =>
-            //{
-            //    var mWin = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive);
-            //    isTypingAllowed = (mWin.GetType() != typeof(UIs.MultiExportProgressWindow)) ? true : false;
-            //};
-            //
-
-
-            //if (listBoxScrollViewer != null)
-            //{
-            //    // xScrollViewer와 동기화
-            //    xScrollViewer.ScrollChanged += (s, ev) =>
-            //    {
-            //        listBoxScrollViewer.ScrollToVerticalOffset(ev.VerticalOffset);
-            //    };
-            //}
         }
 
         #endregion
@@ -131,7 +99,8 @@ namespace OPNX.UI.WPF.Controls
             nameof(CenterTimeUnixMS),
             typeof(long),
             typeof(OpnxPlaybackTimeline),
-            new PropertyMetadata(0L, OnCenterTimeUnixMSChanged));
+            new PropertyMetadata(0L, OnCenterTimeUnixMSChanged),
+            IsValidUnixTimeMilliseconds);
 
         public static readonly DependencyProperty CurrentTimeRangeProperty = DependencyProperty.Register(
             nameof(CurrentTimeRange),
@@ -171,12 +140,27 @@ namespace OPNX.UI.WPF.Controls
             typeof(bool),
             typeof(OpnxPlaybackTimeline),
             new PropertyMetadata(true, OnShowEntityNameOnTimelineChanged));
+
+        public static readonly DependencyProperty LeftTimeForegroundProperty = DependencyProperty.Register(nameof(LeftTimeForeground), typeof(Brush), typeof(OpnxPlaybackTimeline), new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x8F, 0xA3, 0xB8))));
+        public static readonly DependencyProperty CenterTimeForegroundProperty = DependencyProperty.Register(nameof(CenterTimeForeground), typeof(Brush), typeof(OpnxPlaybackTimeline), new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0xC9, 0x4A, 0x46))));
+        public static readonly DependencyProperty RightTimeForegroundProperty = DependencyProperty.Register(nameof(RightTimeForeground), typeof(Brush), typeof(OpnxPlaybackTimeline), new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x8F, 0xA3, 0xB8))));
+        public static readonly DependencyProperty TimeTickBrushProperty = DependencyProperty.Register(nameof(TimeTickBrush), typeof(Brush), typeof(OpnxPlaybackTimeline), new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x0E, 0x16, 0x21))));
+        public static readonly DependencyProperty TimeTickThicknessProperty = DependencyProperty.Register(nameof(TimeTickThickness), typeof(double), typeof(OpnxPlaybackTimeline), new PropertyMetadata(1d), IsValidThickness);
+        public static readonly DependencyProperty SeparatorBrushProperty = DependencyProperty.Register(nameof(SeparatorBrush), typeof(Brush), typeof(OpnxPlaybackTimeline), new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x0E, 0x16, 0x21))));
+        public static readonly DependencyProperty SeparatorThicknessProperty = DependencyProperty.Register(nameof(SeparatorThickness), typeof(double), typeof(OpnxPlaybackTimeline), new PropertyMetadata(2d), IsValidThickness);
+
+        public static readonly DependencyProperty SelectedRecordDataProperty = DependencyProperty.Register(
+            nameof(SelectedRecordData),
+            typeof(PlaybackTimelineRecordData),
+            typeof(OpnxPlaybackTimeline),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnSelectedRecordDataChanged));
         #endregion
 
         #region Events
         public event PlaybackTimelineCenterTimeChangedEventHandler? CenterTimeChanged;
         public event PlaybackTimelineRangeChangedEventHandler? TimeRangeChanged;
         public event PlaybackTimelineRequestEventHandler? RequestTimeline;
+        public event EventHandler<PlaybackTimelineSelectionChangedEventArgs>? SelectionChanged;
         #endregion
 
         #region Properties
@@ -222,44 +206,125 @@ namespace OPNX.UI.WPF.Controls
             set => SetValue(ShowEntityNameOnTimelineProperty, value);
         }
 
+        public Brush LeftTimeForeground { get => (Brush)GetValue(LeftTimeForegroundProperty); set => SetValue(LeftTimeForegroundProperty, value); }
+        public Brush CenterTimeForeground { get => (Brush)GetValue(CenterTimeForegroundProperty); set => SetValue(CenterTimeForegroundProperty, value); }
+        public Brush RightTimeForeground { get => (Brush)GetValue(RightTimeForegroundProperty); set => SetValue(RightTimeForegroundProperty, value); }
+        public Brush TimeTickBrush { get => (Brush)GetValue(TimeTickBrushProperty); set => SetValue(TimeTickBrushProperty, value); }
+        public double TimeTickThickness { get => (double)GetValue(TimeTickThicknessProperty); set => SetValue(TimeTickThicknessProperty, value); }
+        public Brush SeparatorBrush { get => (Brush)GetValue(SeparatorBrushProperty); set => SetValue(SeparatorBrushProperty, value); }
+        public double SeparatorThickness { get => (double)GetValue(SeparatorThicknessProperty); set => SetValue(SeparatorThicknessProperty, value); }
+
+        public PlaybackTimelineRecordData? SelectedRecordData
+        {
+            get => (PlaybackTimelineRecordData?)GetValue(SelectedRecordDataProperty);
+            set => SetValue(SelectedRecordDataProperty, value);
+        }
+
+        public PlaybackTimelineHitResult? SelectedTimelineItem { get; private set; }
+
         public long VisibleTimeRangeMS { get; private set; }
         #endregion
 
         #region Public Methods
-
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-
-            //ScrollViewer listBoxScrollViewer = UIHelper.FindChild<ScrollViewer>(xEntityListBox);
-        }
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-
-            //ScrollViewer listBoxScrollViewer = UIHelper.FindChild<ScrollViewer>(xEntityListBox);
-
-        }
         public void UpdateTimeline(long elapsedMilliseconds)
         {
+            // User interaction owns the center time while dragging, so playback updates must not compete with it.
             if (isMouseDown || isMouseDrag)
                 return;
 
-            // 드래그 등으로 CenterUnixTimeMiliSeconds가 바뀌어도 자연스럽게 누적
             CenterTimeUnixMS += elapsedMilliseconds;
             RedrawTimelineUI();
         }
         public void AddRecordData(IEntity entity, long startUnixTimeMS, long endUnixTimeMS, PlaybackTimelineRecordingType recordingType)
         {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(() => AddRecordData(entity, startUnixTimeMS, endUnixTimeMS, recordingType));
+                return;
+            }
             xTimelineCanvas.AddRecordData(entity, startUnixTimeMS, endUnixTimeMS, recordingType);
         }
 
         public void AddEntity(IEntity entity)
         {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(() => AddEntity(entity));
+                return;
+            }
             xTimelineCanvas.AddEntity(entity);
         }
+
+        public void AddEventData(IEntity entity, long startUnixTimeMS, long endUnixTimeMS, string eventType, SolidColorBrush eventColor, int mergeEventCount)
+        {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(() => AddEventData(entity, startUnixTimeMS, endUnixTimeMS, eventType, eventColor, mergeEventCount));
+                return;
+            }
+            xTimelineCanvas.AddEventData(entity, startUnixTimeMS, endUnixTimeMS, eventType, eventColor, mergeEventCount);
+        }
+
+        public PlaybackTimelineRecordData? GetRecordData(IEntity entity)
+        {
+            ArgumentNullException.ThrowIfNull(entity);
+            return xTimelineCanvas.GetRecordData(entity);
+        }
+
+        public PlaybackTimelineRecordData? GetRecordData(int entityID) =>
+            xTimelineCanvas.GetRecordData(entityID);
+
+        public void ClearRecordData()
+        {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(() => ClearRecordData());
+                return;
+            }
+            SetCurrentValue(SelectedRecordDataProperty, null);
+            xTimelineCanvas.ClearAllRecordData();
+        }
+
+        public void ClearEventData()
+        {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(() => ClearEventData());
+                return;
+            }
+            SetCurrentValue(SelectedRecordDataProperty, null);
+            xTimelineCanvas.ClearAllEventData();
+        }
+
+        public void ClearTimeline()
+        {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(() => ClearTimeline());
+                return;
+            }
+
+            SetCurrentValue(SelectedRecordDataProperty, null);
+            xTimelineCanvas.ClearTimeline();
+        }
+
+        public void RemoveEntity(IEntity entity) => RemoveEntity(entity.ID);
+
         public void RemoveEntity(int entityID)
         {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(() => RemoveEntity(entityID));
+                return;
+            }
+
+            PlaybackTimelineRecordData? recordData = xTimelineCanvas.GetRecordData(entityID);
+            if (recordData == null)
+                return;
+
+            if (ReferenceEquals(SelectedRecordData, recordData))
+                SetCurrentValue(SelectedRecordDataProperty, null);
+
             xTimelineCanvas.RemoveEntity(entityID);
         }
         #endregion
@@ -280,6 +345,27 @@ namespace OPNX.UI.WPF.Controls
                 control.Dispatcher.Invoke(() => control.xTimelineCanvas.InvalidateVisual());
             }
         }
+
+        private static bool IsValidUnixTimeMilliseconds(object value)
+        {
+            if (value is not long unixTimeMilliseconds)
+                return false;
+
+            try
+            {
+                DateTimeOffset.FromUnixTimeMilliseconds(unixTimeMilliseconds);
+                return true;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return false;
+            }
+        }
+
+        private static bool IsValidThickness(object value) =>
+            value is double thickness &&
+            double.IsFinite(thickness) &&
+            thickness >= 0;
 
         private static void OnCurrentTimeRangeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -342,6 +428,56 @@ namespace OPNX.UI.WPF.Controls
                 control.xTimelineCanvas.InvalidateVisual();
         }
 
+        private static void OnSelectedRecordDataChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is not OpnxPlaybackTimeline control)
+                return;
+
+            var selectedRecordData = e.NewValue as PlaybackTimelineRecordData;
+            control.SelectedTimelineItem = selectedRecordData == null
+                ? null
+                : new PlaybackTimelineHitResult
+                {
+                    HitType = PlaybackTimelineHitType.Entity,
+                    RecordData = selectedRecordData
+                };
+            control.xTimelineCanvas.InvalidateVisual();
+            if (control.suppressSelectionChangedEvent)
+                return;
+
+            control.SelectionChanged?.Invoke(control, new PlaybackTimelineSelectionChangedEventArgs
+            {
+                SelectedRecordData = selectedRecordData,
+                HitResult = control.SelectedTimelineItem
+            });
+        }
+
+        private void SelectTimelineItem(PlaybackTimelineHitResult? hitResult)
+        {
+            var selectedRecordData = hitResult?.RecordData;
+
+            if (!ReferenceEquals(SelectedRecordData, selectedRecordData))
+            {
+                suppressSelectionChangedEvent = true;
+                try
+                {
+                    SetCurrentValue(SelectedRecordDataProperty, selectedRecordData);
+                }
+                finally
+                {
+                    suppressSelectionChangedEvent = false;
+                }
+            }
+
+            SelectedTimelineItem = hitResult;
+            xTimelineCanvas.InvalidateVisual();
+            SelectionChanged?.Invoke(this, new PlaybackTimelineSelectionChangedEventArgs
+            {
+                SelectedRecordData = selectedRecordData,
+                HitResult = hitResult
+            });
+        }
+
         private void UpdateSelectedTimeRangeItem(PlaybackTimelineRangeType timeRange)
         {
             var items = GetTimeRangeItems();
@@ -363,18 +499,13 @@ namespace OPNX.UI.WPF.Controls
             if (TimelineRangeItems is null)
                 return [];
 
-            return TimelineRangeItems.OfType<PlaybackTimelineRangeItem>().ToList();
+            return [.. TimelineRangeItems.OfType<PlaybackTimelineRangeItem>()];
         }
 
         private void UpdateLeftPanelVisibility()
         {
             xLeftPanel.Visibility = IsLeftPanelVisible ? Visibility.Visible : Visibility.Collapsed;
             xLeftPanelColumn.Width = IsLeftPanelVisible ? new GridLength(150) : new GridLength(0);
-        }
-
-        private void ClearTimeline()
-        {
-            xTimelineCanvas.ClearTimeline();
         }
 
         private void OnRequestTimeline()
@@ -392,20 +523,17 @@ namespace OPNX.UI.WPF.Controls
                 CenterTimeUnixMS = centetTimeUnixMS,
                 VisibleTimeRangeMS = visibleTimeRangeMS
             });
-            //xTimelineCanvas.RefreshTimeline_BackgroundWorker();        
         }
 
         private int GetLineIntervalMinutes()
         {
-            //int gapMinutes = (int)(this.timelineControl.VisibleTotalUnixTimeMiliSeconds / 10000 / 6 / 6);
+            // Round upward so adjacent labels never become denser than the visible range can support.
             double gapMinutes = this.VisibleTimeRangeMS / 10000 / 6 / 6;
             double tempGapMinutes = (double)(int)gapMinutes;
 
-            //각 line들 사이 간격이 소숫점으로 나올 경우 올림을 함 (ex. 2.5 --> 3)
             if (gapMinutes != tempGapMinutes)
                 gapMinutes = tempGapMinutes + 1;
 
-            //각 line들 사이 간격이 1분보다 작을 경우 1분으로 세팅함
             if (gapMinutes < 1)
                 gapMinutes = 1;
 
@@ -417,7 +545,6 @@ namespace OPNX.UI.WPF.Controls
         {
             DateTime centerDateTime = DateTimeOffset.FromUnixTimeMilliseconds(this.CenterTimeUnixMS).LocalDateTime;
 
-            //각 Line들 사이의 간격
             int gapMinutes = this.GetLineIntervalMinutes();
 
             double totalMinutes = (centerDateTime.Hour * 60) + centerDateTime.Minute;
@@ -430,7 +557,6 @@ namespace OPNX.UI.WPF.Controls
 
         private double GetPosition(double centerUnixTime, double positionUnixTime)
         {
-            //1시간을 기준으로 시간이동을 구함
             double visibleTotalMiliSeconds = this.VisibleTimeRangeMS;
             double gapRatio = (centerUnixTime - positionUnixTime) / visibleTotalMiliSeconds;
 
@@ -446,7 +572,6 @@ namespace OPNX.UI.WPF.Controls
             DateTime startDT = centerDT.AddMilliseconds(-VisibleTimeRangeMS / 2);
             DateTime endDT = centerDT.AddMilliseconds(VisibleTimeRangeMS / 2);
 
-            // UI 날짜/시간 갱신
             xTextBlockVisibleStartDate.Text = startDT.ToString("yyyy. MM. dd. dddd", culture);
             xTextBlockVisibleCenterDate.Text = centerDT.ToString("yyyy. MM. dd. dddd", culture);
             xTextBlockVisibleEndDate.Text = endDT.ToString("yyyy. MM. dd. dddd", culture);
@@ -455,7 +580,6 @@ namespace OPNX.UI.WPF.Controls
             xTextBlockVisibleCenterTime.Text = centerDT.ToString("tt hh:mm:ss.fff", culture);
             xTextBlockVisibleEndTime.Text = endDT.ToString("tt hh:mm:ss.fff", culture);
 
-            // 라인과 시간 텍스트 위치 계산
             int gapMinutes = GetLineIntervalMinutes();
             DateTime leftTimeNearestCenter = GetLeftTimeNearestCenter();
             DateTime startLineDT = new(leftTimeNearestCenter.Year, leftTimeNearestCenter.Month, leftTimeNearestCenter.Day,
@@ -476,16 +600,14 @@ namespace OPNX.UI.WPF.Controls
 
             for (int i = 0; i < lines.Length; i++)
             {
-                // 정수 픽셀로 위치 설정
+                // Snap markers to whole pixels to keep one-pixel lines crisp during panning.
                 int x = (int)Math.Round(GetPosition(centerUnixTime, new DateTimeOffset(lineTimes[i]).ToUnixTimeMilliseconds()));
                 Canvas.SetLeft(lines[i], x);
 
-                // 시간 텍스트 중앙 정렬
                 timeTexts[i].Text = $"{lineTimes[i]:HH mm}";
                 Canvas.SetLeft(timeTexts[i], x - (int)(timeTexts[i].ActualWidth / 2));
             }
 
-            // 중앙 기준 라인 좌표
             int centerX = (int)Math.Round(GetPosition(centerUnixTime, centerUnixTime));
             Canvas.SetLeft(xRectangleLineCenter, centerX);
         }
@@ -496,81 +618,9 @@ namespace OPNX.UI.WPF.Controls
             this.xTimelineCanvas.InvalidateVisual();
         }
 
-        //private double lastCameraPlayUnixTimeMiliSeconds = 0;
-
         private void HandlePreviewKeyDown(object sender, KeyEventArgs e)
         {
-            //var dataContext = App.PlaybackControl.xTimeNavigationControl.DataContext as TimeNavigationControlViewModel;
-            //var currentTime = TimeConverter.GetCurrentUnixTime();
-            //var targetTime = timelineKeyLastTime;
-            //timelineKeyLastTime = currentTime;
-            //if (!isTypingAllowed || (currentTime - targetTime) < 1)
-            //{
-            //    return;
-            //}
 
-            //// Key frame navigation (After-Effects style)
-            //switch (e.SystemKey)
-            //{
-            //    case Key.Left:
-            //        dataContext.SearchBeforeKeyFrame();
-            //        break;
-            //    case Key.Right:
-            //        dataContext.SearchNextKeyFrame();
-            //        break;
-            //    default:
-            //        break;
-            //}
-
-            //// General navigation (Commonly used style)
-            //switch (e.Key)
-            //{
-            //    case Key.Space:
-            //        if (dataContext.TimeNavigationControlData.IsCheckedPlay)
-            //        {
-            //            App.PlaybackControl.xTimeNavigationControl.Pause();
-            //        }
-            //        else
-            //        {
-            //            App.PlaybackControl.xTimeNavigationControl.Play();
-            //        }
-            //        break;
-            //    case Key.J:
-            //        App.PlaybackControl.xTimeNavigationControl.Rewind();
-            //        break;
-            //    case Key.K:
-            //        App.PlaybackControl.xTimeNavigationControl.Pause();
-            //        break;
-            //    case Key.L:
-            //        App.PlaybackControl.xTimeNavigationControl.Play();
-            //        break;
-            //    case Key.Left:
-            //        dataContext.SearchBeforeFrame();
-            //        break;
-            //    case Key.Right:
-            //        dataContext.SearchNextFrame();
-            //        break;
-            //    case Key.Home:
-            //        dataContext.SearchFirst();
-            //        break;
-            //    case Key.End:
-            //        dataContext.SearchLast();
-            //        break;
-            //    case Key.OemMinus:
-            //        if (xComboBoxTimePeriod.SelectedIndex != 9)
-            //        {
-            //            xComboBoxTimePeriod.SelectedIndex++;
-            //        }
-            //        break;
-            //    case Key.OemPlus:
-            //        if (xComboBoxTimePeriod.SelectedIndex != 0)
-            //        {
-            //            xComboBoxTimePeriod.SelectedIndex--;
-            //        }
-            //        break;
-            //    default:
-            //        break;
-            //}
         }
 
         private void HandleInnerCanvasMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -580,23 +630,9 @@ namespace OPNX.UI.WPF.Controls
 
             this.clickPoint = e.GetPosition(this.xCanvasInner);
             this.clickCenterUnixTime = this.CenterTimeUnixMS;
-            //this.lastCameraPlayUnixTimeMiliSeconds = 0;
             this.isMouseDown = true;
             this.isMouseDrag = false;
-
-            //실시간 Camera Data Update 중지 !!
-            //this.xInnerControl.StopRealTimeRefreshTimer();
         }
-
-        //private void ShowEventTooltip(Point mousePointRelativeInnerCanvas)
-        //{
-        //    //this.xInnerControl.ShowEventTooltip(mousePointRelativeInnerCanvas);
-        //}
-
-        //private void MoveEventTooltip(double gapX)
-        //{
-        //    //this.xInnerControl.MoveEventTooltip(gapX);
-        //}
 
         private void HandleInnerCanvasMouseLeave(object sender, MouseEventArgs e)
         {
@@ -609,55 +645,31 @@ namespace OPNX.UI.WPF.Controls
 
             if (!this.isMouseDown)
             {
-                //Point movePoint = e.GetPosition(this.xCanvasInner);
-                //ShowEventTooltip(movePoint);
                 return;
             }
 
-            //최초 Move시 전체 Camera를 Pause함 !!
+            Point currentPoint = e.GetPosition(this.xCanvasInner);
+            if (!isMouseDrag &&
+                Math.Abs(currentPoint.X - clickPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
+                Math.Abs(currentPoint.Y - clickPoint.Y) < SystemParameters.MinimumVerticalDragDistance)
+            {
+                return;
+            }
+
             if (!isMouseDrag)
             {
-                //App.PlaybackControl.xTimeNavigationControl.Pause();
             }
 
             this.isMouseDrag = true;
 
-            //새로운 Center 시간을 구함
-            Point clickPoint = e.GetPosition(this.xCanvasInner);
-            double gapX = clickPoint.X - this.clickPoint.X;
-
-            ////1시간을 기준으로 시간이동을 구함
-            //TimeSpan timeSpan = TimeSpan.FromMilliseconds(this.VisibleTotalUnixTimeMiliSeconds);
-            //double movedMiliSeconds = timeSpan.TotalMilliseconds * gapX / this.xCanvasInner.ActualWidth;
-            //this.CenterUnixTimeMiliSeconds = this.clickCenterUnixTime - movedMiliSeconds;
+            double gapX = currentPoint.X - this.clickPoint.X;
 
             long visibleTimeRangeMS = this.VisibleTimeRangeMS;
             double ratio = gapX / this.xCanvasInner.ActualWidth;
             long movedMs = (long)(visibleTimeRangeMS * ratio);
             this.CenterTimeUnixMS = this.clickCenterUnixTime - movedMs;
 
-            //(this.DataContext as TimelineControlViewModel).RefreshTimelineExceptRequestCamera();
             this.Refresh();
-
-            //Tooltip 좌표를 변경함
-            //if (this.xGridEventInfo.Visibility == System.Windows.Visibility.Visible)
-            //{
-            //    this.MoveEventTooltip(gapX);
-            //}
-
-            //BaseTime이 변경됐음을 알림 !! 다른 UI 시간 동기화 진행 !!
-            //bool isSeekAllCamera = false;
-            //if (constset.IsSeekAllCameraWhenTimelineDragging)
-            //    isSeekAllCamera = true;
-
-            //if (isPreviewMode)
-            //{
-            //    BaseTimeManager.Instance.PreviewTimelineBaseTimeChanged(this.CenterUnixTimeMiliSeconds, isSeekAllCamera);
-            //}
-            //else
-            //{
-            //    BaseTimeManager.Instance.TimelineBaseTimeChanged(this.CenterUnixTimeMiliSeconds, isSeekAllCamera);
-            //}
         }
 
         private void HandleInnerCanvasMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -672,91 +684,18 @@ namespace OPNX.UI.WPF.Controls
             if (!this.isMouseDown)
                 return;
 
+            bool wasMouseDrag = this.isMouseDrag;
             this.isMouseDown = false;
             this.isMouseDrag = false;
 
-            ////Drag중에 Camera에서 Play 진행시간이 들어온 경우 마지막 값만 처리해줌 !!
-            //if (this.lastCameraPlayUnixTimeMiliSeconds != 0)
-            //{
-            //    //this.CameraPlayTimeChanged(this.lastCameraPlayUnixTimeMiliSeconds);
-            //}
+            if (!wasMouseDrag)
+            {
+                Point hitPoint = e.GetPosition(xTimelineCanvas);
+                SelectTimelineItem(xTimelineCanvas.HitTestTimeline(hitPoint));
+            }
 
-            //this.lastCameraPlayUnixTimeMiliSeconds = 0;
-
-
-            //(this.DataContext as TimelineControlViewModel).RefreshTimeline();
             OnRequestTimeline();
-
-            //실시간 Camera Data Update 시작 !!
-            //this.xInnerControl.StartRealTimeRefreshTimer();
-
-            //if (!isPreviewMode)
-            //{
-            //    //BaseTime이 변경됐음을 알림 !! 다른 UI 시간 동기화 진행 !!
-            //    //BaseTimeManager.Instance.TimelineBaseTimeChanged(this.CenterUnixTimeMiliSeconds);
-
-            //    // VideoPlayControlManager  [2014. 02. 17 엄태영]
-            //    //List<Innotive.InnoWatch.DLLs.CameraControls.CameraControlPlayback> cameraControlList = App.PlaybackControl.xMultiGridControl.GetAllCameraControls();
-            //    //cameraControlList.ForEach(item =>
-            //    //{
-            //    //    Innotive.InnoWatch.Commons.CameraManagers.VideoPlayControlManager.Instance.ChangPosition(item.VideoElement, "MoveTimeline");
-            //    //});
-            //}
-            //else
-            //{
-            //    //BaseTimeManager.Instance.PreviewTimelineBaseTimeChanged(this.CenterUnixTimeMiliSeconds);
-            //    //if (previewCameraControl != null && previewCameraControl.VideoElement != null)
-            //    //{
-            //    //    Innotive.InnoWatch.Commons.CameraManagers.VideoPlayControlManager.Instance.ChangPosition(previewCameraControl.VideoElement, "MoveTimeline");
-            //    //}
-            //}
         }
-
-        //public void CameraPlayTimeChanged(double playUnixTimeMiliSeconds)
-        //{
-        //    //Drag중이면 처리하지 않음 !!
-        //    if (this.isMouseDown)
-        //        return;
-
-        //    this.CenterUnixTimeMiliSeconds = playUnixTimeMiliSeconds;
-
-        //    //(this.DataContext as TimelineControlViewModel).RefreshTimelineExceptRequestCamera();
-        //    this.RefreshTimelineExceptRequestCamera();
-        //    RefreshTimeline();
-        //    //BaseTime이 변경됐음을 알림 !! 다른 UI 시간 동기화 진행 !!
-        //    //BaseTimeManager.Instance.TimelineBaseTimeChanged(this.CenterUnixTime);
-        //}
-
-        //public void CameraSeekCompleted(double playUnixTimeMiliSeconds)
-        //{
-        //    //Drag중이면 처리하지 않음
-        //    if (this.isMouseDown)
-        //        return;
-
-        //    this.CenterUnixTimeMiliSeconds = playUnixTimeMiliSeconds;
-
-        //    //(this.DataContext as TimelineControlViewModel).RefreshTimelineExceptRequestCamera();
-        //    this.RefreshTimelineExceptRequestCamera();
-        //    RefreshTimeline();
-
-        //    //BaseTime이 변경됐음을 알림 !! 다른 UI 시간 동기화 진행 !!
-        //    //BaseTimeManager.Instance.TimelineBaseTimeChanged(this.CenterUnixTime);
-        //}
-
-        //public void CameraFrameSearchCompleted(double playUnixTimeMiliSeconds)
-        //{
-        //    //Drag중이면 처리하지 않고 값만 저장해둠 !!
-        //    if (this.isMouseDown)
-        //        return;
-
-        //    this.CenterUnixTimeMiliSeconds = playUnixTimeMiliSeconds;
-
-        //    //(this.DataContext as TimelineControlViewModel).RefreshTimelineExceptRequestCamera();
-        //    this.RefreshTimelineExceptRequestCamera();
-
-        //    //BaseTime이 변경됐음을 알림 !! 다른 UI 시간 동기화 진행 !!
-        //    //BaseTimeManager.Instance.TimelineBaseTimeChanged(this.CenterUnixTime);
-        //}
 
         private void HandleOuterCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -769,7 +708,6 @@ namespace OPNX.UI.WPF.Controls
             this.xScrollViewer.Height = height;
 
             this.xCanvasTime.Width = this.xCanvasOuter.ActualWidth;
-            //Canvas.SetTop(this.xCanvasTime, this.xScrollViewer.Height);
 
             this.xRectangleLineCenter.Height = this.xCanvasOuter.ActualHeight;
         }
@@ -787,31 +725,8 @@ namespace OPNX.UI.WPF.Controls
             this.xTimelineCanvas.Height = this.xCanvasInner.Height;
             this.xTimelineCanvas.UpdateTimelineExtent();
 
-            //TimelineControlViewModel timelineControlViewModel = this.DataContext as TimelineControlViewModel;
-            //if (timelineControlViewModel != null)
-            //    timelineControlViewModel.RefreshTimelineExceptRequestCamera();
             this.Refresh();
         }
-
-
-        //public void SelectEntity(List<int> entityIDList)
-        //{
-        //    if (entityIDList.Count < 1)
-        //        return;
-
-        //    xInnerControl.SelectEntity(entityIDList);                
-        //}
-
-        //public void ScrollSelectedEntityPosition()
-        //{
-        //    xInnerControl.ScrollSelectedEntityPosition();            
-        //}
-
-        //public void SetPreviewCameraControl(CameraControlPlayback cameraControl)
-        //{
-        //    this.previewCameraControl = cameraControl;
-        //    this.xInnerControl.PreviewCameraControl = this.previewCameraControl;
-        //}
 
         private void HandleTimelineMouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -830,17 +745,6 @@ namespace OPNX.UI.WPF.Controls
 
             if ((Keyboard.Modifiers & ModifierKeys.Alt) > 0)
             {
-                //if (e.Delta > 0)
-                //{
-                //    if (xComboBoxTimePeriod.SelectedIndex != 0)
-                //        xComboBoxTimePeriod.SelectedIndex--;
-                //}
-                //else
-                //{
-                //    if (xComboBoxTimePeriod.SelectedIndex != 9)
-                //        xComboBoxTimePeriod.SelectedIndex++;
-                //}
-
                 return;
             }
 
@@ -849,10 +753,6 @@ namespace OPNX.UI.WPF.Controls
                 this.xScrollViewer.Focus();
                 if (!this.xCanvasInner.IsMouseCaptured)
                     this.xCanvasInner.CaptureMouse();
-
-                //this.xTimelineCanvas.StopRealTimeRefreshTimer();
-                //최초 Move시 전체 Camera를 Pause함 !!
-                //App.PlaybackControl.xTimeNavigationControl.Pause();
             }
             else
             {
@@ -860,45 +760,15 @@ namespace OPNX.UI.WPF.Controls
             }
             scrollTimer.Start();
 
-            ////새로운 Center 시간을 구함
-            //double gapX = e.Delta / 2;
-
-            ////1시간을 기준으로 시간이동을 구함
-            //TimeSpan timeSpan = TimeSpan.FromMilliseconds(this.VisibleTotalUnixTimeMiliSeconds);
-            //double movedMiliSeconds = timeSpan.TotalMilliseconds * gapX / this.xCanvasInner.ActualWidth;
-            //this.CenterUnixTimeMiliSeconds -= movedMiliSeconds;
-
-            // Canvas 이동 거리
             double gapX = e.Delta / 2;
 
-            // Visible 범위를 long으로 안전하게 처리
             long visibleTimeRangeMS = this.VisibleTimeRangeMS;
 
-            // 이동 시간 계산
             long movedMs = (long)(visibleTimeRangeMS * gapX / this.xCanvasInner.ActualWidth);
 
-            // 새로운 Center Unix Time 계산
             this.CenterTimeUnixMS -= movedMs;
 
-            //(this.DataContext as TimelineControlViewModel).RefreshTimelineExceptRequestCamera();
             this.Refresh();
-
-            //Tooltip 좌표를 변경함
-            //this.MoveEventTooltip(gapX);
-
-            //BaseTime이 변경됐음을 알림 !! 다른 UI 시간 동기화 진행 !!
-            //bool isSeekAllCamera = false;
-            //if (constset.IsSeekAllCameraWhenTimelineDragging)
-            //    isSeekAllCamera = true;
-
-            //if (isPreviewMode)
-            //{
-            //    BaseTimeManager.Instance.PreviewTimelineBaseTimeChanged(this.CenterUnixTimeMiliSeconds, isSeekAllCamera);
-            //}
-            //else
-            //{
-            //    BaseTimeManager.Instance.TimelineBaseTimeChanged(this.CenterUnixTimeMiliSeconds, isSeekAllCamera);
-            //}
         }
 
         private void HandleScrollTimerTick(object? sender, EventArgs e)
@@ -909,33 +779,6 @@ namespace OPNX.UI.WPF.Controls
             {
                 this.xCanvasInner.ReleaseMouseCapture();
             }
-
-            //(this.DataContext as TimelineControlViewModel).RefreshTimeline();
-
-            //RefreshTimeline();
-
-            //실시간 Camera Data Update 시작 !!
-            //this.xInnerControl.StartRealTimeRefreshTimer();
-
-            //if (!isPreviewMode)
-            //{
-            //    //BaseTime이 변경됐음을 알림 !! 다른 UI 시간 동기화 진행 !!
-            //    //BaseTimeManager.Instance.TimelineBaseTimeChanged(this.CenterUnixTimeMiliSeconds);
-
-            //    //List<CameraControlPlayback> cameraControlList = App.PlaybackControl.xMultiGridControl.GetAllCameraControls();
-            //    //cameraControlList.ForEach(item =>
-            //    //{
-            //    //    Commons.CameraManagers.VideoPlayControlManager.Instance.ChangPosition(item.VideoElement, "MoveTimeline");
-            //    //});
-            //}
-            //else
-            //{
-            //    //BaseTimeManager.Instance.PreviewTimelineBaseTimeChanged(this.CenterUnixTimeMiliSeconds);
-            //    //if (previewCameraControl != null && previewCameraControl.VideoElement != null)
-            //    //{
-            //    //    Commons.CameraManagers.VideoPlayControlManager.Instance.ChangPosition(previewCameraControl.VideoElement, "MoveTimeline");
-            //    //}
-            //}
         }
 
         private void HandleIncreaseTimeRangeClick(object sender, RoutedEventArgs e)

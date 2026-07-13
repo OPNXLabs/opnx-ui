@@ -1,4 +1,4 @@
-﻿namespace OPNX.UI.WPF.Controls
+namespace OPNX.UI.WPF.Controls
 {
     public delegate void PlaybackTimelineRequestEventHandler(object sender, PlaybackTimelineRequestEventArgs e);
     public class PlaybackTimelineRequestEventArgs : EventArgs
@@ -17,6 +17,12 @@
     public class PlaybackTimelineRangeChangedEventArgs : EventArgs
     {
         public PlaybackTimelineRangeType TimeRange { get; set; }
+    }
+
+    public sealed class PlaybackTimelineSelectionChangedEventArgs : EventArgs
+    {
+        public PlaybackTimelineRecordData? SelectedRecordData { get; init; }
+        public PlaybackTimelineHitResult? HitResult { get; init; }
     }
 }
 

@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -125,7 +125,7 @@ namespace OPNX.UI.WPF.Controls
                 Stroke = stroke,
                 StrokeThickness = options.StrokeThickness,
                 Fill = null,
-                StrokeDashArray = new DoubleCollection { 6, 3 }
+                StrokeDashArray = [6, 3]
             });
 
             double crossSize = Math.Min(options.Width, options.Height) * 0.4;

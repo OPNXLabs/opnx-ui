@@ -1,4 +1,4 @@
-﻿<ResourceDictionary
+<ResourceDictionary
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="clr-namespace:OPNX.UI.WPF.Controls"
@@ -6,168 +6,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:converter="clr-namespace:OPNX.UI.WPF.Converters"
 	mc:Ignorable="d">
-
-    <!--<Style x:Key="sButton_DelCamera" TargetType="{x:Type Button}">
-        <Style.Resources>
-            <Storyboard x:Key="Storyboard1">
-                <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="{x:Null}" Storyboard.TargetProperty="(TextElement.Foreground).(SolidColorBrush.Color)">
-                    <SplineColorKeyFrame KeyTime="00:00:00.3000000" Value="#FFFFBD47"/>
-                </ColorAnimationUsingKeyFrames>
-            </Storyboard>
-        </Style.Resources>
-        <Setter Property="FocusVisualStyle" Value="{StaticResource ButtonFocusVisual}"/>
-        <Setter Property="Background" Value="{StaticResource ButtonNormalBackground}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource ButtonNormalBorder}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Padding" Value="1"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Button}">
-                    <ControlTemplate.Resources>
-                        <Storyboard x:Key="Storyboard1">
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="rectangle" Storyboard.TargetProperty="(Shape.Stroke).(GradientBrush.GradientStops)[0].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF585858"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.1600000" Value="#FFCAC30D"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="rectangle" Storyboard.TargetProperty="(Shape.Stroke).(GradientBrush.GradientStops)[2].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF414141"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.1600000" Value="#FFCAC30D"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="rectangle" Storyboard.TargetProperty="(Shape.Stroke).(GradientBrush.GradientStops)[3].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF353535"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.1600000" Value="#FFCAC30D"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="rectangle" Storyboard.TargetProperty="(Shape.Stroke).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF333333"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.1600000" Value="#FFCAC30D"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="rectangle" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[0].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF464646"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.1600000" Value="#FFFCFA01"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="rectangle" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF242424"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.1600000" Value="#FFFFD600"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="rectangle" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[3].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF171717"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.1600000" Value="#FFFFAE03"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="rectangle" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF050505"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.1600000" Value="#FFFFBF3C"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="textBlock" Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[0].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFC4C4C4"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.1600000" Value="#FF383838"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="textBlock" Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[2].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFC4C4C4"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.1600000" Value="#FF1E1E1E"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="textBlock" Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[3].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFA7A7A7"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.1600000" Value="#FF1E1E1E"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="textBlock" Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFA7A7A7"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.1600000" Value="#FF282828"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="textBlock" Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[2].(GradientStop.Offset)">
-                                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.48"/>
-                                <SplineDoubleKeyFrame KeyTime="00:00:00.1600000" Value="0.474"/>
-                            </DoubleAnimationUsingKeyFrames>
-                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="textBlock" Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[3].(GradientStop.Offset)">
-                                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.52"/>
-                                <SplineDoubleKeyFrame KeyTime="00:00:00.1600000" Value="0.518"/>
-                            </DoubleAnimationUsingKeyFrames>
-                        </Storyboard>
-                        <Storyboard x:Key="Storyboard2">
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="textBlock" Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[0].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF383838"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.0800000" Value="#FFFFFFFF"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="textBlock" Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[2].(GradientStop.Offset)">
-                                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.48"/>
-                                <SplineDoubleKeyFrame KeyTime="00:00:00.0800000" Value="0.465"/>
-                            </DoubleAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="textBlock" Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[2].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF1E1E1E"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.0800000" Value="#FFFFFFFF"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="textBlock" Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[3].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF1E1E1E"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.0800000" Value="#FFFFFFFF"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="textBlock" Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
-                                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF282828"/>
-                                <SplineColorKeyFrame KeyTime="00:00:00.0800000" Value="#FFFFFFFF"/>
-                            </ColorAnimationUsingKeyFrames>
-                        </Storyboard>
-                    </ControlTemplate.Resources>
-                    <Grid>
-                        <Rectangle RadiusX="3" RadiusY="3" x:Name="rectangle">
-                            <Rectangle.Fill>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Color="#FF464646" Offset="0"/>
-                                    <GradientStop Color="#FF050505" Offset="1"/>
-                                    <GradientStop Color="#FF242424" Offset="0.45"/>
-                                    <GradientStop Color="#FF171717" Offset="0.55"/>
-                                </LinearGradientBrush>
-                            </Rectangle.Fill>
-                            <Rectangle.Stroke>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Color="#FF585858" Offset="0"/>
-                                    <GradientStop Color="#FF333333" Offset="1"/>
-                                    <GradientStop Color="#FF414141" Offset="0.49"/>
-                                    <GradientStop Color="#FF353535" Offset="0.5"/>
-                                </LinearGradientBrush>
-                            </Rectangle.Stroke>
-                        </Rectangle>
-                        <TextBlock x:Name="textBlock" HorizontalAlignment="Center" Text="x" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="40" FontFamily="Malgun Gothic" FontWeight="Bold" Margin="0,0,0,8">
-                            <TextBlock.Foreground>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Color="#FFC4C4C4" Offset="0"/>
-                                    <GradientStop Color="#FFA7A7A7" Offset="1"/>
-                                    <GradientStop Color="#FFC4C4C4" Offset="0.48"/>
-                                    <GradientStop Color="#FFA7A7A7" Offset="0.52"/>
-                                </LinearGradientBrush>
-                            </TextBlock.Foreground>
-                        </TextBlock>
-                    </Grid>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Fill" TargetName="rectangle" Value="#FF262626"/>
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Trigger.EnterActions>
-                                <BeginStoryboard x:Name="Storyboard1_BeginStoryboard" Storyboard="{StaticResource Storyboard1}"/>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <StopStoryboard BeginStoryboardName="Storyboard1_BeginStoryboard"/>
-                                <StopStoryboard BeginStoryboardName="Storyboard1_BeginStoryboard"/>
-                                <StopStoryboard BeginStoryboardName="Storyboard1_BeginStoryboard"/>
-                                <StopStoryboard BeginStoryboardName="Storyboard1_BeginStoryboard"/>
-                            </Trigger.ExitActions>
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Trigger.ExitActions>
-                                <StopStoryboard BeginStoryboardName="Storyboard2_BeginStoryboard"/>
-                            </Trigger.ExitActions>
-                            <Trigger.EnterActions>
-                                <BeginStoryboard x:Name="Storyboard2_BeginStoryboard" Storyboard="{StaticResource Storyboard2}"/>
-                            </Trigger.EnterActions>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-        <Setter Property="Foreground" Value="#FF000000"/>
-    </Style>-->
-
-    <Style TargetType="{x:Type local:OpnxMultiView}">
+<Style TargetType="{x:Type local:OpnxMultiView}">
         <Style.Resources>
             <Style x:Key="sButton_GridClose" TargetType="{x:Type Button}">
                 <Setter Property="Template">
@@ -269,12 +108,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:OpnxMultiView}">
-
-                    <!--<Grid d:DesignWidth="508" d:DesignHeight="331">-->
-                    <Grid Background="Transparent">
-    <!--<TextBlock x:Name="xTextBlock" Text="OpnxMultiView Test" Foreground="Black"/>-->
-
-                        <Canvas x:Name="xZoomControl" Panel.ZIndex="-1"></Canvas>
+<Grid Background="Transparent">
+<Canvas x:Name="xZoomControl" Panel.ZIndex="-1"></Canvas>
                         <local:MultiViewPanel x:Name="xMultiViewPanel" Background="{TemplateBinding Background}" Margin="0,-1,0,0" Panel.ZIndex="0" ZoomCanvas="{Binding ElementName=xZoomControl}"/>
 
                         <Rectangle x:Name="xSelectionRect" StrokeThickness="2" IsHitTestVisible="False"
@@ -285,20 +120,7 @@
 								   Fill="{x:Null}" Stroke="Blue"
 								   Visibility="{Binding Path=HighlightVisibility, RelativeSource={RelativeSource TemplatedParent}}"
 								   Margin="{Binding Path=HighlightMargin, RelativeSource={RelativeSource TemplatedParent}}"/>
-                        <!--<Rectangle x:Name="xControlModeRect" StrokeThickness="3" IsHitTestVisible="False"
-								   Fill="{x:Null}" Stroke="Green"
-								   Visibility="{Binding Path=ControlModeVisibility, RelativeSource={RelativeSource TemplatedParent}}"
-								   Margin="{Binding Path=ControlModeMargin, RelativeSource={RelativeSource TemplatedParent}}"/>-->
 
-                        <!--<Button x:Name="xZoomEndButton" Width="30" Height="30" Content="X"
-							VerticalAlignment="Bottom" HorizontalAlignment="Right"
-							Visibility="{Binding Path=ZoomEndButtonVisibility, RelativeSource={RelativeSource TemplatedParent}}"    
-							Margin="{Binding ZoomEndButtonMargin, RelativeSource={RelativeSource TemplatedParent}}" Style="{DynamicResource sButton_GridClose}"/>
-
-                        <ToggleButton x:Name="xHoldButton" Width="30" Height="30"
-							VerticalAlignment="Bottom" HorizontalAlignment="Right"
-							Visibility="{Binding Path=ZoomEndButtonVisibility, RelativeSource={RelativeSource TemplatedParent}}"    
-							Margin="0,0,40,5" Style="{DynamicResource sButton_Hold}"/>-->
 
                         <Rectangle x:Name="xRectangleLock" Fill="Green" Opacity="0.000000000001" Panel.ZIndex="1" Visibility="Hidden" Margin="0,0,0,0"/>
                     </Grid>
@@ -306,8 +128,7 @@
                     <ControlTemplate.Triggers>
 
                         <Trigger Property="HighlightBorderStyle" Value="SelectionEnabled">
-                            <!--<Setter TargetName="xHighlightRect" Property="Fill" Value="#7FFFFF00"/>-->
-                            <Setter TargetName="xHighlightRect" Property="Stroke" Value="#A5B6C8"/>
+<Setter TargetName="xHighlightRect" Property="Stroke" Value="#A5B6C8"/>
                             <Setter TargetName="xHighlightRect" Property="StrokeThickness" Value="1.5"/>
                         </Trigger>
                         <Trigger Property="HighlightBorderStyle" Value="SelectionDisabled">
@@ -315,11 +136,7 @@
                             <Setter TargetName="xHighlightRect" Property="Stroke" Value="Blue"/>
                             <Setter TargetName="xHighlightRect" Property="StrokeDashArray" Value="2,1"/>
                         </Trigger>
-                        <!--<DataTrigger Binding="{Binding Path=IsLocked}" Value="True">
-                            <Setter TargetName="xRectangleLock" Property="Visibility" Value="Visible"/>
-                        </DataTrigger>-->
-
-                    </ControlTemplate.Triggers>
+</ControlTemplate.Triggers>
 
                 </ControlTemplate>
             </Setter.Value>
@@ -336,27 +153,11 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="0">
-                                <!--<RowDefinition.Height>
-									<MultiBinding FallbackValue="0.0" Mode="OneWay" Converter="{StaticResource TitleHeaderHeightConverter}" UpdateSourceTrigger="PropertyChanged">
-										<Binding Path="IsZoomed" RelativeSource="{RelativeSource TemplatedParent}"/>
-										<Binding RelativeSource="{RelativeSource TemplatedParent}"/>
-									</MultiBinding>
-								</RowDefinition.Height>-->
-                            </RowDefinition>
+</RowDefinition>
                             <RowDefinition />
                         </Grid.RowDefinitions>
-                        <!--<Grid x:Name="xTitleHeader" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="0" Background="Transparent">
-                            -->
-                        <!--<Grid.Background>
-								<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-									<GradientStop Color="#FF636363" Offset="0"/>
-									<GradientStop Color="#FF383838" Offset="1"/>
-								</LinearGradientBrush>
-							</Grid.Background>-->
-                        <!--
-                            <TextBlock Text="FULL SCREEN GRID VIEW" HorizontalAlignment="Left" Foreground="White" FontWeight="Bold" Margin="5,4,0,0" Visibility="Hidden"/>
-                        </Grid>-->
-                        <ContentPresenter Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+
+<ContentPresenter Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                     </Grid>
 
                 </ControlTemplate>
