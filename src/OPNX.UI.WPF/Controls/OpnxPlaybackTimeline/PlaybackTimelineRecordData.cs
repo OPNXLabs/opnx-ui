@@ -2,9 +2,9 @@ using OPNX.Lib.Data.ORM.Interfaces;
 
 namespace OPNX.UI.WPF.Controls
 {
-    public class PlaybackTimelineRecordData(IEntity entity)
+    public class PlaybackTimelineRecordData(IEntityIdentity entity)
     {
-        private readonly IEntity recordEntity = entity;
+        private readonly IEntityIdentity recordEntity = entity;
 
         private readonly List<PlaybackTimelineRecordInfo> recordInfos = [];
 
@@ -12,7 +12,7 @@ namespace OPNX.UI.WPF.Controls
 
         public bool IsSelected { get; set; } = false;
 
-        public IEntity Entity => recordEntity;
+        public IEntityIdentity Entity => recordEntity;
 
         public IReadOnlyList<PlaybackTimelineRecordInfo> RecordInfos => recordInfos;
         public IReadOnlyList<PlaybackTimelineEventInfo> EventInfos => eventInfos;

@@ -47,7 +47,7 @@ namespace OPNX.UI.WPF.Controls
             }
         }
 
-        public PlaybackTimelineRecordData? AddRecordData(IEntity entity)
+        public PlaybackTimelineRecordData? AddRecordData(IEntityIdentity entity)
         {
             if (entity == null)
                 return null;
@@ -64,7 +64,7 @@ namespace OPNX.UI.WPF.Controls
             return recordData;
         }
 
-        public void AddRecordData(IEntity entity, PlaybackTimelineRecordInfo recordInfo)
+        public void AddRecordData(IEntityIdentity entity, PlaybackTimelineRecordInfo recordInfo)
         {
             if (entity == null || recordInfo == null)
                 return;
@@ -84,7 +84,7 @@ namespace OPNX.UI.WPF.Controls
             }
         }
 
-        public void AddEventData(IEntity entity, PlaybackTimelineEventInfo eventInfo)
+        public void AddEventData(IEntityIdentity entity, PlaybackTimelineEventInfo eventInfo)
         {
             if (entity == null || eventInfo == null)
                 return;

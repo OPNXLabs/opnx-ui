@@ -13,13 +13,13 @@
                     <Setter.Value>
                         <DataTemplate>
                             <StackPanel Background="Transparent"
-                        Height="15"
-                        Margin="5,4,0,5.5"
-                        VerticalAlignment="Center"
-                        HorizontalAlignment="Left"
-                        Orientation="Horizontal">
-<ToggleButton
+                                        Margin="10,0,0,0"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Left"
+                                        Orientation="Horizontal">
+                                <ToggleButton
                             Background="Transparent"
+                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxPlaybackTimeline}}}"
                             BorderThickness="0"
                             Cursor="Hand"
                             Focusable="False"
@@ -32,16 +32,11 @@
                                                Text="{TemplateBinding Content}"
                                                Background="Transparent"
                                                VerticalAlignment="Center"
-                                               Foreground="#c8c7c3"
+                                               Foreground="{TemplateBinding Foreground}"
                                                Padding="0"
                                                HorizontalAlignment="Left"
                                                Focusable="False"
                                                Margin="0"/>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Tzz" Property="Foreground" Value="#D2931A"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
                                         </ControlTemplate>
                                     </ToggleButton.Template>
                                     <ToggleButton.Content>
@@ -69,13 +64,14 @@
                         BorderBrush="Transparent"
                         BorderThickness="0">
                                 <ScrollViewer Background="Transparent"
-                                      Margin="0" Padding="0"
+                                      Margin="0"
                                       Focusable="False"
                                       BorderBrush="Transparent"
                                       BorderThickness="0"
                                       CanContentScroll="False"
                                       HorizontalScrollBarVisibility="Disabled"
-                                      VerticalScrollBarVisibility="Hidden">
+                                      VerticalScrollBarVisibility="Hidden"
+                                      Padding="{TemplateBinding Padding}">
                                     <ItemsPresenter />
                                 </ScrollViewer>
                             </Border>
@@ -85,14 +81,17 @@
                 <Setter Property="ItemContainerStyle">
                     <Setter.Value>
                         <Style TargetType="{x:Type ListBoxItem}">
-                            <Setter Property="Height" Value="26" />
+                            <Setter Property="Height" Value="{Binding TimelineRowHeight, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxPlaybackTimeline}}}" />
+                            <Setter Property="Background" Value="{Binding TimelineRowBackground, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxPlaybackTimeline}}}" />
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                         <Border
                                     x:Name="Bd"
+                                    Height="{Binding RecordingBarHeight, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxPlaybackTimeline}}}"
+                                    VerticalAlignment="Center"
                                     Padding="0"
-                                    Background="Transparent"
+                                    Background="{TemplateBinding Background}"
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="0"
                                     SnapsToDevicePixels="true">
@@ -107,20 +106,9 @@
                                                     <Condition Property="IsMouseOver" Value="True" />
                                                 </MultiTrigger.Conditions>
                                             </MultiTrigger>
-                                            <MultiTrigger>
-                                                <MultiTrigger.Conditions>
-                                                    <Condition Property="Selector.IsSelectionActive" Value="False" />
-                                                    <Condition Property="IsSelected" Value="True" />
-                                                </MultiTrigger.Conditions>
-                                                <Setter TargetName="Bd" Property="Background" Value="#6673B2F2" />
-                                            </MultiTrigger>
-                                            <MultiTrigger>
-                                                <MultiTrigger.Conditions>
-                                                    <Condition Property="Selector.IsSelectionActive" Value="True" />
-                                                    <Condition Property="IsSelected" Value="True" />
-                                                </MultiTrigger.Conditions>
-                                                <Setter TargetName="Bd" Property="Background" Value="#6673B2F2" />
-</MultiTrigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="{Binding SelectedTimelineRowBackground, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxPlaybackTimeline}}}" />
+                                            </Trigger>
                                             <Trigger Property="IsEnabled" Value="False">
                                                 <Setter TargetName="Bd" Property="TextElement.Foreground" Value="Transparent" />
                                             </Trigger>
@@ -143,7 +131,7 @@
                 </Grid.ColumnDefinitions>
                 <Grid x:Name="xLeftPanel" Grid.Column="0" Margin="0,0,0,0" Background="Transparent">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="60"></RowDefinition>
+                        <RowDefinition x:Name="xLeftHeaderRow" Height="65"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0" Background="Transparent">
@@ -161,7 +149,7 @@
                                        Margin="0"
                                        VerticalAlignment="Center"></TextBlock>
                         </Border>
-                        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Background="Transparent" Margin="0">
+                        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Background="Transparent" Margin="0,0,0,-10">
                             <local:OpnxStepSelector VerticalAlignment="Center"
                                                     VerticalContentAlignment="Center"
                                                     Foreground="White"
@@ -181,11 +169,15 @@
                                 </local:OpnxStepSelector.ItemTemplate>
                             </local:OpnxStepSelector>
                         </Border>
-                        <Rectangle Fill="{Binding SeparatorBrush, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" Height="{Binding SeparatorThickness, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True" Grid.Row="0" />
-                        <Rectangle Fill="{Binding SeparatorBrush, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" Height="{Binding SeparatorThickness, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True" Grid.Row="1" />
+                        <Rectangle Fill="{Binding SeparatorBrush, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" Height="{Binding SeparatorThickness, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True" Grid.Row="0" />                        
                     </Grid>
                     <ListBox Grid.Row="1" x:Name="xEntityListBox"  BorderBrush="Transparent"  BorderThickness="1" Margin="0,0,0,0"
-                             Foreground="White" FontSize="12" FontFamily="NanumBarunGothic"
+                             Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxPlaybackTimeline}}}"
+                             FontSize="{Binding FontSize, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxPlaybackTimeline}}}"
+                             FontFamily="{Binding FontFamily, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxPlaybackTimeline}}}"
+                             FontStyle="{Binding FontStyle, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxPlaybackTimeline}}}"
+                             FontWeight="{Binding FontWeight, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxPlaybackTimeline}}}"
+                             FontStretch="{Binding FontStretch, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxPlaybackTimeline}}}"
                              Style="{StaticResource ListBoxStyRecordData}"
                              ItemsSource="{Binding ElementName=xTimelineCanvas, Path=TimelineRecords}"
                              SelectedItem="{Binding SelectedRecordData, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}, Mode=TwoWay}"
@@ -205,27 +197,27 @@
                             <RowDefinition Height="0.5*"/>
                             <RowDefinition Height="0.5*"/>
                         </Grid.RowDefinitions>
-                        <TextBlock x:Name="xTextBlockVisibleStartDate" Margin="0" TextWrapping="Wrap" d:LayoutOverrides="Height" Foreground="{Binding LeftTimeForeground, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="2011년 11월 17일 목요일" FontSize="10.667"/>
-                        <TextBlock x:Name="xTextBlockVisibleStartTime" TextWrapping="Wrap" Text="13:24:24.143" Margin="0" d:LayoutOverrides="Height" Grid.Row="1" Foreground="{Binding LeftTimeForeground, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="10.667"/>
+                        <TextBlock x:Name="xTextBlockVisibleStartDate" Margin="0" TextWrapping="Wrap" d:LayoutOverrides="Height" Foreground="{Binding LeftTimeForeground, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="2011년 11월 17일 목요일" FontSize="10"/>
+                        <TextBlock x:Name="xTextBlockVisibleStartTime" TextWrapping="Wrap" Text="13:24:24.143" Margin="0" d:LayoutOverrides="Height" Grid.Row="1" Foreground="{Binding LeftTimeForeground, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="10"/>
                     </Grid>
                     <Grid HorizontalAlignment="Center" Margin="0" Grid.Row="0" VerticalAlignment="Center">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="0.5*"/>
                             <RowDefinition Height="0.5*"/>
                         </Grid.RowDefinitions>
-                        <TextBlock x:Name="xTextBlockVisibleCenterDate" TextWrapping="Wrap" d:LayoutOverrides="Height" Foreground="{Binding CenterTimeForeground, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" HorizontalAlignment="Center" VerticalAlignment="Top" Text="2011년 11월 17일 목요일" FontSize="10.667"/>
-                        <TextBlock x:Name="xTextBlockVisibleCenterTime" TextWrapping="Wrap" Text="13:24:24.143" Margin="0" d:LayoutOverrides="Height" Grid.Row="1" Foreground="{Binding CenterTimeForeground, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10.667"/>
+                        <TextBlock x:Name="xTextBlockVisibleCenterDate" TextWrapping="Wrap" d:LayoutOverrides="Height" Foreground="{Binding CenterTimeForeground, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" HorizontalAlignment="Center" VerticalAlignment="Top" Text="2011년 11월 17일 목요일" FontSize="10"/>
+                        <TextBlock x:Name="xTextBlockVisibleCenterTime" TextWrapping="Wrap" Text="13:24:24.143" Margin="0" d:LayoutOverrides="Height" Grid.Row="1" Foreground="{Binding CenterTimeForeground, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10"/>
                     </Grid>
                     <Grid HorizontalAlignment="Right" Margin="0,0,20,0" Grid.Row="0" VerticalAlignment="Center">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="0.5*"/>
                             <RowDefinition Height="0.5*"/>
                         </Grid.RowDefinitions>
-                        <TextBlock x:Name="xTextBlockVisibleEndDate" Margin="0" TextWrapping="Wrap" d:LayoutOverrides="Height" Foreground="{Binding RightTimeForeground, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Text="2011년 11월 17일 목요일" FontSize="10.667"/>
-                        <TextBlock x:Name="xTextBlockVisibleEndTime" TextWrapping="Wrap" Text="13:24:24.143" Margin="0" d:LayoutOverrides="Height" Grid.Row="1" Foreground="{Binding RightTimeForeground, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="10.667"/>
+                        <TextBlock x:Name="xTextBlockVisibleEndDate" Margin="0" TextWrapping="Wrap" d:LayoutOverrides="Height" Foreground="{Binding RightTimeForeground, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Text="2011년 11월 17일 목요일" FontSize="10"/>
+                        <TextBlock x:Name="xTextBlockVisibleEndTime" TextWrapping="Wrap" Text="13:24:24.143" Margin="0" d:LayoutOverrides="Height" Grid.Row="1" Foreground="{Binding RightTimeForeground, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="10"/>
                     </Grid>
                     <Canvas x:Name="xCanvasOuter" Grid.Row="1" Background="Transparent" ClipToBounds="True">
-                        <Canvas x:Name="xCanvasTime" Height="20" Width="1613" Canvas.Left="0" Canvas.Top="0">
+                        <Canvas x:Name="xCanvasTime" Height="20" Width="1613" Canvas.Left="0" Canvas.Top="0" Background="Transparent">
                             <TextBlock x:Name="xTextBlockTime01" TextWrapping="Wrap" Text="13  10" Width="50" Foreground="#8FA3B8" Canvas.Left="121.764" Canvas.Top="0" TextAlignment="Center"/>
                             <TextBlock x:Name="xTextBlockTime02" TextWrapping="Wrap" Text="13  20" Width="50" Foreground="#8FA3B8" Canvas.Left="387.165" Canvas.Top="0" TextAlignment="Center"/>
                             <TextBlock x:Name="xTextBlockTime03" TextWrapping="Wrap" Text="13  30" Width="50" Foreground="#8FA3B8" Canvas.Left="659.612" Canvas.Top="0" TextAlignment="Center"/>
@@ -234,7 +226,7 @@
                             <TextBlock x:Name="xTextBlockTime06" TextWrapping="Wrap" Text="14  00" VerticalAlignment="Bottom" Width="50" Foreground="#8FA3B8" Canvas.Left="1454.984" Canvas.Top="0" TextAlignment="Center"/>
                         </Canvas>
 
-                        <ScrollViewer x:Name="xScrollViewer" Width="1613" Height="215" Canvas.Left="0" Canvas.Top="20">
+                        <ScrollViewer x:Name="xScrollViewer" Width="1613" Height="215" Canvas.Left="0" Canvas.Top="20" Background="Transparent">
                             <Canvas x:Name="xCanvasInner" Background="Transparent" ClipToBounds="True">
                                 <local:OpnxPlaybackTimelineCanvas x:Name="xTimelineCanvas" ParentTimelineControl="{Binding RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" />
 
@@ -246,7 +238,7 @@
                                 <Rectangle x:Name="xRectangleLine06" Fill="{Binding TimeTickBrush, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" Height="235" Width="{Binding TimeTickThickness, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" Canvas.Left="1479.484" SnapsToDevicePixels="True"/>
 
                                 <Grid x:Name="xGridEventInfo" Visibility="Collapsed">
-                                    <Border x:Name="xBorderEventInfo" BorderBrush="Yellow" BorderThickness="1">
+                                    <Border x:Name="xBorderEventInfo" BorderBrush="Transparent" BorderThickness="1">
                                         <TextBlock x:Name="xTextBlockEventInfo" Width="Auto" Height="Auto" Background="Black" Foreground="White"/>
                                     </Border>
                                 </Grid>
@@ -255,10 +247,10 @@
 
                         <Grid x:Name="xRectangleLineCenter">
                             <Rectangle Fill="#C94A46" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="2" Canvas.Top="0"/>
-</Grid>
+                        </Grid>
                     </Canvas>
-<Rectangle Fill="{Binding SeparatorBrush, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" Height="{Binding SeparatorThickness, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" Margin="0" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True"/>
-<Rectangle Fill="#FF444444" Width="1" Margin="0" HorizontalAlignment="Left" StrokeThickness="0" SnapsToDevicePixels="True" Grid.RowSpan="2" Visibility="Collapsed"/>
+                    <Rectangle Fill="{Binding SeparatorBrush, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" Height="{Binding SeparatorThickness, RelativeSource={RelativeSource AncestorType=local:OpnxPlaybackTimeline}}" Margin="0" VerticalAlignment="Bottom" StrokeThickness="0" SnapsToDevicePixels="True"/>
+                    <Rectangle Fill="#FF444444" Width="1" Margin="0" HorizontalAlignment="Left" StrokeThickness="0" SnapsToDevicePixels="True" Grid.RowSpan="2" Visibility="Collapsed"/>
                 </Grid>
             </Grid>
         </Border>

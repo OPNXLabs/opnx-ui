@@ -711,7 +711,7 @@ namespace OPNX.UI.WPF.Controls
 
             cell.Clear();
             cell.Add(element);
-}
+        }
 
         #endregion
 

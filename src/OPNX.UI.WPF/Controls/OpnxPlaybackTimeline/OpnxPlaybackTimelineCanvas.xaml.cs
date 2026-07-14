@@ -11,17 +11,8 @@ namespace OPNX.UI.WPF.Controls
     public partial class OpnxPlaybackTimelineCanvas : UserControl
     {
         #region Fields
-        private const double drawCameraStartY = 7;
-        private const double drawCameraHeight = 16;
-        private const double drawCameraEmptySpace = 10;
-
-        private readonly SolidColorBrush? cameraBackBrush = new BrushConverter().ConvertFromString("#66000000") as SolidColorBrush;
-        private readonly SolidColorBrush? cameraBrush = new BrushConverter().ConvertFromString("#FFC000") as SolidColorBrush;
-        private readonly SolidColorBrush? cameraSelectBrush = new BrushConverter().ConvertFromString("#FF73B2F2") as SolidColorBrush;
-
         private readonly ObservableCollection<PlaybackTimelineRecordData> timelineRecords = [];
         private readonly Dictionary<int, EntityTextCacheEntry> entityTextCache = [];
-        private readonly Typeface entityTypeface = new("Verdana");
         #endregion
 
         #region Constructors
@@ -59,7 +50,7 @@ namespace OPNX.UI.WPF.Controls
 
         #region Public Methods
 
-        public PlaybackTimelineRecordData? AddEntity(IEntity entity)
+        public PlaybackTimelineRecordData? AddTimelineItem(IEntityIdentity entity)
         {
             if (timelineRecords.Any(x => x.Entity.ID == entity.ID))
                 return null;
@@ -73,7 +64,7 @@ namespace OPNX.UI.WPF.Controls
             return newRecordData;
         }
 
-        public PlaybackTimelineRecordData? GetRecordData(IEntity entity)
+        public PlaybackTimelineRecordData? GetRecordData(IEntityIdentity entity)
         {
             ArgumentNullException.ThrowIfNull(entity);
             return GetRecordData(entity.ID);
@@ -88,7 +79,7 @@ namespace OPNX.UI.WPF.Controls
                 timeline.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);
         }
 
-        private PlaybackTimelineRecordData GetOrAddEntity(IEntity entity)
+        private PlaybackTimelineRecordData GetOrAddTimelineItem(IEntityIdentity entity)
         {
             var recordData = timelineRecords.FirstOrDefault(x => x.Entity.ID == entity.ID);
             if (recordData != null)
@@ -99,7 +90,7 @@ namespace OPNX.UI.WPF.Controls
             return recordData;
         }
 
-        public void RemoveEntity(int entityID)
+        public void RemoveTimelineItem(int entityID)
         {
             var findRecordData = timelineRecords.FirstOrDefault(x => x.Entity.ID == entityID);
             if (findRecordData == null)
@@ -113,24 +104,24 @@ namespace OPNX.UI.WPF.Controls
             RefreshTimelineLayout();
         }
 
-        public void AddRecordData(IEntity entity, long startUnixMs, long endUnixMs, PlaybackTimelineRecordingType recordingType)
+        public void AddRecordData(IEntityIdentity entity, long startUnixMs, long endUnixMs, PlaybackTimelineRecordingType recordingType)
         {
             var recordInfo = new PlaybackTimelineRecordInfo(startUnixMs, endUnixMs, recordingType);
-            var findRecordData = GetOrAddEntity(entity);
+            var findRecordData = GetOrAddTimelineItem(entity);
 
             findRecordData.AddRecordInfo(recordInfo);
 
             RefreshTimelineLayout();
         }
 
-        public void AddEventData(IEntity entity, long startUnixMs, long endUnixMs, string eventType, SolidColorBrush eventColor, int mergeEventCount)
+        public void AddEventData(IEntityIdentity entity, long startUnixMs, long endUnixMs, string eventType, SolidColorBrush eventColor, int mergeEventCount)
         {
             var startBeginDate = DateTimeOffset.FromUnixTimeMilliseconds(startUnixMs).UtcDateTime;
 
             var description = $"{eventType} ({startBeginDate})";
 
             var eventInfo = new PlaybackTimelineEventInfo(startUnixMs, endUnixMs, eventType, eventColor, description, mergeEventCount);
-            var findRecordData = GetOrAddEntity(entity);
+            var findRecordData = GetOrAddTimelineItem(entity);
 
             findRecordData.AddEventInfo(eventInfo);
 
@@ -144,12 +135,12 @@ namespace OPNX.UI.WPF.Controls
                 return null;
 
             var recordData = timelineRecords[recordDataIndex];
-            double entityTop = GetEntityTop(recordDataIndex);
+            double recordingBarTop = GetRecordingBarTop(recordDataIndex);
 
             for (int i = recordData.EventInfos.Count - 1; i >= 0; i--)
             {
                 var eventInfo = recordData.EventInfos[i];
-                if (GetEventRect(eventInfo, entityTop).Contains(point))
+                if (GetEventRect(eventInfo, recordingBarTop).Contains(point))
                 {
                     return new PlaybackTimelineHitResult
                     {
@@ -163,7 +154,7 @@ namespace OPNX.UI.WPF.Controls
             for (int i = recordData.RecordInfos.Count - 1; i >= 0; i--)
             {
                 var recordInfo = recordData.RecordInfos[i];
-                if (GetRecordRect(recordInfo, entityTop).Contains(point))
+                if (GetRecordRect(recordInfo, recordingBarTop).Contains(point))
                 {
                     return new PlaybackTimelineHitResult
                     {
@@ -184,21 +175,25 @@ namespace OPNX.UI.WPF.Controls
 
         private int GetRecordDataIndex(double y)
         {
-            double relativeY = y - drawCameraStartY;
+            double relativeY = y - ParentTimelineControl.TimelineTopOffset;
             if (relativeY < 0)
                 return -1;
 
-            double rowStride = drawCameraHeight + drawCameraEmptySpace;
+            double rowStride = ParentTimelineControl.TimelineRowHeight;
             int index = (int)(relativeY / rowStride);
             if (index < 0 || index >= timelineRecords.Count)
                 return -1;
 
-            double entityTop = GetEntityTop(index);
-            return y <= entityTop + drawCameraHeight ? index : -1;
+            double rowTop = GetEntityTop(index);
+            return y < rowTop + ParentTimelineControl.TimelineRowHeight ? index : -1;
         }
 
-        private static double GetEntityTop(int index) =>
-            drawCameraStartY + index * (drawCameraHeight + drawCameraEmptySpace);
+        private double GetEntityTop(int index) =>
+            ParentTimelineControl.TimelineTopOffset + index * ParentTimelineControl.TimelineRowHeight;
+
+        private double GetRecordingBarTop(int index) =>
+            GetEntityTop(index) +
+            (ParentTimelineControl.TimelineRowHeight - ParentTimelineControl.RecordingBarHeight) / 2;
 
         private Rect GetRecordRect(PlaybackTimelineRecordInfo recordInfo, double entityTop)
         {
@@ -206,7 +201,7 @@ namespace OPNX.UI.WPF.Controls
             long centerTimeUnixMS = ParentTimelineControl.CenterTimeUnixMS;
             double left = GetPosition(centerTimeUnixMS, recordInfo.StartTimeUnixMS, visibleTimeRangeMS);
             double right = GetPosition(centerTimeUnixMS, recordInfo.EndTimeUnixMS, visibleTimeRangeMS);
-            return new Rect(left, entityTop, Math.Max(0, right - left), drawCameraHeight);
+            return new Rect(left, entityTop, Math.Max(0, right - left), ParentTimelineControl.RecordingBarHeight);
         }
 
         private Rect GetEventRect(PlaybackTimelineEventInfo eventInfo, double entityTop)
@@ -219,7 +214,7 @@ namespace OPNX.UI.WPF.Controls
                 left,
                 entityTop - eventInfo.DrawHeightGap,
                 Math.Max(5, right - left),
-                drawCameraHeight + eventInfo.DrawHeightGap * 2);
+                ParentTimelineControl.RecordingBarHeight + eventInfo.DrawHeightGap * 2);
         }
 
         private void RefreshTimelineVisual()
@@ -238,8 +233,8 @@ namespace OPNX.UI.WPF.Controls
             if (ParentTimelineControl == null)
                 return;
 
-            double desiredHeight = drawCameraStartY +
-                (drawCameraHeight + drawCameraEmptySpace) * timelineRecords.Count - drawCameraEmptySpace;
+            double desiredHeight = ParentTimelineControl.TimelineTopOffset +
+                ParentTimelineControl.TimelineRowHeight * timelineRecords.Count;
 
             double viewportHeight = ParentTimelineControl.xScrollViewer.ViewportHeight;
             if (double.IsNaN(viewportHeight) || viewportHeight <= 0)
@@ -337,10 +332,13 @@ namespace OPNX.UI.WPF.Controls
                 var recordData = recordDatas[i];
                 if (recordData == null) continue;
 
-                double entityTop = GetEntityTop(i);
+                double recordingBarTop = GetRecordingBarTop(i);
 
                 bool isSelected = ReferenceEquals(recordData, ParentTimelineControl.SelectedRecordData);
-                dc.DrawRectangle(isSelected ? cameraSelectBrush : cameraBackBrush, null, new Rect(0, entityTop, this.Width, drawCameraHeight));
+                dc.DrawRectangle(
+                    isSelected ? ParentTimelineControl.SelectedTimelineRowBackground : ParentTimelineControl.TimelineRowBackground,
+                    null,
+                    new Rect(0, recordingBarTop, this.Width, ParentTimelineControl.RecordingBarHeight));
 
                 var records = recordData.RecordInfos;
                 for (int j = 0; j < records.Count; j++)
@@ -348,10 +346,10 @@ namespace OPNX.UI.WPF.Controls
                     var r = records[j];
                     if (r.EndTimeUnixMS < leftTimeUnixMS || r.StartTimeUnixMS > rightTimeUnixMS)
                         continue;
-                    Rect recordRect = GetRecordRect(r, entityTop);
+                    Rect recordRect = GetRecordRect(r, recordingBarTop);
 
                     if (recordRect.Right > 0 && recordRect.Left < this.Width)
-                        dc.DrawRectangle(cameraBrush, null, recordRect);
+                        dc.DrawRectangle(ParentTimelineControl.RecordingBrush, null, recordRect);
                 }
 
                 var events = recordData.EventInfos;
@@ -361,7 +359,7 @@ namespace OPNX.UI.WPF.Controls
                     if (ev.EndTimeUnixMS < leftTimeUnixMS || ev.StartTimeUnixMS > rightTimeUnixMS)
                         continue;
 
-                    Rect eventRect = GetEventRect(ev, entityTop);
+                    Rect eventRect = GetEventRect(ev, recordingBarTop);
 
                     if (eventRect.Right > 0 && eventRect.Left < this.Width)
                         dc.DrawRectangle(ev.EventColor, null, eventRect);
@@ -371,7 +369,7 @@ namespace OPNX.UI.WPF.Controls
                     continue;
 
                 FormattedText formattedText = GetEntityFormattedText(recordData);
-                dc.DrawText(formattedText, new Point(5, entityTop));
+                dc.DrawText(formattedText, new Point(5, recordingBarTop));
             }
         }
 
@@ -381,11 +379,21 @@ namespace OPNX.UI.WPF.Controls
             CultureInfo culture = CultureInfo.CurrentUICulture;
             double pixelsPerDip = VisualTreeHelper.GetDpi(this).PixelsPerDip;
             int entityID = recordData.Entity.ID;
+            Typeface typeface = new(
+                ParentTimelineControl.FontFamily,
+                ParentTimelineControl.FontStyle,
+                ParentTimelineControl.FontWeight,
+                ParentTimelineControl.FontStretch);
+            double fontSize = ParentTimelineControl.FontSize;
+            Brush foreground = ParentTimelineControl.Foreground;
 
             if (entityTextCache.TryGetValue(entityID, out var cached) &&
                 cached.Text == text &&
                 cached.CultureName == culture.Name &&
-                cached.PixelsPerDip.Equals(pixelsPerDip))
+                cached.PixelsPerDip.Equals(pixelsPerDip) &&
+                cached.Typeface.Equals(typeface) &&
+                cached.FontSize.Equals(fontSize) &&
+                Equals(cached.Foreground, foreground))
             {
                 return cached.FormattedText;
             }
@@ -394,18 +402,25 @@ namespace OPNX.UI.WPF.Controls
                 text,
                 culture,
                 FlowDirection.LeftToRight,
-                entityTypeface,
-                10,
-                Brushes.White,
+                typeface,
+                fontSize,
+                foreground,
                 pixelsPerDip)
             {
                 MaxTextWidth = 150,
-                MaxTextHeight = drawCameraHeight,
+                MaxTextHeight = ParentTimelineControl.RecordingBarHeight,
                 MaxLineCount = 1,
                 Trimming = TextTrimming.CharacterEllipsis
             };
 
-            entityTextCache[entityID] = new EntityTextCacheEntry(text, culture.Name, pixelsPerDip, formattedText);
+            entityTextCache[entityID] = new EntityTextCacheEntry(
+                text,
+                culture.Name,
+                pixelsPerDip,
+                typeface,
+                fontSize,
+                foreground,
+                formattedText);
             return formattedText;
         }
 
@@ -421,6 +436,9 @@ namespace OPNX.UI.WPF.Controls
             string Text,
             string CultureName,
             double PixelsPerDip,
+            Typeface Typeface,
+            double FontSize,
+            Brush Foreground,
             FormattedText FormattedText);
     }
 }

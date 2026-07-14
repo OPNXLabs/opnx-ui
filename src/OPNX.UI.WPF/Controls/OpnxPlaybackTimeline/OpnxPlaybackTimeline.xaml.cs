@@ -1,7 +1,5 @@
-using OPNX.Lib.Data.ORM;
 using OPNX.Lib.Data.ORM.Interfaces;
 using OPNX.UI.WPF.Utilities;
-using SharpDX.Direct3D9;
 using System.Collections;
 using System.Globalization;
 using System.Windows;
@@ -46,6 +44,10 @@ namespace OPNX.UI.WPF.Controls
         public OpnxPlaybackTimeline()
         {
             InitializeComponent();
+
+            SetValue(ForegroundProperty, Brushes.White);
+
+            UpdateEntityListPadding();
 
             this.xCanvasOuter.SizeChanged += HandleOuterCanvasSizeChanged;
             this.xScrollViewer.SizeChanged += HandleScrollViewerSizeChanged;
@@ -148,6 +150,12 @@ namespace OPNX.UI.WPF.Controls
         public static readonly DependencyProperty TimeTickThicknessProperty = DependencyProperty.Register(nameof(TimeTickThickness), typeof(double), typeof(OpnxPlaybackTimeline), new PropertyMetadata(1d), IsValidThickness);
         public static readonly DependencyProperty SeparatorBrushProperty = DependencyProperty.Register(nameof(SeparatorBrush), typeof(Brush), typeof(OpnxPlaybackTimeline), new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x0E, 0x16, 0x21))));
         public static readonly DependencyProperty SeparatorThicknessProperty = DependencyProperty.Register(nameof(SeparatorThickness), typeof(double), typeof(OpnxPlaybackTimeline), new PropertyMetadata(2d), IsValidThickness);
+        public static readonly DependencyProperty TimelineRowHeightProperty = DependencyProperty.Register(nameof(TimelineRowHeight), typeof(double), typeof(OpnxPlaybackTimeline), new PropertyMetadata(26d, OnTimelineLayoutAppearanceChanged), IsValidPositiveDouble);
+        public static readonly DependencyProperty RecordingBarHeightProperty = DependencyProperty.Register(nameof(RecordingBarHeight), typeof(double), typeof(OpnxPlaybackTimeline), new PropertyMetadata(16d, OnTimelineLayoutAppearanceChanged), IsValidPositiveDouble);
+        public static readonly DependencyProperty TimelineTopOffsetProperty = DependencyProperty.Register(nameof(TimelineTopOffset), typeof(double), typeof(OpnxPlaybackTimeline), new PropertyMetadata(7d, OnTimelineLayoutAppearanceChanged), IsValidThickness);
+        public static readonly DependencyProperty TimelineRowBackgroundProperty = DependencyProperty.Register(nameof(TimelineRowBackground), typeof(Brush), typeof(OpnxPlaybackTimeline), new PropertyMetadata(new SolidColorBrush(Color.FromArgb(0x66, 0x00, 0x00, 0x00)), OnTimelineAppearanceChanged));
+        public static readonly DependencyProperty RecordingBrushProperty = DependencyProperty.Register(nameof(RecordingBrush), typeof(Brush), typeof(OpnxPlaybackTimeline), new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0xFF, 0xC0, 0x00)), OnTimelineAppearanceChanged));
+        public static readonly DependencyProperty SelectedTimelineRowBackgroundProperty = DependencyProperty.Register(nameof(SelectedTimelineRowBackground), typeof(Brush), typeof(OpnxPlaybackTimeline), new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x73, 0xB2, 0xF2)), OnTimelineAppearanceChanged));
 
         public static readonly DependencyProperty SelectedRecordDataProperty = DependencyProperty.Register(
             nameof(SelectedRecordData),
@@ -213,6 +221,12 @@ namespace OPNX.UI.WPF.Controls
         public double TimeTickThickness { get => (double)GetValue(TimeTickThicknessProperty); set => SetValue(TimeTickThicknessProperty, value); }
         public Brush SeparatorBrush { get => (Brush)GetValue(SeparatorBrushProperty); set => SetValue(SeparatorBrushProperty, value); }
         public double SeparatorThickness { get => (double)GetValue(SeparatorThicknessProperty); set => SetValue(SeparatorThicknessProperty, value); }
+        public double TimelineRowHeight { get => (double)GetValue(TimelineRowHeightProperty); set => SetValue(TimelineRowHeightProperty, value); }
+        public double RecordingBarHeight { get => (double)GetValue(RecordingBarHeightProperty); set => SetValue(RecordingBarHeightProperty, value); }
+        public double TimelineTopOffset { get => (double)GetValue(TimelineTopOffsetProperty); set => SetValue(TimelineTopOffsetProperty, value); }
+        public Brush TimelineRowBackground { get => (Brush)GetValue(TimelineRowBackgroundProperty); set => SetValue(TimelineRowBackgroundProperty, value); }
+        public Brush RecordingBrush { get => (Brush)GetValue(RecordingBrushProperty); set => SetValue(RecordingBrushProperty, value); }
+        public Brush SelectedTimelineRowBackground { get => (Brush)GetValue(SelectedTimelineRowBackgroundProperty); set => SetValue(SelectedTimelineRowBackgroundProperty, value); }
 
         public PlaybackTimelineRecordData? SelectedRecordData
         {
@@ -235,7 +249,7 @@ namespace OPNX.UI.WPF.Controls
             CenterTimeUnixMS += elapsedMilliseconds;
             RedrawTimelineUI();
         }
-        public void AddRecordData(IEntity entity, long startUnixTimeMS, long endUnixTimeMS, PlaybackTimelineRecordingType recordingType)
+        public void AddRecordData(IEntityIdentity entity, long startUnixTimeMS, long endUnixTimeMS, PlaybackTimelineRecordingType recordingType)
         {
             if (!Dispatcher.CheckAccess())
             {
@@ -245,17 +259,17 @@ namespace OPNX.UI.WPF.Controls
             xTimelineCanvas.AddRecordData(entity, startUnixTimeMS, endUnixTimeMS, recordingType);
         }
 
-        public void AddEntity(IEntity entity)
+        public void AddTimelineItem(IEntityIdentity entity)
         {
             if (!Dispatcher.CheckAccess())
             {
-                Dispatcher.BeginInvoke(() => AddEntity(entity));
+                Dispatcher.BeginInvoke(() => AddTimelineItem(entity));
                 return;
             }
-            xTimelineCanvas.AddEntity(entity);
+            xTimelineCanvas.AddTimelineItem(entity);
         }
 
-        public void AddEventData(IEntity entity, long startUnixTimeMS, long endUnixTimeMS, string eventType, SolidColorBrush eventColor, int mergeEventCount)
+        public void AddEventData(IEntityIdentity entity, long startUnixTimeMS, long endUnixTimeMS, string eventType, SolidColorBrush eventColor, int mergeEventCount)
         {
             if (!Dispatcher.CheckAccess())
             {
@@ -265,7 +279,7 @@ namespace OPNX.UI.WPF.Controls
             xTimelineCanvas.AddEventData(entity, startUnixTimeMS, endUnixTimeMS, eventType, eventColor, mergeEventCount);
         }
 
-        public PlaybackTimelineRecordData? GetRecordData(IEntity entity)
+        public PlaybackTimelineRecordData? GetRecordData(IEntityIdentity entity)
         {
             ArgumentNullException.ThrowIfNull(entity);
             return xTimelineCanvas.GetRecordData(entity);
@@ -308,13 +322,13 @@ namespace OPNX.UI.WPF.Controls
             xTimelineCanvas.ClearTimeline();
         }
 
-        public void RemoveEntity(IEntity entity) => RemoveEntity(entity.ID);
+        public void RemoveTimelineItem(IEntityIdentity entity) => RemoveTimelineItem(entity.ID);
 
-        public void RemoveEntity(int entityID)
+        public void RemoveTimelineItem(int entityID)
         {
             if (!Dispatcher.CheckAccess())
             {
-                Dispatcher.BeginInvoke(() => RemoveEntity(entityID));
+                Dispatcher.BeginInvoke(() => RemoveTimelineItem(entityID));
                 return;
             }
 
@@ -325,7 +339,7 @@ namespace OPNX.UI.WPF.Controls
             if (ReferenceEquals(SelectedRecordData, recordData))
                 SetCurrentValue(SelectedRecordDataProperty, null);
 
-            xTimelineCanvas.RemoveEntity(entityID);
+            xTimelineCanvas.RemoveTimelineItem(entityID);
         }
         #endregion
 
@@ -362,10 +376,25 @@ namespace OPNX.UI.WPF.Controls
             }
         }
 
-        private static bool IsValidThickness(object value) =>
-            value is double thickness &&
-            double.IsFinite(thickness) &&
-            thickness >= 0;
+        private static bool IsValidThickness(object value) => value is double thickness && double.IsFinite(thickness) && thickness >= 0;
+
+        private static bool IsValidPositiveDouble(object value) => value is double number && double.IsFinite(number) && number > 0;
+
+        private static void OnTimelineLayoutAppearanceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is OpnxPlaybackTimeline control)
+            {
+                control.UpdateEntityListPadding();
+                control.xTimelineCanvas.UpdateTimelineExtent();
+                control.xTimelineCanvas.InvalidateVisual();
+            }
+        }
+
+        private static void OnTimelineAppearanceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is OpnxPlaybackTimeline control)
+                control.xTimelineCanvas.InvalidateVisual();
+        }
 
         private static void OnCurrentTimeRangeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -701,7 +730,19 @@ namespace OPNX.UI.WPF.Controls
         {
             this.xScrollViewer.Width = this.xCanvasOuter.ActualWidth;
 
-            double height = this.xCanvasOuter.ActualHeight - this.xCanvasTime.Height;
+            double timeCanvasTop = Canvas.GetTop(this.xCanvasTime);
+            if (double.IsNaN(timeCanvasTop))
+                timeCanvasTop = 0;
+
+            double scrollViewerTop = timeCanvasTop + this.xCanvasTime.ActualHeight;
+            Canvas.SetTop(this.xScrollViewer, scrollViewerTop);
+
+            Point canvasOrigin = this.xCanvasOuter.TranslatePoint(new Point(), this.xLeftPanel);
+            double timelineTop = canvasOrigin.Y + scrollViewerTop;
+            if (double.IsFinite(timelineTop) && timelineTop >= 0)
+                this.xLeftHeaderRow.Height = new GridLength(timelineTop);
+
+            double height = this.xCanvasOuter.ActualHeight - scrollViewerTop;
             if (height < 0)
                 height = 0;
 
@@ -710,6 +751,11 @@ namespace OPNX.UI.WPF.Controls
             this.xCanvasTime.Width = this.xCanvasOuter.ActualWidth;
 
             this.xRectangleLineCenter.Height = this.xCanvasOuter.ActualHeight;
+        }
+
+        private void UpdateEntityListPadding()
+        {
+            xEntityListBox.Padding = new Thickness(0, TimelineTopOffset, 0, 0);
         }
 
         private void HandleScrollViewerSizeChanged(object sender, SizeChangedEventArgs e)
