@@ -233,15 +233,20 @@ namespace OPNX.UI.WPF.Controls
             if (ParentTimelineControl == null)
                 return;
 
-            double desiredHeight = ParentTimelineControl.TimelineTopOffset +
+            double contentHeight = ParentTimelineControl.TimelineTopOffset +
                 ParentTimelineControl.TimelineRowHeight * timelineRecords.Count;
 
+            double actualHeight = ParentTimelineControl.xScrollViewer.ActualHeight;
             double viewportHeight = ParentTimelineControl.xScrollViewer.ViewportHeight;
-            if (double.IsNaN(viewportHeight) || viewportHeight <= 0)
-                viewportHeight = ParentTimelineControl.xScrollViewer.ActualHeight;
+            double availableHeight = 0;
 
-            if (!double.IsNaN(viewportHeight) && viewportHeight > 0 && desiredHeight < viewportHeight)
-                desiredHeight = viewportHeight;
+            if (double.IsFinite(actualHeight) && actualHeight > 0)
+                availableHeight = actualHeight;
+
+            if (double.IsFinite(viewportHeight) && viewportHeight > 0)
+                availableHeight = Math.Max(availableHeight, viewportHeight);
+
+            double desiredHeight = Math.Max(contentHeight, availableHeight);
 
             if (desiredHeight > 0)
             {

@@ -760,9 +760,13 @@ namespace OPNX.UI.WPF.Controls
 
         private void HandleScrollViewerSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            this.xCanvasInner.Width = this.xScrollViewer.Width;
-            this.xCanvasInner.Height = this.xScrollViewer.Height;
+            this.xCanvasInner.Width = e.NewSize.Width;
+            this.xCanvasInner.Height = e.NewSize.Height;
             this.xTimelineCanvas.UpdateTimelineExtent();
+
+            Dispatcher.BeginInvoke(
+                DispatcherPriority.Loaded,
+                new Action(this.xTimelineCanvas.UpdateTimelineExtent));
         }
 
         private void HandleInnerCanvasSizeChanged(object sender, SizeChangedEventArgs e)
