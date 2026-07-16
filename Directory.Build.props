@@ -28,6 +28,9 @@
     <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
     <DefaultItemExcludes>$(DefaultItemExcludes);obj\**;bin\**</DefaultItemExcludes>
 
+    <!-- Release builds create distributable packages, except in the local source-development solution. -->
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release' and '$(SolutionName)' != 'OPNX.UI.Dev'">true</GeneratePackageOnBuild>
+
     <PackageProjectUrl>https://www.opnx.kr/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/OPNXLabs/opnx-ui</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
