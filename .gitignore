@@ -20,3 +20,5 @@ src/.dotnet/
 *.suo
 *.userosscache
 *.sln.docstates
+# Local integrated-development solution
+/OPNX.UI.Dev.slnx

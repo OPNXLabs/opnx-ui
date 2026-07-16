@@ -2,14 +2,20 @@
   <Configurations>
     <BuildType Name="Debug" />
     <BuildType Name="Release" />
-    <BuildType Name="ReleasePackage" />
     <Platform Name="Any CPU" />
     <Platform Name="x64" />
   </Configurations>
-  <Folder Name="/Solution Items/">
+  <Folder Name="/Documents/">
+    <File Path="CONTRIBUTING.md" />
+    <File Path="CONTRIBUTING.ko.md" />
     <File Path="Directory.Build.props" />
+    <File Path="LICENSE.ko.txt" />
     <File Path="LICENSE.txt" />
+    <File Path="README.ko.md" />
     <File Path="README.md" />
+    <File Path="SECURITY.md" />
+    <File Path="SECURITY.ko.md" />
+    <File Path="THIRD-PARTY-NOTICES.md" />
   </Folder>
   <Project Path="src/OPNX.UI.WPF/OPNX.UI.WPF.csproj">
     <Platform Solution="*|x64" Project="x64" />

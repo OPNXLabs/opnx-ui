@@ -4,15 +4,29 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
 
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Company>OPNX</Company>
+    <Company>오픈엑스 (OPNX)</Company>
     <Authors>OPNX</Authors>
     <Product>OPNX.UI</Product>
-    <Copyright>Copyright (c) 2026 OPNX</Copyright>
+    <Copyright>Copyright (c) 2026 오픈엑스 (OPNX)</Copyright>
 
     <Description>OPNX UI libraries for building stateful video applications on top of OPNX.Lib across multiple client platforms.</Description>
-    <Version>0.1.0-preview.20260704.1</Version>
-    <InformationalVersion>0.1.0-preview.20260704.1</InformationalVersion>
+
+    <!-- Common version: the date follows the local build date; increment only PreviewRevision manually. -->
+    <BaseVersion>0.1.0</BaseVersion>
+    <PreviewDate>$([System.DateTime]::Now.ToString('yyyyMMdd'))</PreviewDate>
+    <PreviewRevision>1</PreviewRevision>
+    <Version>$(BaseVersion)-preview.$(PreviewDate).$(PreviewRevision)</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <InformationalVersion>$(Version)</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+
+    <!-- Keep restore/build intermediates isolated for the package-backed and source-development solutions. -->
+    <BuildContext Condition="'$(SolutionName)' == ''">Standalone</BuildContext>
+    <BuildContext Condition="'$(SolutionName)' != ''">$(SolutionName)</BuildContext>
+    <BaseIntermediateOutputPath>obj\$(Configuration)\$(BuildContext)\</BaseIntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj\**;bin\**</DefaultItemExcludes>
 
     <PackageProjectUrl>https://www.opnx.kr/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/OPNXLabs/opnx-ui</RepositoryUrl>

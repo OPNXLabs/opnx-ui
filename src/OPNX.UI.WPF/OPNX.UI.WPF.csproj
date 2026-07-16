@@ -4,20 +4,15 @@
     <TargetFramework>net10.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x64</Platforms>
-    <Configurations>Debug;Release;ReleasePackage</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Product>OPNX.UI.WPF</Product>
-    <Description>OPNX WPF UI library for VMS, NVR, and real-time monitoring applications built on top of OPNX.Lib.</Description>
-    <UseLocalOpnxLib Condition="'$(UseLocalOpnxLib)' == ''">true</UseLocalOpnxLib>
-    <OpnxLibVersion Condition="'$(OpnxLibVersion)' == ''">0.1.0-preview.20260704.1</OpnxLibVersion>
+    <Description>OPNX WPF UI library for VMS, NVR, and real-time monitoring applications. Preview package for non-commercial evaluation; commercial or production use requires a written OPNX license.</Description>
+    <OpnxLibVersion Condition="'$(OpnxLibVersion)' == ''">0.1.0-preview.20260716.1</OpnxLibVersion>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'ReleasePackage'">
-    <UseLocalOpnxLib>false</UseLocalOpnxLib>
-  </PropertyGroup>  
 
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="8.1.0" />
@@ -25,7 +20,7 @@
     <PackageReference Include="SharpDX.Direct3D9" Version="4.2.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(UseLocalOpnxLib)' == 'true'">
+  <ItemGroup Condition="'$(SolutionName)' == 'OPNX.UI.Dev'">
 
     <ProjectReference Include="..\..\..\opnx-lib-dev\src\OPNX.Lib.Common\OPNX.Lib.Common.csproj" />
     <ProjectReference Include="..\..\..\opnx-lib-dev\src\OPNX.Lib.Data\OPNX.Lib.Data.csproj" />
@@ -34,7 +29,7 @@
     <ProjectReference Include="..\..\..\opnx-lib-dev\src\OPNX.Lib.Streaming\OPNX.Lib.Streaming.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(UseLocalOpnxLib)' != 'true'">
+  <ItemGroup Condition="'$(SolutionName)' != 'OPNX.UI.Dev'">
     <PackageReference Include="OPNX.Lib" Version="$(OpnxLibVersion)" />
   </ItemGroup>
 

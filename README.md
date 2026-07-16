@@ -2,6 +2,8 @@
 
 [Korean](README.ko.md)
 
+> **License notice:** OPNX.UI is source-available software, not open-source software. Commercial use and redistribution require prior written permission from OPNX. See [LICENSE.txt](LICENSE.txt).
+
 OPNX.UI is the UI solution family for OPNX client applications.
 
 The goal of OPNX.UI is to provide reusable .NET-based UI foundations for building video client applications across operating systems and client environments, including monitoring clients, playback/review tools, and video-platform desktop applications.
@@ -116,7 +118,7 @@ These future directions are not part of the current public API surface unless th
 
 OPNX.UI is under active development.
 
-The current implementation is `OPNX.UI.WPF`. Its control set is still evolving, and samples/API documentation will be added separately as the project matures.
+The current implementation is `OPNX.UI.WPF`. Its control set is still evolving. Runnable examples are maintained in the separate [OPNX Samples repository](https://github.com/OPNXLabs/opnx-samples), while API and integration documentation will continue to evolve as the project matures.
 
 The current repository should be treated as a preview-quality UI library for evaluation, integration testing, research, non-commercial experimentation, and early feedback rather than as a production-ready UI SDK.
 
@@ -127,7 +129,7 @@ The current repository should be treated as a preview-quality UI library for eva
 Install:
 
 ```powershell
-dotnet add package OPNX.UI.WPF --version 0.1.0-preview.20260704.1
+dotnet add package OPNX.UI.WPF --prerelease
 ```
 
 This package is intended for preview evaluation and integration testing. API compatibility, package structure, and documentation may change before a stable release.
@@ -139,17 +141,28 @@ Requirements:
 - .NET 10 SDK
 - Windows development environment with WPF support
 
-Build:
+Build with the published OPNX.Lib package:
 
 ```powershell
 dotnet build OPNX.UI.slnx -c Debug
 ```
 
-## Samples And Documentation Roadmap
+Create the NuGet package explicitly from the package-backed configuration:
 
-Samples, API documentation, and integration guides are not included yet.
+```powershell
+dotnet pack .\src\OPNX.UI.WPF\OPNX.UI.WPF.csproj -c Release -p:Platform=x64
+```
 
-Initial documentation targets are expected to cover:
+## Samples And Documentation
+
+Runnable sample applications are available in [OPNXLabs/opnx-samples](https://github.com/OPNXLabs/opnx-samples):
+
+- `OPNX.Samples.PlaybackTimeline` — playback timeline layout, styling, selection, and record/event visualization
+- `OPNX.Samples.RtspMultiLiveViewer` — multi-view layout, video presentation, navigation, tree/list controls, and title bar integration
+- `OPNX.Samples.EntityStore` — OPNX.Lib entity store integration used by stateful UI applications
+- `OPNX.Samples.TcpChat` — OPNX.Lib networking integration used by client applications
+
+The samples are preview-quality examples and follow the package versions documented by the samples repository. Planned documentation topics include:
 
 - basic control usage
 - layout composition
@@ -163,7 +176,8 @@ Initial documentation targets are expected to cover:
 
 `OPNX.UI.WPF` is designed to be used together with `OPNX.Lib`.
 
-During local development, the project can reference local OPNX.Lib projects. Package builds can reference the configured OPNX.Lib package version.
+- `OPNX.UI.slnx` and direct project builds use the configured OPNX.Lib NuGet package.
+- `dotnet pack` uses the configured OPNX.Lib package version so the resulting package remains independently restorable.
 
 ## License
 
@@ -192,6 +206,9 @@ See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for details.
 
 ## Related Projects
 
+- [`OPNX Samples`](https://github.com/OPNXLabs/opnx-samples)
+  Runnable examples for OPNX.Lib and OPNX.UI.
+
 - `OPNX.Lib`  
   Core SDK for networking, media, streaming, and data infrastructure.
 
@@ -200,6 +217,14 @@ See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for details.
 
 ## Commercial And OEM Inquiries
 
+OPNX.UI is developed and distributed by 오픈엑스 (OPNX), a business registered in the Republic of Korea.
+
 For commercial licensing, OEM agreements, or partnership inquiries, contact:
 
+- [https://www.opnx.kr/](https://www.opnx.kr/)
 - `opnx@opnx.kr`
+
+## Security And Contributions
+
+- Report security issues privately as described in [SECURITY.md](https://github.com/OPNXLabs/opnx-ui/blob/master/SECURITY.md).
+- Review [CONTRIBUTING.md](https://github.com/OPNXLabs/opnx-ui/blob/master/CONTRIBUTING.md) before opening an issue or proposing a change.

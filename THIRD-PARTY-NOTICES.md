@@ -19,7 +19,7 @@ Users who redistribute, package, or deploy software based on OPNX.UI.WPF are res
 ## OPNX.Lib
 
 - Component: `OPNX.Lib`
-- Version: `0.1.0-preview.20260704.1`
+- Version: `0.1.0-preview.20260716.1`
 - Project: [https://github.com/OPNXLabs/opnx-lib](https://github.com/OPNXLabs/opnx-lib)
 - License: OPNX source-available license for learning, evaluation, research, testing, and non-commercial use
 - Usage: common platform, networking, media, data, and streaming infrastructure used by `OPNX.UI.WPF`

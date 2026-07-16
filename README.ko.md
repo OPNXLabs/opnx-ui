@@ -2,6 +2,8 @@
 
 [English](README.md)
 
+> **라이선스 안내:** OPNX.UI는 오픈 소스 소프트웨어가 아닌 source-available 소프트웨어입니다. 상업적 사용과 재배포에는 OPNX의 사전 서면 허가가 필요합니다. 자세한 내용은 [LICENSE.txt](LICENSE.txt)를 확인하십시오.
+
 OPNX.UI는 OPNX 클라이언트 애플리케이션을 위한 UI 솔루션 제품군입니다.
 
 OPNX.UI의 목표는 관제 클라이언트, 재생/리뷰 도구, 영상 플랫폼 데스크톱 애플리케이션처럼 운영체제와 클라이언트 환경별로 필요한 영상 클라이언트 프로그램을 만들기 위한 재사용 가능한 .NET 기반 UI 토대를 제공하는 것입니다.
@@ -116,7 +118,7 @@ OPNX.UI는 여러 플랫폼의 OPNX 클라이언트 애플리케이션을 위한
 
 OPNX.UI는 현재 활발히 개발 중입니다.
 
-현재 구현체는 `OPNX.UI.WPF`입니다. 컨트롤 세트는 계속 발전 중이며, 샘플과 API 문서는 프로젝트가 성숙함에 따라 별도로 추가될 예정입니다.
+현재 구현체는 `OPNX.UI.WPF`입니다. 컨트롤 세트는 계속 발전 중입니다. 실행 가능한 예제는 별도의 [OPNX Samples 저장소](https://github.com/OPNXLabs/opnx-samples)에서 제공하며, API 및 통합 문서는 프로젝트가 성숙함에 따라 계속 보강할 예정입니다.
 
 현재 저장소는 production-ready UI SDK라기보다는 평가, 통합 테스트, 연구, 비상업적 실험, 초기 피드백을 위한 preview-quality UI library로 보아야 합니다.
 
@@ -127,7 +129,7 @@ OPNX.UI는 현재 활발히 개발 중입니다.
 설치:
 
 ```powershell
-dotnet add package OPNX.UI.WPF --version 0.1.0-preview.20260704.1
+dotnet add package OPNX.UI.WPF --prerelease
 ```
 
 이 패키지는 preview 평가와 통합 테스트를 위한 버전입니다. 안정 버전이 나오기 전까지 API 호환성, 패키지 구조, 문서는 변경될 수 있습니다.
@@ -139,17 +141,28 @@ dotnet add package OPNX.UI.WPF --version 0.1.0-preview.20260704.1
 - .NET 10 SDK
 - WPF 지원 Windows 개발 환경
 
-빌드:
+공개된 OPNX.Lib 패키지를 사용하는 빌드:
 
 ```powershell
 dotnet build OPNX.UI.slnx -c Debug
 ```
 
-## 샘플 및 문서 계획
+NuGet 패키지는 패키지 참조 구성을 사용해 명시적으로 생성합니다.
 
-샘플, API 문서, 통합 가이드는 아직 포함되어 있지 않습니다.
+```powershell
+dotnet pack .\src\OPNX.UI.WPF\OPNX.UI.WPF.csproj -c Release -p:Platform=x64
+```
 
-우선적으로 다음 항목에 대한 문서화를 계획하고 있습니다.
+## 샘플 및 문서
+
+실행 가능한 샘플 애플리케이션은 [OPNXLabs/opnx-samples](https://github.com/OPNXLabs/opnx-samples)에서 제공합니다.
+
+- `OPNX.Samples.PlaybackTimeline` — 재생 타임라인 레이아웃, 스타일, 선택, 녹화 및 이벤트 표시
+- `OPNX.Samples.RtspMultiLiveViewer` — 멀티뷰 레이아웃, 영상 표시, 내비게이션, 트리/리스트 컨트롤, 타이틀바 통합
+- `OPNX.Samples.EntityStore` — 상태 기반 UI에서 사용하는 OPNX.Lib 엔티티 저장소 통합
+- `OPNX.Samples.TcpChat` — 클라이언트 애플리케이션에서 사용하는 OPNX.Lib 네트워크 통합
+
+샘플은 preview 단계의 예제이며 샘플 저장소에 명시된 패키지 버전을 따릅니다. 향후 다음 항목에 대한 문서를 보강할 예정입니다.
 
 - 기본 컨트롤 사용
 - 레이아웃 구성
@@ -163,7 +176,8 @@ dotnet build OPNX.UI.slnx -c Debug
 
 `OPNX.UI.WPF`는 `OPNX.Lib`와 함께 사용되도록 설계되었습니다.
 
-로컬 개발 중에는 로컬 OPNX.Lib 프로젝트를 참조할 수 있으며, 패키지 빌드에서는 설정된 OPNX.Lib 패키지 버전을 참조할 수 있습니다.
+- `OPNX.UI.slnx`와 프로젝트 직접 빌드는 설정된 OPNX.Lib NuGet 패키지를 사용합니다.
+- `dotnet pack`은 설정된 OPNX.Lib 패키지 버전을 사용하므로 생성된 패키지를 독립적으로 복원할 수 있습니다.
 
 ## 라이선스
 
@@ -192,6 +206,9 @@ OPNX.UI는 source-available 형태로 공개됩니다. 그러나 permissive open
 
 ## 관련 프로젝트
 
+- [`OPNX Samples`](https://github.com/OPNXLabs/opnx-samples)
+  OPNX.Lib와 OPNX.UI를 위한 실행 가능한 예제 모음입니다.
+
 - `OPNX.Lib`  
   네트워크, 미디어, 스트리밍, 데이터 인프라를 위한 핵심 SDK입니다.
 
@@ -200,6 +217,14 @@ OPNX.UI는 source-available 형태로 공개됩니다. 그러나 permissive open
 
 ## 상업 라이선스 및 OEM 문의
 
+OPNX.UI는 대한민국에 사업자로 등록된 오픈엑스(OPNX)가 개발하고 배포합니다.
+
 상업적 사용, OEM 계약, 파트너십 문의는 아래 연락처로 문의하십시오.
 
+- [https://www.opnx.kr/](https://www.opnx.kr/)
 - `opnx@opnx.kr`
+
+## 보안 및 기여
+
+- 보안 문제는 [SECURITY.ko.md](https://github.com/OPNXLabs/opnx-ui/blob/master/SECURITY.ko.md)의 절차에 따라 비공개로 제보해 주세요.
+- 이슈 등록이나 변경 제안 전 [CONTRIBUTING.ko.md](https://github.com/OPNXLabs/opnx-ui/blob/master/CONTRIBUTING.ko.md)를 확인해 주세요.
