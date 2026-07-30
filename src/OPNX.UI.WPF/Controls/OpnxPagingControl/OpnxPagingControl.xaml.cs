@@ -114,7 +114,21 @@ namespace OPNX.UI.WPF.Controls
                 nameof(PageButtonMargin),
                 typeof(Thickness),
                 typeof(OpnxPagingControl),
-                new PropertyMetadata(new Thickness(5, 0, 5, 0)));
+                new PropertyMetadata(new Thickness(5, 0, 5, 0), OnPageButtonLayoutPropertyChanged));
+
+        public static readonly DependencyProperty PageButtonColumnsProperty =
+            DependencyProperty.Register(
+                nameof(PageButtonColumns),
+                typeof(int),
+                typeof(OpnxPagingControl),
+                new PropertyMetadata(0));
+
+        public static readonly DependencyProperty PageButtonRowSpacingProperty =
+            DependencyProperty.Register(
+                nameof(PageButtonRowSpacing),
+                typeof(double),
+                typeof(OpnxPagingControl),
+                new PropertyMetadata(0d, OnPageButtonLayoutPropertyChanged));
 
         public static readonly DependencyProperty PageButtonCornerRadiusProperty =
             DependencyProperty.Register(
@@ -301,6 +315,25 @@ namespace OPNX.UI.WPF.Controls
             set => SetValue(PageButtonMarginProperty, value);
         }
 
+        public int PageButtonColumns
+        {
+            get => (int)GetValue(PageButtonColumnsProperty);
+            set => SetValue(PageButtonColumnsProperty, value);
+        }
+
+        public double PageButtonRowSpacing
+        {
+            get => (double)GetValue(PageButtonRowSpacingProperty);
+            set => SetValue(PageButtonRowSpacingProperty, value);
+        }
+
+        public Thickness PageButtonActualMargin =>
+            new(
+                PageButtonMargin.Left,
+                PageButtonMargin.Top,
+                PageButtonMargin.Right,
+                PageButtonMargin.Bottom + Math.Max(0, PageButtonRowSpacing));
+
         public CornerRadius PageButtonCornerRadius
         {
             get => (CornerRadius)GetValue(PageButtonCornerRadiusProperty);
@@ -393,6 +426,20 @@ namespace OPNX.UI.WPF.Controls
 
         public ObservableCollection<OpnxPagingItem> PagingItems => _pagingItems;
 
+        public Visibility ActualPrevButtonVisibility =>
+            PrevButtonVisibility != Visibility.Visible
+                ? PrevButtonVisibility
+                : AutoHideMoveButtons && SelectedPageNumber <= 1
+                    ? Visibility.Collapsed
+                    : Visibility.Visible;
+
+        public Visibility ActualNextButtonVisibility =>
+            NextButtonVisibility != Visibility.Visible
+                ? NextButtonVisibility
+                : AutoHideMoveButtons && SelectedPageNumber >= Math.Max(1, MaxPageNumber)
+                    ? Visibility.Collapsed
+                    : Visibility.Visible;
+
         public OpnxPagingItem? SelectedItem
         {
             get => _selectedItem;
@@ -424,8 +471,17 @@ namespace OPNX.UI.WPF.Controls
 
         private static void OnDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
+            if (d is not OpnxPagingControl control)
+                return;
+
+            control.OnPropertyChanged(e.Property.Name);
+            control.UpdateMoveButtonVisibility();
+        }
+
+        private static void OnPageButtonLayoutPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
             if (d is OpnxPagingControl control)
-                control.OnPropertyChanged(e.Property.Name);
+                control.OnPropertyChanged(nameof(PageButtonActualMargin));
         }
 
         private static void OnPagingPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -536,16 +592,8 @@ namespace OPNX.UI.WPF.Controls
 
         private void UpdateMoveButtonVisibility()
         {
-            if (!AutoHideMoveButtons)
-                return;
-
-            PrevButtonVisibility = SelectedPageNumber <= 1
-                ? Visibility.Collapsed
-                : Visibility.Visible;
-
-            NextButtonVisibility = SelectedPageNumber >= Math.Max(1, MaxPageNumber)
-                ? Visibility.Collapsed
-                : Visibility.Visible;
+            OnPropertyChanged(nameof(ActualPrevButtonVisibility));
+            OnPropertyChanged(nameof(ActualNextButtonVisibility));
         }
 
         private void btnNext_Click(object sender, RoutedEventArgs e)

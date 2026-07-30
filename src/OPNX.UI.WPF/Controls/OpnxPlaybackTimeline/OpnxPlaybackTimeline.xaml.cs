@@ -1,6 +1,7 @@
 using OPNX.Lib.Data.ORM.Interfaces;
 using OPNX.UI.WPF.Utilities;
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
@@ -237,6 +238,8 @@ namespace OPNX.UI.WPF.Controls
         public PlaybackTimelineHitResult? SelectedTimelineItem { get; private set; }
 
         public long VisibleTimeRangeMS { get; private set; }
+
+        public ObservableCollection<PlaybackTimelineRecordData> TimelineRecords => xTimelineCanvas.TimelineRecords;
         #endregion
 
         #region Public Methods

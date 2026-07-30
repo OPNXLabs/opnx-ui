@@ -69,7 +69,7 @@
                 VerticalAlignment="Center"
                 Cursor="Hand"
                 Click="btnPrev_Click"
-                Visibility="{Binding PrevButtonVisibility, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                Visibility="{Binding ActualPrevButtonVisibility, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Grid>
@@ -110,8 +110,22 @@
                  ScrollViewer.VerticalScrollBarVisibility="Disabled">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <!--<WrapPanel Orientation="Horizontal" />-->
-                    <StackPanel Orientation="Horizontal" />
+                    <UniformGrid>
+                        <UniformGrid.Style>
+                            <Style TargetType="{x:Type UniformGrid}">
+                                <Setter Property="Rows" Value="0" />
+                                <Setter Property="Columns"
+                                        Value="{Binding PageButtonColumns, RelativeSource={RelativeSource AncestorType=local:OpnxPagingControl}}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding PageButtonColumns, RelativeSource={RelativeSource AncestorType=local:OpnxPagingControl}}"
+                                                 Value="0">
+                                        <Setter Property="Rows" Value="1" />
+                                        <Setter Property="Columns" Value="0" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </UniformGrid.Style>
+                    </UniformGrid>
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
             <ListBox.ItemContainerStyle>
@@ -135,7 +149,7 @@
                                   Style="{StaticResource PagingToggleButtonStyle}"
                                   Width="{Binding PageButtonWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}"
                                   Height="{Binding PageButtonHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}"
-                                  Margin="{Binding PageButtonMargin, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}"
+                                  Margin="{Binding PageButtonActualMargin, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:OpnxPagingControl}}"
                                   Content="{Binding Content}"
                                   IsThreeState="False"
                                   IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -171,7 +185,7 @@
                 VerticalAlignment="Center"
                 Cursor="Hand"
                 Click="btnNext_Click"
-                Visibility="{Binding NextButtonVisibility, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                Visibility="{Binding ActualNextButtonVisibility, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Grid>
