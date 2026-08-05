@@ -22,11 +22,11 @@
 
   <ItemGroup Condition="'$(SolutionName)' == 'OPNX.UI.Dev'">
 
-    <ProjectReference Include="..\..\..\opnx-lib-dev\src\OPNX.Lib.Common\OPNX.Lib.Common.csproj" />
-    <ProjectReference Include="..\..\..\opnx-lib-dev\src\OPNX.Lib.Data\OPNX.Lib.Data.csproj" />
-    <ProjectReference Include="..\..\..\opnx-lib-dev\src\OPNX.Lib.Media\OPNX.Lib.Media.csproj" />
-    <ProjectReference Include="..\..\..\opnx-lib-dev\src\OPNX.Lib.Network\OPNX.Lib.Network.csproj" />
-    <ProjectReference Include="..\..\..\opnx-lib-dev\src\OPNX.Lib.Streaming\OPNX.Lib.Streaming.csproj" />
+    <ProjectReference Include="..\..\..\opnx-lib\src\OPNX.Lib.Common\OPNX.Lib.Common.csproj" />
+    <ProjectReference Include="..\..\..\opnx-lib\src\OPNX.Lib.Data\OPNX.Lib.Data.csproj" />
+    <ProjectReference Include="..\..\..\opnx-lib\src\OPNX.Lib.Media\OPNX.Lib.Media.csproj" />
+    <ProjectReference Include="..\..\..\opnx-lib\src\OPNX.Lib.Network\OPNX.Lib.Network.csproj" />
+    <ProjectReference Include="..\..\..\opnx-lib\src\OPNX.Lib.Streaming\OPNX.Lib.Streaming.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(SolutionName)' != 'OPNX.UI.Dev'">
