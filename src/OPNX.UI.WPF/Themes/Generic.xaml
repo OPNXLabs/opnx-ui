@@ -15,5 +15,6 @@
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxTabControl/OpnxTabControl.xaml" />
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxComboBox/OpnxComboBox.xaml" />
         <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxNavigator/OpnxNavigator.xaml" />
+        <ResourceDictionary Source="/OPNX.UI.WPF;component/Controls/OpnxRadialProgressBar/OpnxRadialProgressBar.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

@@ -221,12 +221,12 @@ namespace OPNX.UI.WPF.Controls
                 typeof(OpnxPagingControl),
                 new PropertyMetadata(Brushes.LightGray));
 
-        public static readonly DependencyProperty MoveButtonPressedForegroundProperty =
+        public static readonly DependencyProperty MoveButtonBackgroundProperty =
             DependencyProperty.Register(
-                nameof(MoveButtonPressedForeground),
+                nameof(MoveButtonBackground),
                 typeof(Brush),
                 typeof(OpnxPagingControl),
-                new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x16, 0xAB, 0xBD))));
+                new PropertyMetadata(Brushes.Transparent));
 
         public static readonly DependencyProperty MoveButtonMouseOverOpacityProperty =
             DependencyProperty.Register(
@@ -234,6 +234,13 @@ namespace OPNX.UI.WPF.Controls
                 typeof(double),
                 typeof(OpnxPagingControl),
                 new PropertyMetadata(0.8d));
+
+        public static readonly DependencyProperty MoveButtonPressedOpacityProperty =
+            DependencyProperty.Register(
+                nameof(MoveButtonPressedOpacity),
+                typeof(double),
+                typeof(OpnxPagingControl),
+                new PropertyMetadata(0.5d));
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -412,16 +419,22 @@ namespace OPNX.UI.WPF.Controls
             set => SetValue(MoveButtonForegroundProperty, value);
         }
 
-        public Brush MoveButtonPressedForeground
+        public Brush MoveButtonBackground
         {
-            get => (Brush)GetValue(MoveButtonPressedForegroundProperty);
-            set => SetValue(MoveButtonPressedForegroundProperty, value);
+            get => (Brush)GetValue(MoveButtonBackgroundProperty);
+            set => SetValue(MoveButtonBackgroundProperty, value);
         }
 
         public double MoveButtonMouseOverOpacity
         {
             get => (double)GetValue(MoveButtonMouseOverOpacityProperty);
             set => SetValue(MoveButtonMouseOverOpacityProperty, value);
+        }
+
+        public double MoveButtonPressedOpacity
+        {
+            get => (double)GetValue(MoveButtonPressedOpacityProperty);
+            set => SetValue(MoveButtonPressedOpacityProperty, value);
         }
 
         public ObservableCollection<OpnxPagingItem> PagingItems => _pagingItems;

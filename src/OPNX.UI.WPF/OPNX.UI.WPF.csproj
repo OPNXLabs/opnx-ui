@@ -20,7 +20,7 @@
     <PackageReference Include="SharpDX.Direct3D9" Version="4.2.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(SolutionName)' == 'OPNX.UI.Dev'">
+  <ItemGroup Condition="'$(SolutionName)' == 'OPNX.UI.Dev' or '$(SolutionName)' == 'OPNX.V.Dev'">
 
     <ProjectReference Include="..\..\..\opnx-lib\src\OPNX.Lib.Common\OPNX.Lib.Common.csproj" />
     <ProjectReference Include="..\..\..\opnx-lib\src\OPNX.Lib.Data\OPNX.Lib.Data.csproj" />
@@ -29,7 +29,7 @@
     <ProjectReference Include="..\..\..\opnx-lib\src\OPNX.Lib.Streaming\OPNX.Lib.Streaming.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(SolutionName)' != 'OPNX.UI.Dev'">
+  <ItemGroup Condition="'$(SolutionName)' != 'OPNX.UI.Dev' and '$(SolutionName)' != 'OPNX.V.Dev'">
     <PackageReference Include="OPNX.Lib" Version="$(OpnxLibVersion)" />
   </ItemGroup>
 

@@ -65,6 +65,30 @@ namespace OPNX.UI.WPF.Controls
             typeof(OpnxComboBox),
             new PropertyMetadata(null));
 
+        public static readonly DependencyProperty DropDownBackgroundProperty = DependencyProperty.Register(
+            nameof(DropDownBackground),
+            typeof(Brush),
+            typeof(OpnxComboBox),
+            new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x20, 0x22, 0x28))));
+
+        public static readonly DependencyProperty DropDownBorderBrushProperty = DependencyProperty.Register(
+            nameof(DropDownBorderBrush),
+            typeof(Brush),
+            typeof(OpnxComboBox),
+            new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x20, 0x22, 0x28))));
+
+        public static readonly DependencyProperty DropDownItemMouseOverBackgroundProperty = DependencyProperty.Register(
+            nameof(DropDownItemMouseOverBackground),
+            typeof(Brush),
+            typeof(OpnxComboBox),
+            new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x2A, 0x2C, 0x34))));
+
+        public static readonly DependencyProperty DropDownItemSelectedBackgroundProperty = DependencyProperty.Register(
+            nameof(DropDownItemSelectedBackground),
+            typeof(Brush),
+            typeof(OpnxComboBox),
+            new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x16, 0xAB, 0xBD))));
+
         public static readonly DependencyProperty ClearSelectionOnDropDownClosedProperty = DependencyProperty.Register(
             nameof(ClearSelectionOnDropDownClosed),
             typeof(bool),
@@ -159,6 +183,42 @@ namespace OPNX.UI.WPF.Controls
             set => SetValue(DropDownButtonStyleProperty, value);
         }
 
+        public Brush DropDownBackground
+        {
+            get => (Brush)GetValue(DropDownBackgroundProperty);
+            set => SetValue(DropDownBackgroundProperty, value);
+        }
+
+        public Brush DropDownBorderBrush
+        {
+            get => (Brush)GetValue(DropDownBorderBrushProperty);
+            set => SetValue(DropDownBorderBrushProperty, value);
+        }
+
+        public Brush DropDownItemMouseOverBackground
+        {
+            get => (Brush)GetValue(DropDownItemMouseOverBackgroundProperty);
+            set => SetValue(DropDownItemMouseOverBackgroundProperty, value);
+        }
+
+        public Brush DropDownItemSelectedBackground
+        {
+            get => (Brush)GetValue(DropDownItemSelectedBackgroundProperty);
+            set => SetValue(DropDownItemSelectedBackgroundProperty, value);
+        }
+
+        public static Brush GetDropDownItemMouseOverBackground(DependencyObject element) =>
+            (Brush)element.GetValue(DropDownItemMouseOverBackgroundProperty);
+
+        public static void SetDropDownItemMouseOverBackground(DependencyObject element, Brush value) =>
+            element.SetValue(DropDownItemMouseOverBackgroundProperty, value);
+
+        public static Brush GetDropDownItemSelectedBackground(DependencyObject element) =>
+            (Brush)element.GetValue(DropDownItemSelectedBackgroundProperty);
+
+        public static void SetDropDownItemSelectedBackground(DependencyObject element, Brush value) =>
+            element.SetValue(DropDownItemSelectedBackgroundProperty, value);
+
         public bool ClearSelectionOnDropDownClosed
         {
             get => (bool)GetValue(ClearSelectionOnDropDownClosedProperty);
@@ -236,6 +296,24 @@ namespace OPNX.UI.WPF.Controls
             }
 
             UpdatePlaceholderState();
+        }
+
+        protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
+        {
+            base.PrepareContainerForItemOverride(element, item);
+
+            if (element is not ComboBoxItem comboBoxItem)
+                return;
+
+            BindingOperations.SetBinding(
+                comboBoxItem,
+                DropDownItemMouseOverBackgroundProperty,
+                new Binding(nameof(DropDownItemMouseOverBackground)) { Source = this });
+
+            BindingOperations.SetBinding(
+                comboBoxItem,
+                DropDownItemSelectedBackgroundProperty,
+                new Binding(nameof(DropDownItemSelectedBackground)) { Source = this });
         }
 
         protected override void OnSelectionChanged(SelectionChangedEventArgs e)

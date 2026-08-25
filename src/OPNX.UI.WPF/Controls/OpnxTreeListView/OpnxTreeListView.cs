@@ -27,6 +27,10 @@ namespace OPNX.UI.WPF.Controls
         private readonly Dictionary<Type, Dictionary<string, PropertyInfo>> _filterPropertiesByType = [];
 
         private DataGridColumn? _treeColumn = null;
+        private ScrollViewer? _scrollViewer;
+        private FrameworkElement? _scrollContentPresenter;
+        private DispatcherOperation? _fitRowsOperation;
+        private bool _hasFittedRows;
 
         private bool _isChangingItemsSource;
         private bool _wasPreviousLeftButtonDownHandled;
@@ -58,6 +62,8 @@ namespace OPNX.UI.WPF.Controls
             base.ItemsSource = _visibleItemsView;
 
             base.Sorting += DataGridTree_Sorting;
+            Loaded += OnLoaded;
+            IsVisibleChanged += OnIsVisibleChanged;
         }
 
         public List<object> VisibleItems => _visibleItems;
@@ -65,6 +71,166 @@ namespace OPNX.UI.WPF.Controls
         public Dictionary<object, TreeListViewNode> NodesByItem => _nodesByItem;
 
         public List<TreeListViewNode> RootNodes => _rootNodes;
+
+        public OpnxTreeListViewMode ViewMode
+        {
+            get => (OpnxTreeListViewMode)GetValue(ViewModeProperty);
+            set => SetValue(ViewModeProperty, value);
+        }
+
+        public static readonly DependencyProperty ViewModeProperty =
+            DependencyProperty.Register(
+                nameof(ViewMode),
+                typeof(OpnxTreeListViewMode),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(OpnxTreeListViewMode.Auto, OnFitSettingsChanged));
+
+        public OpnxTreeListViewRowSizingMode RowSizingMode
+        {
+            get => (OpnxTreeListViewRowSizingMode)GetValue(RowSizingModeProperty);
+            set => SetValue(RowSizingModeProperty, value);
+        }
+
+        public static readonly DependencyProperty RowSizingModeProperty =
+            DependencyProperty.Register(
+                nameof(RowSizingMode),
+                typeof(OpnxTreeListViewRowSizingMode),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(OpnxTreeListViewRowSizingMode.Fixed, OnFitSettingsChanged));
+
+        public int FitRowCount
+        {
+            get => (int)GetValue(FitRowCountProperty);
+            set => SetValue(FitRowCountProperty, value);
+        }
+
+        public static readonly DependencyProperty FitRowCountProperty =
+            DependencyProperty.Register(
+                nameof(FitRowCount),
+                typeof(int),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(20, OnFitSettingsChanged, CoerceFitRowCount));
+
+        public double MinFittedRowHeight
+        {
+            get => (double)GetValue(MinFittedRowHeightProperty);
+            set => SetValue(MinFittedRowHeightProperty, value);
+        }
+
+        public static readonly DependencyProperty MinFittedRowHeightProperty =
+            DependencyProperty.Register(
+                nameof(MinFittedRowHeight),
+                typeof(double),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(36d, OnFitSettingsChanged, CoerceFittedRowHeightLimit));
+
+        public double MaxFittedRowHeight
+        {
+            get => (double)GetValue(MaxFittedRowHeightProperty);
+            set => SetValue(MaxFittedRowHeightProperty, value);
+        }
+
+        public static readonly DependencyProperty MaxFittedRowHeightProperty =
+            DependencyProperty.Register(
+                nameof(MaxFittedRowHeight),
+                typeof(double),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(80d, OnFitSettingsChanged, CoerceFittedRowHeightLimit));
+
+        public OpnxTreeListViewMode EffectiveViewMode => ViewMode switch
+        {
+            OpnxTreeListViewMode.Auto => ParentIdPath == null
+                ? OpnxTreeListViewMode.Flat
+                : OpnxTreeListViewMode.Hierarchical,
+            _ => ViewMode
+        };
+
+        public bool FitRowsToViewport()
+        {
+            if (RowSizingMode != OpnxTreeListViewRowSizingMode.FitViewport ||
+                EffectiveViewMode != OpnxTreeListViewMode.Flat ||
+                FitRowCount <= 0)
+            {
+                return false;
+            }
+
+            UpdateLayout();
+            EnsureScrollContentPresenter();
+
+            double viewportHeight = _scrollContentPresenter?.ActualHeight ?? 0d;
+            if (!double.IsFinite(viewportHeight) || viewportHeight <= 0d)
+                return false;
+
+            DpiScale dpi = VisualTreeHelper.GetDpi(this);
+            double dpiScaleY = dpi.DpiScaleY > 0d ? dpi.DpiScaleY : 1d;
+            double safetyMargin = 1d / dpiScaleY;
+            double availableHeight = Math.Max(0d, viewportHeight - safetyMargin);
+            double calculatedHeight = availableHeight / FitRowCount - RowSpacing;
+
+            double minimum = Math.Min(MinFittedRowHeight, MaxFittedRowHeight);
+            double maximum = Math.Max(MinFittedRowHeight, MaxFittedRowHeight);
+            double fittedHeight = Math.Clamp(calculatedHeight, minimum, maximum);
+            fittedHeight = Math.Floor(fittedHeight * dpiScaleY) / dpiScaleY;
+            if (!double.IsFinite(fittedHeight) || fittedHeight <= 0d)
+                return false;
+
+            SetCurrentValue(RowHeightProperty, fittedHeight);
+            _hasFittedRows = true;
+            return true;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e) => ScheduleFitRowsToViewport();
+
+        private void OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is true)
+                ScheduleFitRowsToViewport();
+        }
+
+        private static void OnFitSettingsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var treeListView = (OpnxTreeListView)d;
+            treeListView._hasFittedRows = false;
+            treeListView.ScheduleFitRowsToViewport();
+        }
+
+        private void ScheduleFitRowsToViewport()
+        {
+            if (_hasFittedRows ||
+                !IsLoaded ||
+                !IsVisible ||
+                RowSizingMode != OpnxTreeListViewRowSizingMode.FitViewport ||
+                EffectiveViewMode != OpnxTreeListViewMode.Flat ||
+                _fitRowsOperation?.Status == DispatcherOperationStatus.Pending)
+            {
+                return;
+            }
+
+            _fitRowsOperation = Dispatcher.InvokeAsync(() =>
+            {
+                _fitRowsOperation = null;
+                if (!_hasFittedRows && IsVisible)
+                    FitRowsToViewport();
+            }, DispatcherPriority.Loaded);
+        }
+
+        private void EnsureScrollContentPresenter()
+        {
+            if (_scrollContentPresenter != null || _scrollViewer == null)
+                return;
+
+            _scrollViewer.ApplyTemplate();
+            _scrollContentPresenter = _scrollViewer.Template.FindName("PART_ScrollContentPresenter", _scrollViewer) as FrameworkElement;
+        }
+
+        private static object CoerceFitRowCount(DependencyObject d, object baseValue) =>
+            Math.Max(1, (int)baseValue);
+
+        private static object CoerceFittedRowHeightLimit(DependencyObject d, object baseValue)
+        {
+            double value = (double)baseValue;
+            return double.IsFinite(value) ? Math.Max(1d, value) : 1d;
+        }
 
         public Brush ColumnHeaderBackground
         {
@@ -485,6 +651,11 @@ namespace OPNX.UI.WPF.Controls
         {
             ApplyTreeColumn();
             base.OnApplyTemplate();
+            _scrollViewer = GetTemplateChild("DG_ScrollViewer") as ScrollViewer;
+            _scrollContentPresenter = null;
+            EnsureScrollContentPresenter();
+            _hasFittedRows = false;
+            ScheduleFitRowsToViewport();
             //XamlObjectReader lx = new XamlObjectReader(null);
             //lx.Read();
 
@@ -884,6 +1055,19 @@ namespace OPNX.UI.WPF.Controls
 
             this.UpdateLayout();
         }
+    }
+
+    public enum OpnxTreeListViewMode
+    {
+        Auto,
+        Hierarchical,
+        Flat
+    }
+
+    public enum OpnxTreeListViewRowSizingMode
+    {
+        Fixed,
+        FitViewport
     }
 
     public enum OpnxTreeListViewRowDropPosition
