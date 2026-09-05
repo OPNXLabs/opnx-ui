@@ -24,14 +24,14 @@ namespace OPNX.UI.WPF.Controls
         #endregion
 
         #region Constructors
-        public TreeListViewNode(object target, OpnxTreeListView treeListView, List<object> visibleItems, IDictionary<object, TreeListViewNode> nodesByItem, ListCollectionView visibleItemsView)
+        public TreeListViewNode(object target, OpnxTreeListView treeListView, List<object> visibleItems, IDictionary<object, TreeListViewNode> nodesByItem, ListCollectionView visibleItemsView, bool expanded)
         {
             _treeListView = treeListView;
             _visibleItems = visibleItems;
             _nodesByItem = nodesByItem;
             _visibleItemsView = visibleItemsView;
             Target = target;
-            Expanded = _treeListView.ExpandAll;
+            _expanded = expanded;
             BindingOperations.SetBinding(this, IdProperty, new Binding() { Path = _treeListView.IdPath, Source = Target, Mode = BindingMode.OneTime });
             if (_treeListView.ParentIdPath != null)
             {
@@ -500,6 +500,12 @@ namespace OPNX.UI.WPF.Controls
 
         internal void SetIsOpenAll(bool isOpen)
         {
+            if (_expanded != isOpen)
+            {
+                _expanded = isOpen;
+                OnPropertyChanged(nameof(Expanded));
+            }
+
             if (isOpen)
             {
                 Expand(false);

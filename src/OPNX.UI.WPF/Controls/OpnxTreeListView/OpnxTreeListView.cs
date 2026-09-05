@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
@@ -223,9 +224,10 @@ namespace OPNX.UI.WPF.Controls
             _scrollContentPresenter = _scrollViewer.Template.FindName("PART_ScrollContentPresenter", _scrollViewer) as FrameworkElement;
         }
 
-        private static object CoerceFitRowCount(DependencyObject d, object baseValue) =>
-            Math.Max(1, (int)baseValue);
+        [SuppressMessage("Performance", "CA1859:Use concrete types when possible", Justification = "WPF CoerceValueCallback requires an object return type.")]
+        private static object CoerceFitRowCount(DependencyObject d, object baseValue) => Math.Max(1, (int)baseValue);
 
+        [SuppressMessage("Performance", "CA1859:Use concrete types when possible", Justification = "WPF CoerceValueCallback requires an object return type.")]
         private static object CoerceFittedRowHeightLimit(DependencyObject d, object baseValue)
         {
             double value = (double)baseValue;
@@ -245,14 +247,14 @@ namespace OPNX.UI.WPF.Controls
                 typeof(OpnxTreeListView),
                 new FrameworkPropertyMetadata(DefaultColumnHeaderBackground));
 
-        private static Brush CreateDefaultColumnHeaderBackground()
+        private static SolidColorBrush CreateDefaultColumnHeaderBackground()
         {
             var brush = new SolidColorBrush(Color.FromRgb(0x0D, 0x0D, 0x10));
             brush.Freeze();
             return brush;
         }
 
-        private static Brush CreateDefaultRowDropLineBrush()
+        private static SolidColorBrush CreateDefaultRowDropLineBrush()
         {
             var brush = new SolidColorBrush(Color.FromRgb(0x4A, 0x6F, 0xE3));
             brush.Freeze();
@@ -271,6 +273,24 @@ namespace OPNX.UI.WPF.Controls
                 typeof(bool),
                 typeof(OpnxTreeListView),
                 new FrameworkPropertyMetadata(false, OnCanDropRowsChanged));
+
+        public Predicate<object>? Filter
+        {
+            get => (Predicate<object>?)GetValue(FilterProperty);
+            set => SetValue(FilterProperty, value);
+        }
+
+        public static readonly DependencyProperty FilterProperty =
+            DependencyProperty.Register(
+                nameof(Filter),
+                typeof(Predicate<object>),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(null, OnViewDefinitionChanged));
+
+        private static void OnViewDefinitionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((OpnxTreeListView)d).RefreshTree();
+        }
 
         private static void OnCanDropRowsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -402,14 +422,14 @@ namespace OPNX.UI.WPF.Controls
         public static readonly DependencyProperty ExpandAllProperty =
             DependencyProperty.Register(nameof(ExpandAll), typeof(bool), typeof(OpnxTreeListView), new PropertyMetadata(false, ExpandAllPropertyChangedCallback));
 
-        public string FilterText
+        public string SearchText
         {
-            get { return (string)GetValue(FilterTextProperty); }
-            set { SetValue(FilterTextProperty, value); }
+            get { return (string)GetValue(SearchTextProperty); }
+            set { SetValue(SearchTextProperty, value); }
         }
 
-        public static readonly DependencyProperty FilterTextProperty =
-            DependencyProperty.Register(nameof(FilterText), typeof(string), typeof(OpnxTreeListView), new PropertyMetadata(string.Empty, OnFilterTextChanged));
+        public static readonly DependencyProperty SearchTextProperty =
+            DependencyProperty.Register(nameof(SearchText), typeof(string), typeof(OpnxTreeListView), new PropertyMetadata(string.Empty, OnSearchTextChanged));
 
 
         public Brush? SelectedBackground
@@ -438,6 +458,24 @@ namespace OPNX.UI.WPF.Controls
                 typeof(OpnxTreeListView),
                 new FrameworkPropertyMetadata(null));
 
+        /// <summary>
+        /// Gets or sets the gap below visible column headers, in device-independent units.
+        /// This gap stays outside the scrolling rows and defaults to zero.
+        /// </summary>
+        public double ColumnHeaderSpacing
+        {
+            get => (double)GetValue(ColumnHeaderSpacingProperty);
+            set => SetValue(ColumnHeaderSpacingProperty, value);
+        }
+
+        public static readonly DependencyProperty ColumnHeaderSpacingProperty =
+            DependencyProperty.Register(
+                nameof(ColumnHeaderSpacing),
+                typeof(double),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsMeasure),
+                value => value is double spacing && double.IsFinite(spacing) && spacing >= 0d);
+
         public double RowSpacing
         {
             get => (double)GetValue(RowSpacingProperty);
@@ -455,6 +493,7 @@ namespace OPNX.UI.WPF.Controls
                     OnRowSpacingChanged,
                     CoerceRowSpacing));
 
+        [SuppressMessage("Performance", "CA1859:Use concrete types when possible", Justification = "WPF CoerceValueCallback requires an object return type.")]
         private static object CoerceRowSpacing(DependencyObject d, object baseValue)
         {
             return Math.Max(0d, (double)baseValue);
@@ -479,10 +518,10 @@ namespace OPNX.UI.WPF.Controls
         }
 
 
-        private static void OnFilterTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnSearchTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var tree = (OpnxTreeListView)d;
-            tree.SetFilterText(e.NewValue as string ?? string.Empty);
+            tree.SetSearchText(e.NewValue as string ?? string.Empty);
         }
 
         private static void ExpandAllPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -496,7 +535,7 @@ namespace OPNX.UI.WPF.Controls
 
         private void SetIsOpenAll(bool isOpen)
         {
-            _visibleItemsView.CancelEdit();
+            CompletePendingEdit();
             foreach (var rootNode in _rootNodes)
             {
                 rootNode.SetIsOpenAll(isOpen);
@@ -504,7 +543,7 @@ namespace OPNX.UI.WPF.Controls
             _visibleItemsView.Refresh();
         }
 
-        private void SetFilterText(string filterText)
+        private void SetSearchText(string searchText)
         {
             List<string> filterNames = [];
             foreach (var column in Columns)
@@ -527,7 +566,7 @@ namespace OPNX.UI.WPF.Controls
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(filterText) || filterNames.Count == 0)
+            if (string.IsNullOrWhiteSpace(searchText) || filterNames.Count == 0)
             {
                 VisibleItemsView.Filter = null;
                 VisibleItemsView.Refresh();
@@ -547,7 +586,7 @@ namespace OPNX.UI.WPF.Controls
                         string? value = Convert.ToString(propertyInfo.GetValue(e));
                         if (!string.IsNullOrEmpty(value))
                         {
-                            result = value.Contains(filterText, StringComparison.OrdinalIgnoreCase);
+                            result = value.Contains(searchText, StringComparison.OrdinalIgnoreCase);
                             if (result)
                                 break;
                         }
@@ -663,9 +702,28 @@ namespace OPNX.UI.WPF.Controls
 
         private void RefreshTree()
         {
-            _visibleItemsView.CancelEdit();
-            _treeBuilder.BuildTree();
+            var expandedItems = _nodesByItem.Values
+                .Where(node => node.Expanded)
+                .Select(node => node.Target)
+                .ToHashSet();
+
+            CompletePendingEdit();
+            _treeBuilder.BuildTree(expandedItems);
             _visibleItemsView.Refresh();
+        }
+
+        private void CompletePendingEdit()
+        {
+            if (_visibleItemsView.IsAddingNew)
+                _visibleItemsView.CommitNew();
+
+            if (!_visibleItemsView.IsEditingItem)
+                return;
+
+            if (_visibleItemsView.CanCancelEdit)
+                _visibleItemsView.CancelEdit();
+            else
+                _visibleItemsView.CommitEdit();
         }
 
         protected override DependencyObject GetContainerForItemOverride()
@@ -928,7 +986,7 @@ namespace OPNX.UI.WPF.Controls
             return false;
         }
 
-        private TreeListViewRow? GetRowFromElement(DependencyObject? source)
+        private static TreeListViewRow? GetRowFromElement(DependencyObject? source)
         {
             while (source is not null)
             {

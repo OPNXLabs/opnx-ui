@@ -171,13 +171,13 @@ namespace OPNX.UI.WPF.Controls
             SetSegments(safeParts);
         }
 
-        private void SetSegments(IReadOnlyList<string> parts)
+        private void SetSegments(string[] parts)
         {
             _isUpdatingSegments = true;
 
             for (int i = 0; i < _segments.Length; i++)
             {
-                _segments[i].Text = i < parts.Count ? parts[i] : string.Empty;
+                _segments[i].Text = i < parts.Length ? parts[i] : string.Empty;
             }
 
             _isUpdatingSegments = false;

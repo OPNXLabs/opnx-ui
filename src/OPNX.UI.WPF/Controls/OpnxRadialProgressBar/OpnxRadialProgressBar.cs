@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -141,8 +142,10 @@ namespace OPNX.UI.WPF.Controls
             InvalidateVisual();
         }
 
+        [SuppressMessage("Performance", "CA1859:Use concrete types when possible", Justification = "WPF CoerceValueCallback requires an object return type.")]
         private static object CoerceNonNegative(DependencyObject d, object baseValue) => Math.Max(0d, (double)baseValue);
 
+        [SuppressMessage("Performance", "CA1859:Use concrete types when possible", Justification = "WPF CoerceValueCallback requires an object return type.")]
         private static object CoerceArcLength(DependencyObject d, object baseValue) => Math.Clamp((double)baseValue, 0d, 359.999d);
 
         private static void OnIsIndeterminateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

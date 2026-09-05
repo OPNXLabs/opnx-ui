@@ -54,8 +54,19 @@ OPNX.UI는 VMS나 NVR 제품마다 반복해서 개발되는 어렵고 도메인
 - 여러 MultiView 사이의 Cell·Layout 동기화
 - Thumbnail 생성과 Drag-and-drop 영상 배치
 - Cell별 Entity 연결과 변경 이벤트
+- `CellBorderBrush`와 `CellBorderThickness`를 통한 타일 경계선 Theme
+- `ShowOuterBorder`를 통한 외곽선 독립 표시 제어
 
 Layout과 Cell 상태가 별도 모델로 유지되므로 화면을 다시 만들지 않고 View 구성을 변경하거나 사용자 Layout을 저장할 수 있습니다. Live Monitor뿐 아니라 Playback Review, Event Wall 및 다중 출력 화면의 기반으로 사용할 수 있습니다.
+
+타일 Border는 인접 Cell이 공유하는 경계가 중복되지 않도록 배치되므로 내부와 외부 선이 동일한 설정 두께로 표시됩니다. `ShowOuterBorder="False"`로 외곽선만 숨겨도 Cell 선택과 MouseOver 강조선은 유지됩니다.
+
+```xml
+<opnx:OpnxMultiView Background="#080B10"
+                    CellBorderBrush="#4D8FA3B8"
+                    CellBorderThickness="1"
+                    ShowOuterBorder="False" />
+```
 
 ### 다채널 Playback Timeline
 
@@ -66,6 +77,7 @@ Layout과 Cell 상태가 별도 모델로 유지되므로 화면을 다시 만�
 - Center Time과 Visible Time Range 기반 탐색
 - 시간 범위 변경과 필요한 데이터 요청 Event
 - 녹화 구간·Event Hit Test와 선택 결과
+- `PlaybackTimelineRateType` 기반 0.25x·0.5x·1x·2x·4x·8x 배속 선택 모델
 - 선택 채널, Row 높이, 녹화 Bar, Tick 및 구분선 Theme
 - 좌측 채널 Panel과 Entity 이름 표시 선택
 
@@ -97,16 +109,22 @@ OPNX.UI.WPF는 영상 Surface만 제공하는 Library가 아닙니다. 로그인
 
 `OpnxTreeListView`는 부모·자식 관계를 표현하는 Tree 모드와 일반 목록을 위한 Flat 모드를 제공하며, `RowSizingMode="FitViewport"`와 `FitRowCount`를 사용하면 고정된 페이지 항목 수가 현재 Viewport를 채우도록 Row 높이를 계산할 수 있습니다. 해상도가 커질 때 생기는 과도한 공백과 작은 화면에서 불필요하게 나타나는 Scroll을 줄이는 데 사용할 수 있습니다.
 
+`SearchText`는 표시 Column을 기준으로 기본 검색을 수행하고, `Filter`에는 애플리케이션 Predicate를 바인딩할 수 있습니다. 검색이나 원본 Collection 변경으로 Tree를 다시 구성할 때 기존 확장 상태를 복원하며 진행 중인 편집도 안전하게 완료합니다. `ColumnHeaderSpacing`은 Header와 첫 Row 사이의 간격을, `RowSpacing`은 Row 사이의 간격을 각각 제어합니다.
+
 ```xml
 <opnx:OpnxTreeListView ItemsSource="{Binding Items}"
                        ViewMode="Flat"
                        RowSizingMode="FitViewport"
-                       FitRowCount="20" />
+                       FitRowCount="20"
+                       SearchText="{Binding SearchText}"
+                       Filter="{Binding ItemFilter}"
+                       ColumnHeaderSpacing="7"
+                       RowSpacing="7" />
 ```
 
 `OpnxPagingControl`은 외부 ViewModel의 `SelectedPageNumber`와 `MaxPageNumber`를 유지하면서 페이지 번호와 Next·Prev 상태를 관리합니다. 일반·선택·비활성 페이지와 이동 버튼의 Background, Foreground 및 MouseOver·Pressed Opacity를 각각 Theme으로 지정할 수 있습니다.
 
-`OpnxComboBox`는 본문과 DropDown Panel의 Background·Border 및 상태 색상을 독립적으로 설정할 수 있어 Checkable Filter 같은 밀도 높은 검색 UI에 적용할 수 있습니다. `OpnxRadialProgressBar`는 별도 애플리케이션 로직 없이 Determinate와 Indeterminate 진행 상태를 표현하며 Splash, Wait Overlay 및 장시간 작업 표시에 사용할 수 있습니다.
+`OpnxComboBox`는 본문과 DropDown Panel의 Background·Border 및 상태 색상을 독립적으로 설정할 수 있어 Checkable Filter 같은 밀도 높은 검색 UI에 적용할 수 있습니다. `PlaceholderTextMargin`과 별도로 `TextMargin`을 제공하므로 선택된 일반 Text의 내부 여백도 조정할 수 있습니다. `OpnxRadialProgressBar`는 별도 애플리케이션 로직 없이 Determinate와 Indeterminate 진행 상태를 표현하며 Splash, Wait Overlay 및 장시간 작업 표시에 사용할 수 있습니다.
 
 ## 설계 방향
 

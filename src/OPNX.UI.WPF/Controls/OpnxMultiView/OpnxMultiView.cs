@@ -13,6 +13,48 @@ namespace OPNX.UI.WPF.Controls
     {
         #region Constants and Fields
 
+        /// <summary>Gets or sets the width of each tile boundary in device-independent units.</summary>
+        public double CellBorderThickness
+        {
+            get => (double)GetValue(CellBorderThicknessProperty);
+            set => SetValue(CellBorderThicknessProperty, value);
+        }
+
+        public static readonly DependencyProperty CellBorderThicknessProperty =
+            DependencyProperty.Register(
+                nameof(CellBorderThickness), typeof(double), typeof(OpnxMultiView),
+                new FrameworkPropertyMetadata(1d, (d, e) =>
+                    ((OpnxMultiView)d)._multiViewPanel?.InvalidateMeasure()),
+                value => value is double thickness && double.IsFinite(thickness) && thickness >= 0d);
+
+        /// <summary>Controls only the outer tile edges; selection and hover outlines remain visible.</summary>
+        public bool ShowOuterBorder
+        {
+            get => (bool)GetValue(ShowOuterBorderProperty);
+            set => SetValue(ShowOuterBorderProperty, value);
+        }
+
+        public static readonly DependencyProperty ShowOuterBorderProperty =
+            DependencyProperty.Register(
+                nameof(ShowOuterBorder), typeof(bool), typeof(OpnxMultiView),
+                new FrameworkPropertyMetadata(true, (d, e) =>
+                    ((OpnxMultiView)d)._multiViewPanel?.InvalidateMeasure()));
+
+        /// <summary>Identifies the brush used for normal tile borders.</summary>
+        public static readonly DependencyProperty CellBorderBrushProperty =
+            DependencyProperty.Register(
+                nameof(CellBorderBrush),
+                typeof(Brush),
+                typeof(OpnxMultiView),
+                new FrameworkPropertyMetadata(null));
+
+        /// <summary>Gets or sets the tile border brush, independently of selection and highlighting.</summary>
+        public Brush? CellBorderBrush
+        {
+            get => (Brush?)GetValue(CellBorderBrushProperty);
+            set => SetValue(CellBorderBrushProperty, value);
+        }
+
         public static readonly DependencyProperty HighlightBorderStyleProperty =
             DependencyProperty.Register(
                 nameof(HighlightBorderStyle),
@@ -65,12 +107,6 @@ namespace OPNX.UI.WPF.Controls
         {
             DefaultStyleKeyProperty.OverrideMetadata(
                 typeof(OpnxMultiView), new FrameworkPropertyMetadata(typeof(OpnxMultiView)));
-        }
-
-        public OpnxMultiView()
-        {
-            this.Background = Brushes.Black;
-
         }
 
         #endregion
@@ -448,7 +484,6 @@ namespace OPNX.UI.WPF.Controls
                 return;
 
             this.Clear();
-            this.Background = new SolidColorBrush(Colors.Transparent);
             this._multiViewPanel.Init(rowCount, columnCount);
 
             if (isSelectionAll)

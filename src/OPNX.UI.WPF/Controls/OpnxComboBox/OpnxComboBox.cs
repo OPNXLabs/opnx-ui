@@ -41,6 +41,12 @@ namespace OPNX.UI.WPF.Controls
             typeof(OpnxComboBox),
             new PropertyMetadata(new Thickness(0)));
 
+        public static readonly DependencyProperty TextMarginProperty = DependencyProperty.Register(
+            nameof(TextMargin),
+            typeof(Thickness),
+            typeof(OpnxComboBox),
+            new PropertyMetadata(new Thickness(0)));
+
         public static readonly DependencyProperty ButtonVisibilityProperty = DependencyProperty.Register(
             nameof(ButtonVisibility),
             typeof(Visibility),
@@ -157,6 +163,12 @@ namespace OPNX.UI.WPF.Controls
         {
             get => (Thickness)GetValue(PlaceholderTextMarginProperty);
             set => SetValue(PlaceholderTextMarginProperty, value);
+        }
+
+        public Thickness TextMargin
+        {
+            get => (Thickness)GetValue(TextMarginProperty);
+            set => SetValue(TextMarginProperty, value);
         }
 
         public Visibility ButtonVisibility

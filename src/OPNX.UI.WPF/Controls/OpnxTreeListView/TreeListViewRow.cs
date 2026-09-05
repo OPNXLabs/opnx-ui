@@ -238,6 +238,13 @@ namespace OPNX.UI.WPF.Controls
 
             if (DetailsTemplate != null)
             {
+                if (ItemsControl.ItemsControlFromItemContainer(this) is OpnxTreeListView treeListView &&
+                    treeListView.RowDetailsVisibilityMode != DataGridRowDetailsVisibilityMode.Collapsed)
+                {
+                    base.OnPreviewMouseDoubleClick(e);
+                    return;
+                }
+
                 e.Handled = true;
                 DetailsVisibility = DetailsVisibility == Visibility.Collapsed
                     ? Visibility.Visible

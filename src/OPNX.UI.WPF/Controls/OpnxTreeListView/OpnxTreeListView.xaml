@@ -280,6 +280,7 @@
                                         </Grid.ColumnDefinitions>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
                                             <RowDefinition Height="*" />
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
@@ -306,15 +307,26 @@
                                                 Converter={x:Static DataGrid.HeadersVisibilityConverter},
                                                 RelativeSource={RelativeSource AncestorType={x:Type local:OpnxTreeListView}}}" />
 
+                                        <Border
+                                            Grid.Row="1"
+                                            Grid.ColumnSpan="3"
+                                            Height="{Binding ColumnHeaderSpacing,
+                                                RelativeSource={RelativeSource AncestorType={x:Type local:OpnxTreeListView}}}"
+                                            IsHitTestVisible="False"
+                                            Visibility="{Binding HeadersVisibility,
+                                                ConverterParameter={x:Static DataGridHeadersVisibility.Column},
+                                                Converter={x:Static DataGrid.HeadersVisibilityConverter},
+                                                RelativeSource={RelativeSource AncestorType={x:Type local:OpnxTreeListView}}}" />
+
                                         <ScrollContentPresenter
                                             x:Name="PART_ScrollContentPresenter"
-                                            Grid.Row="1"
+                                            Grid.Row="2"
                                             Grid.ColumnSpan="2"
                                             CanContentScroll="{TemplateBinding CanContentScroll}" />
 
                                         <ScrollBar
                                             x:Name="PART_VerticalScrollBar"
-                                            Grid.Row="1"
+                                            Grid.Row="2"
                                             Grid.Column="2"
                                             Maximum="{TemplateBinding ScrollableHeight}"
                                             Orientation="Vertical"
@@ -322,7 +334,7 @@
                                             ViewportSize="{TemplateBinding ViewportHeight}"
                                             Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" />
 
-                                        <Grid Grid.Row="2" Grid.Column="1">
+                                        <Grid Grid.Row="3" Grid.Column="1">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="{Binding NonFrozenColumnsViewportHorizontalOffset,
                                                     RelativeSource={RelativeSource AncestorType={x:Type local:OpnxTreeListView}}}" />

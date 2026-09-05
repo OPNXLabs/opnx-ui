@@ -16,13 +16,11 @@ namespace OPNX.UI.WPF.Controls
 
         private Grid? _grid = new();
 
-        private readonly Brush? _cellBorderBrush;
-
-        private readonly Thickness _cellBorderThickness;
+        private Thickness _cellBorderThickness;
+        private bool _borderHidden;
 
         private readonly Thickness _cellBorderThicknessForHidden;
 
-        private readonly Brush _cellBorderBackground;
         public bool IsSelectedCell { get; set; }
 
         private readonly DropTargetAdvisor _targetDropAdvisor = new();
@@ -37,18 +35,19 @@ namespace OPNX.UI.WPF.Controls
 
         internal MultiViewCell()
         {
-            this._cellBorderBrush = new BrushConverter().ConvertFromString("#202228") as SolidColorBrush;
             this._cellBorderThickness = new Thickness(1);
             this._cellBorderThicknessForHidden = new Thickness(0);
-            this._cellBorderBackground = Brushes.Black;
 
             this.ClipToBounds = true;
 
             this._border.Child = this._grid;
 
-            this._border.BorderBrush = this._cellBorderBrush;
+            this._border.SetBinding(Border.BorderBrushProperty, new Binding(nameof(OpnxMultiView.CellBorderBrush))
+            {
+                RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(OpnxMultiView), 1)
+            });
             this._border.BorderThickness = this._cellBorderThickness;
-            this._border.Background = this._cellBorderBackground;
+            this._border.Background = Brushes.Transparent;
 
             this.Content = this._border;
 
@@ -175,6 +174,7 @@ namespace OPNX.UI.WPF.Controls
 
         public void HideBorder()
         {
+            _borderHidden = true;
             if (this._border == null)
             {
                 return;
@@ -185,12 +185,22 @@ namespace OPNX.UI.WPF.Controls
 
         public void ShowBorder()
         {
+            _borderHidden = false;
             if (this._border == null)
             {
                 return;
             }
 
             this._border.BorderThickness = this._cellBorderThickness;
+        }
+
+        internal void UpdateBorderThickness(Thickness thickness)
+        {
+            _cellBorderThickness = thickness;
+            if (_border != null && !_borderHidden && _border.BorderThickness != thickness)
+            {
+                _border.BorderThickness = thickness;
+            }
         }
 
         internal void UpdateElementSizeBinding()

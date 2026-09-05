@@ -616,6 +616,18 @@ namespace OPNX.UI.WPF.Controls
                 {
                     Rect loc = GetLocation(cell);
 
+                    // Locations use the normalized layout extent, including merged cells.
+                    const double edgeTolerance = 0.000001;
+                    bool showOuterBorder = MultiView?.ShowOuterBorder ?? true;
+                    double borderThickness = MultiView?.CellBorderThickness ?? 1d;
+                    // Each internal boundary is owned by the tile to its right/bottom.
+                    // Unlike half-width borders, this avoids rounding two fractional strokes.
+                    cell.UpdateBorderThickness(new Thickness(
+                        showOuterBorder || loc.Left > edgeTolerance ? borderThickness : 0,
+                        showOuterBorder || loc.Top > edgeTolerance ? borderThickness : 0,
+                        showOuterBorder && loc.Right >= DEFAULT_SIZE - edgeTolerance ? borderThickness : 0,
+                        showOuterBorder && loc.Bottom >= DEFAULT_SIZE - edgeTolerance ? borderThickness : 0));
+
                     cell.Width = double.IsInfinity(availableSize.Width)
                                      ? loc.Width
                                      : availableSize.Width / DEFAULT_SIZE * loc.Width;

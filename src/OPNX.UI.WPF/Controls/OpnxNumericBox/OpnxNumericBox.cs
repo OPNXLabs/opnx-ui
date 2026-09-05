@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -222,6 +223,7 @@ namespace OPNX.UI.WPF.Controls
                 ValueChangedEvent));
         }
 
+        [SuppressMessage("Performance", "CA1859:Use concrete types when possible", Justification = "WPF CoerceValueCallback requires an object return type.")]
         private static object CoerceValue(DependencyObject d, object baseValue)
         {
             var numericBox = (OpnxNumericBox)d;
@@ -237,6 +239,7 @@ namespace OPNX.UI.WPF.Controls
             numericBox.UpdateButtonState();
         }
 
+        [SuppressMessage("Performance", "CA1859:Use concrete types when possible", Justification = "WPF CoerceValueCallback requires an object return type.")]
         private static object CoerceMaximum(DependencyObject d, object baseValue)
         {
             var numericBox = (OpnxNumericBox)d;
@@ -248,6 +251,7 @@ namespace OPNX.UI.WPF.Controls
             ((OpnxNumericBox)d).UpdateButtonState();
         }
 
+        [SuppressMessage("Performance", "CA1859:Use concrete types when possible", Justification = "WPF CoerceValueCallback requires an object return type.")]
         private static object CoerceStep(DependencyObject d, object baseValue)
         {
             return Math.Max(1, (int)baseValue);

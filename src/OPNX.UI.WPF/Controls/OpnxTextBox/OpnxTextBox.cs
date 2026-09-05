@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Media;
 
 namespace OPNX.UI.WPF.Controls
@@ -101,6 +102,11 @@ namespace OPNX.UI.WPF.Controls
         protected override void OnTextChanged(TextChangedEventArgs e)
         {
             base.OnTextChanged(e);
+
+            var bindingExpression = GetBindingExpression(TextProperty);
+            if (bindingExpression?.ParentBinding.UpdateSourceTrigger == UpdateSourceTrigger.PropertyChanged)
+                bindingExpression.UpdateSource();
+
             UpdatePlaceholder();
         }
 

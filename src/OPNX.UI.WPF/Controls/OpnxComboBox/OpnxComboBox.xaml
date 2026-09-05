@@ -115,31 +115,33 @@
                                       Style="{TemplateBinding DropDownButtonStyle}"
                                       Visibility="{TemplateBinding ButtonVisibility}" />
 
-                        <ContentPresenter x:Name="ContentSite"
-                                          Margin="{TemplateBinding Padding}"
-                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          Content="{TemplateBinding SelectionBoxItem}"
-                                          ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
-                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                          ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                          IsHitTestVisible="False"
-                                          TextElement.Foreground="{TemplateBinding Foreground}"
-                                          Visibility="Collapsed" />
+                        <Grid Margin="{TemplateBinding Padding}">
+                            <ContentPresenter x:Name="ContentSite"
+                                              Margin="{TemplateBinding TextMargin}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              IsHitTestVisible="False"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"
+                                              Visibility="Collapsed" />
 
-                        <TextBox x:Name="PART_EditableTextBox"
-                                 Margin="{TemplateBinding Padding}"
-                                 HorizontalAlignment="Stretch"
-                                 VerticalAlignment="Stretch"
-                                 VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                 Background="Transparent"
-                                 BorderBrush="Transparent"
-                                 BorderThickness="0"
-                                 CaretBrush="{TemplateBinding Foreground}"
-                                 Focusable="True"
-                                 Foreground="{TemplateBinding Foreground}"
-                                 IsReadOnly="{TemplateBinding IsReadOnly}"
-                                 Visibility="Hidden" />
+                            <TextBox x:Name="PART_EditableTextBox"
+                                     Margin="{TemplateBinding TextMargin}"
+                                     HorizontalAlignment="Stretch"
+                                     VerticalAlignment="Stretch"
+                                     VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                     Background="Transparent"
+                                     BorderBrush="Transparent"
+                                     BorderThickness="0"
+                                     CaretBrush="{TemplateBinding Foreground}"
+                                     Focusable="True"
+                                     Foreground="{TemplateBinding Foreground}"
+                                     IsReadOnly="{TemplateBinding IsReadOnly}"
+                                     Visibility="Hidden" />
+                        </Grid>
 
                         <Grid Margin="{TemplateBinding Padding}"
                               IsHitTestVisible="False">

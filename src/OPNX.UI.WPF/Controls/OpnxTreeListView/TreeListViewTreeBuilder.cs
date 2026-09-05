@@ -10,7 +10,7 @@ namespace OPNX.UI.WPF.Controls
         private List<object> VisibleItems => _treeListView.VisibleItems;
         private List<TreeListViewNode> RootNodes => _treeListView.RootNodes;
 
-        public void BuildTree()
+        public void BuildTree(IReadOnlySet<object>? expandedItems = null)
         {
             NodesByItem.Clear();
             VisibleItems.Clear();
@@ -21,15 +21,26 @@ namespace OPNX.UI.WPF.Controls
 
             var source = this.ItemsSource.Cast<object>()
                 .Where(t => t != null)
-                .Select(t => new TreeListViewNode(t, _treeListView, VisibleItems, NodesByItem, _treeListView.VisibleItemsView))
+                .Where(t => _treeListView.Filter?.Invoke(t) != false)
+                .Select(t => new TreeListViewNode(
+                    t,
+                    _treeListView,
+                    VisibleItems,
+                    NodesByItem,
+                    _treeListView.VisibleItemsView,
+                    _treeListView.ExpandAll || expandedItems?.Contains(t) == true))
                 .ToList();
 
             var childrenByParentId = new Dictionary<object, List<TreeListViewNode>>();
             var roots = new List<TreeListViewNode>();
+            var availableIds = source
+                .Where(node => node.Id != null)
+                .Select(node => node.Id)
+                .ToHashSet();
 
             foreach (var node in source)
             {
-                if (node.ParentId != null)
+                if (node.ParentId != null && availableIds.Contains(node.ParentId))
                 {
                     if (!childrenByParentId.TryGetValue(node.ParentId, out var list))
                         childrenByParentId[node.ParentId] = list = [];

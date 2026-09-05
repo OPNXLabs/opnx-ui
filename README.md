@@ -54,8 +54,19 @@ Frame decoding, conversion, and ownership remain in the OPNX.Lib media layer, wh
 - Cell and layout synchronization across multiple MultiView instances
 - Thumbnail generation and drag-and-drop video placement
 - Per-cell entity association and change events
+- Tile-boundary theming through `CellBorderBrush` and `CellBorderThickness`
+- Independent outer-edge control through `ShowOuterBorder`
 
 Layout and cell state remain in dedicated models, allowing applications to change views or persist user layouts without rebuilding the screen. The control can serve live monitoring, playback review, event walls, and multi-output workspaces.
+
+Tile borders are arranged without doubling the shared edge between adjacent cells, so internal and outer lines use the configured thickness consistently. Setting `ShowOuterBorder="False"` hides only the outside edge; cell-selection and mouse-over outlines remain visible.
+
+```xml
+<opnx:OpnxMultiView Background="#080B10"
+                    CellBorderBrush="#4D8FA3B8"
+                    CellBorderThickness="1"
+                    ShowOuterBorder="False" />
+```
 
 ### Multi-Channel Playback Timeline
 
@@ -66,6 +77,7 @@ Layout and cell state remain in dedicated models, allowing applications to chang
 - Navigation based on center time and visible time range
 - Range-change and visible-data request events
 - Recording/event hit testing and selection results
+- A `PlaybackTimelineRateType` selection model for 0.25x, 0.5x, 1x, 2x, 4x, and 8x rates
 - Themeable selected channels, row heights, recording bars, ticks, and separators
 - Optional channel panel and entity-name presentation
 
@@ -97,16 +109,22 @@ OPNX.UI.WPF is more than a collection of video surfaces. It provides a themed co
 
 `OpnxTreeListView` supports parent/child tree presentation and a flat-list mode. With `RowSizingMode="FitViewport"` and `FitRowCount`, it can calculate row height so a fixed page size fills the current viewport, reducing excessive empty space on large displays and avoidable scrolling on smaller layouts.
 
+`SearchText` performs the built-in search over displayed columns, while `Filter` accepts an application predicate. Tree rebuilds caused by search or source-collection changes restore expansion state and safely complete pending edits. `ColumnHeaderSpacing` controls the gap between the header and first row, independently of inter-row `RowSpacing`.
+
 ```xml
 <opnx:OpnxTreeListView ItemsSource="{Binding Items}"
                        ViewMode="Flat"
                        RowSizingMode="FitViewport"
-                       FitRowCount="20" />
+                       FitRowCount="20"
+                       SearchText="{Binding SearchText}"
+                       Filter="{Binding ItemFilter}"
+                       ColumnHeaderSpacing="7"
+                       RowSpacing="7" />
 ```
 
 `OpnxPagingControl` preserves the external view model for `SelectedPageNumber` and `MaxPageNumber` while managing page items and Next/Previous state. Normal, selected, and disabled pages plus movement-button backgrounds, foregrounds, and mouse-over/pressed opacity can be themed independently.
 
-`OpnxComboBox` separates the main control and dropdown-panel backgrounds, borders, and interaction colors, making it suitable for dense checkable-filter interfaces. `OpnxRadialProgressBar` provides determinate and indeterminate progress without application-specific behavior and can be used in splash screens, wait overlays, and long-running task indicators.
+`OpnxComboBox` separates the main control and dropdown-panel backgrounds, borders, and interaction colors, making it suitable for dense checkable-filter interfaces. In addition to `PlaceholderTextMargin`, `TextMargin` controls the inset of ordinary selected text. `OpnxRadialProgressBar` provides determinate and indeterminate progress without application-specific behavior and can be used in splash screens, wait overlays, and long-running task indicators.
 
 ## Design Direction
 
