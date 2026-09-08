@@ -907,24 +907,11 @@ namespace OPNX.UI.WPF.Controls
 
             try
             {
-                if (this._multiViewPanel.IsCellSelected())
+                if (this._multiViewPanel.ZoomedCell == null && this._multiViewPanel.IsCellSelected())
                 {
                     this.SelectionVisibility = Visibility.Visible;
 
-                    if (this._multiViewPanel.ZoomedCell != null)
-                    {
-                        MultiViewCell zoomCell = this._multiViewPanel.ZoomedCell;
-                        Rect rect = this._multiViewPanel.GetActualMaxRect(zoomCell);
-
-                        this.SelectionMargin = new Thickness
-                        {
-                            Left = rect.X,
-                            Top = rect.Y,
-                            Right = this.ActualWidth - rect.Right,
-                            Bottom = this.ActualHeight - rect.Bottom
-                        };
-                    }
-                    else if (!this.SelectionArea.IsEmpty)
+                    if (!this.SelectionArea.IsEmpty)
                     {
                         this.SelectionMargin = new Thickness
                         {

@@ -681,8 +681,6 @@ namespace OPNX.UI.WPF.Controls
             else
             {
                 this.ZoomInCell(value);
-                if (value != null)
-                    SelectionClear();
             }
         }
 

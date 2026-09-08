@@ -15,7 +15,7 @@ using System.Windows.Media.Imaging;
 
 namespace OPNX.UI.WPF.Controls
 {
-    public class OpnxImage : Image, IDisposable
+    public partial class OpnxImage : Image, IDisposable
     {
         #region Fields        
         private bool _isDisposed = false;
@@ -24,7 +24,10 @@ namespace OPNX.UI.WPF.Controls
 
         private Surface? _frontSurface = null;
         private Surface? _backSurface = null;
+        private Surface? _zoomSourceSurface;
         private Format? _backSurfaceFormat = null;
+        private int _displayWidth;
+        private int _displayHeight;
 
         private readonly ConcurrentQueue<Int32Rect> _dirtyRectQueue = new();
 
@@ -43,16 +46,19 @@ namespace OPNX.UI.WPF.Controls
         public OpnxImage()
         {
             _d3dImage = new D3DImage();
+            _d3dImage.IsFrontBufferAvailableChanged += OnFrontBufferAvailableChanged;
 
             this.Source = _d3dImage;
             this.HorizontalAlignment = HorizontalAlignment.Stretch;
             this.VerticalAlignment = VerticalAlignment.Stretch;
+
+            ClearSurface();
         }
         #endregion
 
         #region Properties
-        public int PixelWidth => _d3dImage?.PixelWidth ?? 0;
-        public int PixelHeight => _d3dImage?.PixelHeight ?? 0;
+        public int PixelWidth => _displayWidth;
+        public int PixelHeight => _displayHeight;
         #endregion
 
         #region Events
@@ -67,49 +73,29 @@ namespace OPNX.UI.WPF.Controls
 
             if (isRemoteSession)
             {
-                if (_backSurface != null)
-                {
-                    SetBackBuffer(null);
-                    _backSurface.Dispose();
-                    _backSurface = null;
-                    _backSurfaceFormat = null;
-                }
-
                 if ((AVPixelFormat)frame->format != AVPixelFormat.AV_PIX_FMT_BGR24)
                     return;
 
-                if (_backBufferA == null || _backBufferB == null ||
-                    _backBufferA.PixelWidth != frame->width || _backBufferA.PixelHeight != frame->height)
-                {
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        //_backBufferA = new WriteableBitmap(1920, 1080, 96, 96, PixelFormats.Bgr24, null);
-                        //_backBufferB = new WriteableBitmap(1920, 1080, 96, 96, PixelFormats.Bgr24, null);
-                        _backBufferA = new WriteableBitmap(frame->width, frame->height, 96, 96, PixelFormats.Bgr24, null);
-                        _backBufferB = new WriteableBitmap(frame->width, frame->height, 96, 96, PixelFormats.Bgr24, null);
-                        _writeBuffer = _backBufferA;
-                    });
-                }
-
-                int width = frame->width;
-                int height = frame->height;
-                int stride = frame->linesize[0];
-                int bufferSize = height * stride;
-
-                _remoteWidth = width;
-                _remoteHeight = height;
-                _remoteStride = stride;
-
-                if (_backBufferData == null || _backBufferData.Length != bufferSize)
-                    _backBufferData = new byte[bufferSize];
-
+                // Upload only bytes here; all WPF objects are owned by the UI thread.
+                int stride = checked(frame->width * 3);
                 using (_remoteBufferLock.EnterScope())
                 {
-                    fixed (byte* pDest = _backBufferData)
+                    int bufferSize = checked(frame->height * stride);
+                    if (_backBufferData == null || _backBufferData.Length != bufferSize)
+                        _backBufferData = new byte[bufferSize];
+                    fixed (byte* destination = _backBufferData)
                     {
-                        Win32.MemCopy((IntPtr)pDest, (IntPtr)frame->data[0], (UIntPtr)bufferSize);
+                        for (int y = 0; y < frame->height; y++)
+                            Win32.MemCopy((IntPtr)(destination + y * stride),
+                                (IntPtr)(frame->data[0] + y * frame->linesize[0]), (UIntPtr)stride);
                     }
+                    _remoteWidth = frame->width;
+                    _remoteHeight = frame->height;
+                    _remoteStride = stride;
                 }
+                _backSurface?.Dispose();
+                _backSurface = null;
+                _backSurfaceFormat = null;
             }
             else
             {
@@ -155,14 +141,7 @@ namespace OPNX.UI.WPF.Controls
                 }
                 finally
                 {
-                    if (_backSurface?.IsDisposed == false)
-                    {
-                        try { _backSurface.UnlockRectangle(); }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"UnlockRectangle failed: {ex.GetType().Name} / {ex.Message}");
-                        }
-                    }
+                    backSurface.UnlockRectangle();
                 }
             }
         }
@@ -175,137 +154,228 @@ namespace OPNX.UI.WPF.Controls
 
             if (isRemoteSession)
             {
-                _frontSurface?.Dispose();
-                _frontSurface = null;
-
-                if (_writeBuffer == null || _backBufferData == null)
-                    return;
-
-                WriteableBitmap? nextBuffer = (_writeBuffer == _backBufferA) ? _backBufferB : _backBufferA;
-
-                if (nextBuffer == null)
-                    return;
-
-                nextBuffer.Lock();
-                try
+                // Do not replace the last image until a complete remote frame is available.
+                using (_remoteBufferLock.EnterScope())
                 {
-                    using (_remoteBufferLock.EnterScope())
+                    if (_backBufferData == null)
+                        return;
+
+                    if (_backBufferA == null || _backBufferB == null ||
+                        _backBufferA.PixelWidth != _remoteWidth || _backBufferA.PixelHeight != _remoteHeight)
                     {
-                        nextBuffer.WritePixels(
-                            new Int32Rect(0, 0, nextBuffer.PixelWidth, nextBuffer.PixelHeight),
-                            _backBufferData,
-                            _remoteStride,
-                            0);
+                        _backBufferA = new WriteableBitmap(_remoteWidth, _remoteHeight, 96, 96, PixelFormats.Bgr24, null);
+                        _backBufferB = new WriteableBitmap(_remoteWidth, _remoteHeight, 96, 96, PixelFormats.Bgr24, null);
                     }
-                }
-                finally
-                {
-                    nextBuffer.Unlock();
+                    var nextBuffer = _writeBuffer == _backBufferA ? _backBufferB : _backBufferA;
+                    nextBuffer.WritePixels(new Int32Rect(0, 0, _remoteWidth, _remoteHeight),
+                        _backBufferData, _remoteStride, 0);
+                    _writeBuffer = nextBuffer;
+                    var view = GetPixelViewRegion(_remoteWidth, _remoteHeight);
+                    Source = view.Width == _remoteWidth && view.Height == _remoteHeight
+                        ? nextBuffer : new CroppedBitmap(nextBuffer, view);
+                    SetDisplayedViewRegion(view, _remoteWidth, _remoteHeight);
+                    _displayWidth = _remoteWidth;
+                    _displayHeight = _remoteHeight;
                 }
 
-                _writeBuffer = nextBuffer;
-                this.Source = _writeBuffer;
+                // Detach on the UI thread before releasing the old DX display surface.
+                if (_frontSurface != null)
+                {
+                    SetBackBuffer(null);
+                    _frontSurface.Dispose();
+                    _frontSurface = null;
+                }
+                _zoomSourceSurface?.Dispose();
+                _zoomSourceSurface = null;
             }
             else
             {
-                if (_backSurface == null)
+                if (_backSurface == null || !_d3dImage!.IsFrontBufferAvailable)
                     return;
 
-                bool surfaceSizeChanged = _frontSurface == null ||
-                                          _backSurface.Description.Width != _frontSurface.Description.Width ||
-                                          _backSurface.Description.Height != _frontSurface.Description.Height;
-
-                if (surfaceSizeChanged)
-                {
-                    _frontSurface?.Dispose();
-                    _frontSurface = Surface.CreateRenderTarget(
-                        d3dDevice,
-                        (int)_backSurface.Description.Width,
-                        (int)_backSurface.Description.Height,
-                        Format.X8R8G8B8,
-                        MultisampleType.None,
-                        0,
-                        true);
-
-                    SetBackBuffer(_frontSurface);
-                }
-
+                var description = _backSurface.Description;
+                var view = GetPixelViewRegion(description.Width, description.Height);
+                _d3dImage.Lock();
                 try
                 {
-                    d3dDevice.StretchRectangle(_backSurface, _frontSurface, TextureFilter.Linear);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"StretchRectangle error: {ex.Message}");
-                }
-            }
+                    if (_frontSurface == null ||
+                        description.Width != _frontSurface.Description.Width ||
+                        description.Height != _frontSurface.Description.Height)
+                    {
+                        // Detach before releasing the surface WPF was using.
+                        _d3dImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, IntPtr.Zero);
+                        _frontSurface?.Dispose();
+                        _frontSurface = null;
+                        _frontSurface = Surface.CreateRenderTarget(d3dDevice,
+                            description.Width, description.Height, Format.X8R8G8B8,
+                            MultisampleType.None, 0, true);
+                    }
 
-            UpdatedFrontSurface?.Invoke(this, EventArgs.Empty);
-        }
-
-
-        public void Rendering(bool isRemoteSession = false)
-        {
-            if (_isDisposed || isRemoteSession || _d3dImage == null)
-                return;
-
-            if (this.Source != _d3dImage)
-                this.Source = _d3dImage;
-
-            if (_d3dImage.PixelWidth > 0 && _d3dImage.PixelHeight > 0)
-            {
-                try
-                {
-                    _d3dImage.Lock();
-                    _d3dImage.AddDirtyRect(new Int32Rect(0, 0, _d3dImage.PixelWidth, _d3dImage.PixelHeight));
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Rendering error: {ex.Message}");
+                    if (view.Width == description.Width && view.Height == description.Height)
+                    {
+                        d3dDevice.StretchRectangle(_backSurface, _frontSurface, TextureFilter.Linear);
+                    }
+                    else
+                    {
+                        // Convert YUV to full-size RGB before cropping, avoiding YUV crop alignment restrictions.
+                        if (_zoomSourceSurface == null ||
+                            _zoomSourceSurface.Description.Width != description.Width ||
+                            _zoomSourceSurface.Description.Height != description.Height)
+                        {
+                            _zoomSourceSurface?.Dispose();
+                            _zoomSourceSurface = null;
+                            _zoomSourceSurface = Surface.CreateRenderTarget(d3dDevice,
+                                description.Width, description.Height, Format.X8R8G8B8,
+                                MultisampleType.None, 0, false);
+                        }
+                        d3dDevice.StretchRectangle(_backSurface, _zoomSourceSurface, TextureFilter.Linear);
+                        var sourceRect = new SharpDX.Mathematics.Interop.RawRectangle(
+                            view.X, view.Y, view.X + view.Width, view.Y + view.Height);
+                        d3dDevice.StretchRectangle(_zoomSourceSurface, sourceRect,
+                            _frontSurface, null, TextureFilter.Linear);
+                    }
                 }
                 finally
                 {
                     _d3dImage.Unlock();
                 }
+                // Upload/copy exceptions propagate to the existing rendering worker.
+                // It skips Rendering() for this panel when the update fails.
+                SetDisplayedViewRegion(view, description.Width, description.Height);
+                _displayWidth = description.Width;
+                _displayHeight = description.Height;
+                using (_remoteBufferLock.EnterScope())
+                    _backBufferData = null;
+            }
+            UpdatedFrontSurface?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void Rendering(bool isRemoteSession = false)
+        {
+            if (_isDisposed || isRemoteSession || _d3dImage == null ||
+                _frontSurface == null || !_d3dImage.IsFrontBufferAvailable)
+                return;
+
+            try
+            {
+                _d3dImage.Lock();
+                try
+                {
+                    _d3dImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, _frontSurface.NativePointer);
+                    _d3dImage.AddDirtyRect(new Int32Rect(0, 0, _displayWidth, _displayHeight));
+                }
+                finally
+                {
+                    _d3dImage.Unlock();
+                }
+                if (Source != _d3dImage)
+                    Source = _d3dImage;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Rendering error: {ex.Message}");
             }
         }
 
-
-        public void ClearSurface()
+        private void OnFrontBufferAvailableChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (_frontSurface == null)
-                return;
+            if ((bool)e.NewValue && Source == _d3dImage)
+                Rendering();
+        }
 
-            SetBackBuffer(null);
+        /// <summary>
+        /// Copies the currently displayed (possibly zoomed) video at the original frame resolution, without overlays.
+        /// The frozen result is independent of subsequent frame updates. Call on the UI thread.
+        /// </summary>
+        public BitmapSource? CaptureCurrentFrame()
+        {
+            if (_isDisposed)
+                return null;
 
-            SurfaceDescription description = _frontSurface.Description;
-            DataRectangle dataRectangle = _frontSurface.LockRectangle(LockFlags.Discard);
+            if (Source is BitmapSource remoteBitmap)
+            {
+                if (remoteBitmap.PixelWidth == _displayWidth && remoteBitmap.PixelHeight == _displayHeight)
+                {
+                    var snapshot = new WriteableBitmap(remoteBitmap);
+                    snapshot.Freeze();
+                    return snapshot;
+                }
+                // The remote display stretches its cropped bitmap; capture at the original output size.
+                var visual = new DrawingVisual();
+                using (var context = visual.RenderOpen())
+                    context.DrawImage(remoteBitmap, new Rect(0, 0, _displayWidth, _displayHeight));
+                var scaled = new RenderTargetBitmap(_displayWidth, _displayHeight, 96, 96, PixelFormats.Pbgra32);
+                scaled.Render(visual);
+                scaled.Freeze();
+                return scaled;
+            }
+
+            if (Source != _d3dImage || _d3dImage == null ||
+                _frontSurface == null || _frontSurface.IsDisposed)
+                return null;
+
+            var surface = _frontSurface;
+            var description = surface.Description;
+            int width = description.Width;
+            int height = description.Height;
+            int stride = checked(width * 4);
+            var pixels = new byte[checked(stride * height)];
+
+            _d3dImage.Lock();
             try
             {
-                IntPtr dataPointer = dataRectangle.DataPointer;
-                int pitch = dataRectangle.Pitch;
-                int width = description.Width;
-                int height = description.Height;
-                int blackColor = unchecked((int)0xFF000000);
-
-                unsafe
+                var data = surface.LockRectangle(LockFlags.ReadOnly);
+                try
                 {
-                    int* p = (int*)dataPointer;
                     for (int y = 0; y < height; y++)
                     {
-                        int offset = y * (pitch / sizeof(int));
-                        for (int x = 0; x < width; x++)
-                            p[offset + x] = blackColor;
+                        System.Runtime.InteropServices.Marshal.Copy(
+                            IntPtr.Add(data.DataPointer, checked(y * data.Pitch)),
+                            pixels, y * stride, stride);
                     }
+                }
+                finally
+                {
+                    surface.UnlockRectangle();
                 }
             }
             finally
             {
-                _frontSurface.UnlockRectangle();
+                _d3dImage.Unlock();
             }
 
-            Rendering();
-            this.InvalidateVisual();
+            // X8R8G8B8 has an unused high byte, not an alpha channel.
+            var bitmap = BitmapSource.Create(
+                width, height, 96, 96, PixelFormats.Bgr32, null, pixels, stride);
+            bitmap.Freeze();
+            return bitmap;
+        }
+
+        /// <summary>
+        /// Displays black during initialization; existing video buffers are not reset.
+        /// Missing frames alone leave the last image visible.
+        /// </summary>
+        public void ClearSurface()
+        {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(ClearSurface);
+                return;
+            }
+
+            if (_isDisposed)
+                return;
+
+            // Keep the existing aspect ratio and show opaque black in both DX and remote modes.
+            double width = Source?.Width ?? 1;
+            double height = Source?.Height ?? 1;
+            if (!double.IsFinite(width) || width <= 0) width = 1;
+            if (!double.IsFinite(height) || height <= 0) height = 1;
+
+            var blackImage = new DrawingImage(new GeometryDrawing(
+                Brushes.Black, null, new RectangleGeometry(new Rect(0, 0, width, height))));
+            blackImage.Freeze();
+            Source = blackImage;
         }
 
         public void Dispose()
@@ -314,15 +384,19 @@ namespace OPNX.UI.WPF.Controls
                 return;
 
             _isDisposed = true;
+            _d3dImage!.IsFrontBufferAvailableChanged -= OnFrontBufferAvailableChanged;
 
             SetBackBuffer(null);
             _frontSurface?.Dispose();
             _backSurface?.Dispose();
+            _zoomSourceSurface?.Dispose();
+            _zoomSourceSurface = null;
             _backSurfaceFormat = null;
 
             _backBufferA = null;
             _backBufferB = null;
             _writeBuffer = null;
+            _backBufferData = null;
 
             GC.SuppressFinalize(this);
         }
@@ -425,9 +499,9 @@ namespace OPNX.UI.WPF.Controls
             if (_d3dImage == null)
                 return;
 
+            _d3dImage.Lock();
             try
             {
-                _d3dImage.Lock();
                 _d3dImage.SetBackBuffer(
                     D3DResourceType.IDirect3DSurface9,
                     surface != null ? surface.NativePointer : IntPtr.Zero);
@@ -647,8 +721,10 @@ namespace OPNX.UI.WPF.Controls
                 //Buffer.MemoryCopy(pV + y * frame->linesize[2], puBase + y * pitch2, w2, w2);
                 //Unsafe.CopyBlock(pvBase + y * pitch2, pU + y * frame->linesize[1], (uint)w2);
                 //Unsafe.CopyBlock(puBase + y * pitch2, pV + y * frame->linesize[2], (uint)w2);
-                Win32.MemCopy(IntPtr.Add(pu, y * pitch2), (IntPtr)pV + y * frame->linesize[1], (UIntPtr)w2);
-                Win32.MemCopy(IntPtr.Add(pv, y * pitch2), (IntPtr)pU + y * frame->linesize[2], (UIntPtr)w2);
+                // Previous: Win32.MemCopy(IntPtr.Add(pu, y * pitch2), (IntPtr)pV + y * frame->linesize[1], (UIntPtr)w2);
+                Win32.MemCopy(IntPtr.Add(pu, y * pitch2), (IntPtr)pV + y * frame->linesize[2], (UIntPtr)w2);
+                // Previous: Win32.MemCopy(IntPtr.Add(pv, y * pitch2), (IntPtr)pU + y * frame->linesize[2], (UIntPtr)w2);
+                Win32.MemCopy(IntPtr.Add(pv, y * pitch2), (IntPtr)pU + y * frame->linesize[1], (UIntPtr)w2);
                 //Unsafe.CopyBlockUnaligned((byte*)pu + y * pitch2, pV + y * frame->linesize[1], (uint)w2);
                 //Unsafe.CopyBlockUnaligned((byte*)pv + y * pitch2, pU + y * frame->linesize[2], (uint)w2);
             }
@@ -701,7 +777,8 @@ namespace OPNX.UI.WPF.Controls
             Parallel.For(0, halfHeight, y =>
             {
                 // U 평면 복사 (pV -> puBase)
-                byte* srcU = pV + y * frame->linesize[1];
+                // Previous: byte* srcU = pV + y * frame->linesize[1];
+                byte* srcU = pV + y * frame->linesize[2];
                 byte* dstU = puBase + y * pitch2;
                 int x = 0;
 
@@ -722,7 +799,8 @@ namespace OPNX.UI.WPF.Controls
                 }
 
                 // V 평면 복사 (pU -> pvBase)
-                byte* srcV = pU + y * frame->linesize[2];
+                // Previous: byte* srcV = pU + y * frame->linesize[2];
+                byte* srcV = pU + y * frame->linesize[1];
                 byte* dstV = pvBase + y * pitch2;
                 x = 0;
 
