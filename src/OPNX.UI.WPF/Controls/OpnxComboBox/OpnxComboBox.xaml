@@ -67,12 +67,12 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="ContentBorder"
                                     Property="Background"
-                                    Value="{Binding (local:OpnxComboBox.DropDownItemMouseOverBackground), RelativeSource={RelativeSource Self}}" />
+                                    Value="{Binding (local:OpnxComboBox.DropDownItemMouseOverBackground), RelativeSource={RelativeSource TemplatedParent}}" />
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="ContentBorder"
                                     Property="Background"
-                                    Value="{Binding (local:OpnxComboBox.DropDownItemSelectedBackground), RelativeSource={RelativeSource Self}}" />
+                                    Value="{Binding (local:OpnxComboBox.DropDownItemSelectedBackground), RelativeSource={RelativeSource TemplatedParent}}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="TextElement.Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />

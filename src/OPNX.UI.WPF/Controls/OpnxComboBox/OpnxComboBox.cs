@@ -1,4 +1,5 @@
 using System.Collections;
+using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -127,6 +128,7 @@ namespace OPNX.UI.WPF.Controls
 
         private bool _isUpdatingItemsSource;
         private CollectionViewSource? _collectionViewSource;
+        private ICollectionView? _itemsView;
         private TextBox? _editableTextBox;
 
         static OpnxComboBox()
@@ -283,24 +285,34 @@ namespace OPNX.UI.WPF.Controls
             if (newValue is null)
             {
                 _collectionViewSource = null;
+                _itemsView = null;
                 UpdatePlaceholderState();
                 return;
             }
 
-            if (ReferenceEquals(newValue, _collectionViewSource?.View))
+            if (newValue is ICollectionView existingView)
             {
+                _collectionViewSource = null;
+                _itemsView = existingView;
+                ApplyCustomSort();
+                ClearCurrentItem();
+                UpdatePlaceholderState();
                 return;
             }
 
             _collectionViewSource = new CollectionViewSource { Source = newValue };
-            _collectionViewSource.Filter += CollectionViewSource_Filter;
+            _itemsView = _collectionViewSource.View;
+            if (_itemsView.CanFilter)
+            {
+                _collectionViewSource.Filter += CollectionViewSource_Filter;
+            }
             ApplyCustomSort();
             ClearCurrentItem();
 
             try
             {
                 _isUpdatingItemsSource = true;
-                SetCurrentValue(ItemsSourceProperty, _collectionViewSource.View);
+                SetCurrentValue(ItemsSourceProperty, _itemsView);
             }
             finally
             {
@@ -404,12 +416,12 @@ namespace OPNX.UI.WPF.Controls
 
         private void RefreshFilter()
         {
-            _collectionViewSource?.View?.Refresh();
+            _itemsView?.Refresh();
         }
 
         private void ApplyCustomSort()
         {
-            if (_collectionViewSource?.View is ListCollectionView listCollectionView)
+            if (_itemsView is ListCollectionView listCollectionView)
             {
                 listCollectionView.CustomSort = CustomSort;
             }
@@ -417,7 +429,7 @@ namespace OPNX.UI.WPF.Controls
 
         private void ClearCurrentItem()
         {
-            _collectionViewSource?.View?.MoveCurrentToPosition(-1);
+            _itemsView?.MoveCurrentToPosition(-1);
         }
 
         private void UpdatePlaceholderState()
