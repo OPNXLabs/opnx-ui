@@ -2,7 +2,31 @@
 
 [한국어](README.ko.md)
 
-> **License notice:** OPNX.UI is source-available software, not open-source software. Commercial use and redistribution require prior written permission from OPNX. See [LICENSE.txt](LICENSE.txt).
+**WPF controls for video monitoring, multi-channel playback, and surveillance-oriented desktop applications.**
+
+Direct3D video · Multi-view · Playback timeline · Device navigation · Operational controls
+
+[NuGet](https://www.nuget.org/packages/OPNX.UI.WPF) · [Run the RTSP sample](https://github.com/OPNXLabs/opnx-samples#run-rtsp-multi-live-viewer) · [Run the timeline sample](https://github.com/OPNXLabs/opnx-samples#run-playback-timeline) · [Commercial and OEM inquiries](#license-and-support)
+
+![OPNX.V multi-channel monitoring interface built with OPNX.UI.WPF](docs/images/opnx-v-live-monitoring.png)
+
+## OPNX.UI In A Real VMS
+
+OPNX.V uses OPNX.UI.WPF for its Windows monitoring and management clients. The controls shown above are the same reusable multi-view, video-presentation, navigation, selection, and operator-workflow foundations provided by this repository—not a disconnected UI mockup.
+
+![OPNX.V recorded-video search and multi-channel playback](docs/images/opnx-v-recorded-video-search.png)
+
+The recorded-video search screen combines multi-channel video review with `OpnxPlaybackTimeline`, channel recording ranges, time navigation, playback-rate selection, and synchronized playback orchestration supplied by the application layer.
+
+## Start Here
+
+```powershell
+dotnet add package OPNX.UI.WPF --prerelease
+```
+
+Use [`OPNX.Samples.RtspMultiLiveViewer`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.RtspMultiLiveViewer) to evaluate live video and MultiView composition, or [`OPNX.Samples.PlaybackTimeline`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.PlaybackTimeline) to explore recorded ranges, events, selection, navigation, and styling.
+
+> **License:** OPNX.UI is source-available, not open-source. Learning, research, testing, and non-commercial evaluation are permitted under [LICENSE.txt](LICENSE.txt). Commercial use, production use, redistribution, and OEM integration require prior written permission from OPNX.
 
 OPNX.UI is the reusable .NET UI foundation for OPNX video clients. The current implementation is `OPNX.UI.WPF`, a Windows WPF control library for VMS, NVR, monitoring, playback, and review applications.
 

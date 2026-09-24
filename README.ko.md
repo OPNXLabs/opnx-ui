@@ -2,7 +2,31 @@
 
 [English](README.md)
 
-> **라이선스 안내:** OPNX.UI는 오픈 소스 소프트웨어가 아닌 source-available 소프트웨어입니다. 상업적 사용과 재배포에는 OPNX의 사전 서면 허가가 필요합니다. 자세한 내용은 [LICENSE.txt](LICENSE.txt)를 확인하십시오.
+**영상 모니터링, 다채널 재생 및 영상 보안 데스크톱 애플리케이션을 위한 WPF 컨트롤입니다.**
+
+Direct3D 영상 표시 · MultiView · 재생 타임라인 · 장치 탐색 · 운영 UI 컨트롤
+
+[NuGet](https://www.nuget.org/packages/OPNX.UI.WPF) · [RTSP 샘플 실행](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#rtsp-multi-live-viewer-실행) · [타임라인 샘플 실행](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#playback-timeline-실행) · [상업 라이선스 및 OEM 문의](#라이선스-및-지원)
+
+![OPNX.UI.WPF로 개발 중인 OPNX.V 다채널 모니터링 화면](docs/images/opnx-v-live-monitoring.png)
+
+## 실제 VMS에서 사용하는 OPNX.UI
+
+OPNX.V는 Windows 모니터링 및 관리 클라이언트에 OPNX.UI.WPF를 사용합니다. 위 화면의 MultiView, 영상 표시, 탐색, 선택 및 운영 흐름의 기반은 별도의 UI 목업이 아니라 이 저장소에서 제공하는 재사용 가능한 컨트롤입니다.
+
+![OPNX.V 저장영상 검색 및 다채널 재생 화면](docs/images/opnx-v-recorded-video-search.png)
+
+저장영상 검색 화면은 다채널 영상 검토와 `OpnxPlaybackTimeline`, 채널별 녹화 구간, 시간 탐색, 재생 배속 선택 및 애플리케이션 계층의 동기 재생 오케스트레이션을 결합합니다.
+
+## 여기서 시작하세요
+
+```powershell
+dotnet add package OPNX.UI.WPF --prerelease
+```
+
+라이브 영상과 MultiView 구성을 평가하려면 [`OPNX.Samples.RtspMultiLiveViewer`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.RtspMultiLiveViewer)를, 녹화 구간·이벤트·선택·탐색·스타일을 확인하려면 [`OPNX.Samples.PlaybackTimeline`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.PlaybackTimeline)을 실행하세요.
+
+> **라이선스:** OPNX.UI는 오픈 소스가 아닌 source-available 소프트웨어입니다. [LICENSE.txt](LICENSE.txt)에 따라 학습, 연구, 테스트 및 비상업적 평가에 사용할 수 있습니다. 상업적 사용, 운영 환경 사용, 재배포 및 OEM 통합에는 OPNX의 사전 서면 허가가 필요합니다.
 
 OPNX.UI는 OPNX 영상 클라이언트를 위한 재사용 가능한 .NET UI 기반입니다. 현재 구현체는 VMS, NVR, 모니터링, 재생 및 리뷰 애플리케이션을 위한 Windows WPF 컨트롤 라이브러리인 `OPNX.UI.WPF`입니다.
 
