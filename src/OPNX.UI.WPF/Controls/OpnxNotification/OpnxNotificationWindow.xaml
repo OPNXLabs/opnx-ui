@@ -1,0 +1,28 @@
+<Window x:Class="OPNX.UI.WPF.Controls.OpnxNotification.OpnxNotificationWindow"
+        x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        ShowActivated="False"
+        ShowInTaskbar="False"
+        SizeToContent="WidthAndHeight"
+        Topmost="True"
+        WindowStyle="None">
+    <ItemsControl ItemsSource="{Binding Notifications, RelativeSource={RelativeSource AncestorType={x:Type Window}}}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <ContentControl Margin="{Binding ItemMargin, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                Content="{Binding Content}"
+                                MouseEnter="OnNotificationMouseEnter"
+                                MouseLeave="OnNotificationMouseLeave" />
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</Window>

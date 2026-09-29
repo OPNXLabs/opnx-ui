@@ -445,6 +445,19 @@ namespace OPNX.UI.WPF.Controls
                 typeof(OpnxTreeListView),
                 new FrameworkPropertyMetadata(null));
 
+        public Brush? SelectedForeground
+        {
+            get => (Brush?)GetValue(SelectedForegroundProperty);
+            set => SetValue(SelectedForegroundProperty, value);
+        }
+
+        public static readonly DependencyProperty SelectedForegroundProperty =
+            DependencyProperty.Register(
+                nameof(SelectedForeground),
+                typeof(Brush),
+                typeof(OpnxTreeListView),
+                new FrameworkPropertyMetadata(SystemColors.HighlightTextBrush));
+
         public Brush? MouseOverBackground
         {
             get => (Brush?)GetValue(MouseOverBackgroundProperty);

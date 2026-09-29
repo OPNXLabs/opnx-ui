@@ -159,6 +159,18 @@ namespace OPNX.UI.WPF.Controls
             typeof(OpnxTitlebar),
             new PropertyMetadata(true));
 
+        public static readonly DependencyProperty CloseCommandProperty = DependencyProperty.Register(
+            nameof(CloseCommand),
+            typeof(ICommand),
+            typeof(OpnxTitlebar),
+            new PropertyMetadata(null));
+
+        public static readonly DependencyProperty CloseCommandParameterProperty = DependencyProperty.Register(
+            nameof(CloseCommandParameter),
+            typeof(object),
+            typeof(OpnxTitlebar),
+            new PropertyMetadata(null));
+
         public static readonly DependencyProperty MinimizeImageSourceProperty = DependencyProperty.Register(
             nameof(MinimizeImageSource),
             typeof(ImageSource),
@@ -375,6 +387,18 @@ namespace OPNX.UI.WPF.Controls
             set => SetValue(ShowCloseButtonProperty, value);
         }
 
+        public ICommand? CloseCommand
+        {
+            get => (ICommand?)GetValue(CloseCommandProperty);
+            set => SetValue(CloseCommandProperty, value);
+        }
+
+        public object? CloseCommandParameter
+        {
+            get => GetValue(CloseCommandParameterProperty);
+            set => SetValue(CloseCommandParameterProperty, value);
+        }
+
         public ImageSource? MinimizeImageSource
         {
             get => (ImageSource?)GetValue(MinimizeImageSourceProperty);
@@ -575,6 +599,13 @@ namespace OPNX.UI.WPF.Controls
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
+            if (CloseCommand != null)
+            {
+                if (CloseCommand.CanExecute(CloseCommandParameter))
+                    CloseCommand.Execute(CloseCommandParameter);
+                return;
+            }
+
             GetOwnerWindow()?.Close();
         }
 

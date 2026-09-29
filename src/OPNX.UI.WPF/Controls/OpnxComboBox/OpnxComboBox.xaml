@@ -116,7 +116,12 @@
                                       Visibility="{TemplateBinding ButtonVisibility}" />
 
                         <Grid Margin="{TemplateBinding Padding}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="20" />
+                            </Grid.ColumnDefinitions>
                             <ContentPresenter x:Name="ContentSite"
+                                              Grid.ColumnSpan="2"
                                               Margin="{TemplateBinding TextMargin}"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -129,6 +134,7 @@
                                               Visibility="Collapsed" />
 
                             <TextBox x:Name="PART_EditableTextBox"
+                                     Grid.Column="0"
                                      Margin="{TemplateBinding TextMargin}"
                                      HorizontalAlignment="Stretch"
                                      VerticalAlignment="Stretch"
@@ -177,8 +183,9 @@
                                 <ScrollViewer Margin="4,6,4,6"
                                               Focusable="False"
                                               SnapsToDevicePixels="True">
-                                    <StackPanel IsItemsHost="True"
-                                                KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    <VirtualizingStackPanel IsItemsHost="True"
+                                                            KeyboardNavigation.DirectionalNavigation="Contained"
+                                                            VirtualizationMode="Recycling" />
                                 </ScrollViewer>
                             </Grid>
                         </Popup>

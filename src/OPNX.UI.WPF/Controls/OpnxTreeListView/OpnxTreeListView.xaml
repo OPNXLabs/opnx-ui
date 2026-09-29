@@ -34,6 +34,13 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type local:TreeListViewRow}}}"
+                         Value="True">
+                <Setter Property="Foreground"
+                        Value="{Binding SelectedForeground, RelativeSource={RelativeSource AncestorType={x:Type local:OpnxTreeListView}}}" />
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 
     <!-- Row -->
@@ -110,6 +117,10 @@
                                     RelativeSource={RelativeSource AncestorType={x:Type local:OpnxTreeListView}}}" />
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
+                            <Setter
+                                Property="Foreground"
+                                Value="{Binding SelectedForeground,
+                                    RelativeSource={RelativeSource AncestorType={x:Type local:OpnxTreeListView}}}" />
                             <Setter
                                 TargetName="SelectedBorder"
                                 Property="Background"

@@ -84,13 +84,13 @@ namespace OPNX.UI.WPF.Controls
             typeof(OpnxComboBox),
             new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x20, 0x22, 0x28))));
 
-        public static readonly DependencyProperty DropDownItemMouseOverBackgroundProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty DropDownItemMouseOverBackgroundProperty = DependencyProperty.RegisterAttached(
             nameof(DropDownItemMouseOverBackground),
             typeof(Brush),
             typeof(OpnxComboBox),
             new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x2A, 0x2C, 0x34))));
 
-        public static readonly DependencyProperty DropDownItemSelectedBackgroundProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty DropDownItemSelectedBackgroundProperty = DependencyProperty.RegisterAttached(
             nameof(DropDownItemSelectedBackground),
             typeof(Brush),
             typeof(OpnxComboBox),
@@ -107,6 +107,18 @@ namespace OPNX.UI.WPF.Controls
             typeof(string),
             typeof(OpnxComboBox),
             new PropertyMetadata(string.Empty, OnFilterStringChanged));
+
+        public static readonly DependencyProperty SearchMemberPathProperty = DependencyProperty.Register(
+            nameof(SearchMemberPath),
+            typeof(string),
+            typeof(OpnxComboBox),
+            new PropertyMetadata(string.Empty, OnSearchMemberPathChanged));
+
+        public static readonly DependencyProperty IsItemSelectionEnabledProperty = DependencyProperty.Register(
+            nameof(IsItemSelectionEnabled),
+            typeof(bool),
+            typeof(OpnxComboBox),
+            new PropertyMetadata(true));
 
         public static readonly DependencyProperty CustomSortProperty = DependencyProperty.Register(
             nameof(CustomSort),
@@ -130,6 +142,8 @@ namespace OPNX.UI.WPF.Controls
         private CollectionViewSource? _collectionViewSource;
         private ICollectionView? _itemsView;
         private TextBox? _editableTextBox;
+        private string _searchText = string.Empty;
+        private bool _isClearingSelection;
 
         static OpnxComboBox()
         {
@@ -245,6 +259,18 @@ namespace OPNX.UI.WPF.Controls
             set => SetValue(FilterStringProperty, value);
         }
 
+        public string SearchMemberPath
+        {
+            get => (string)GetValue(SearchMemberPathProperty);
+            set => SetValue(SearchMemberPathProperty, value);
+        }
+
+        public bool IsItemSelectionEnabled
+        {
+            get => (bool)GetValue(IsItemSelectionEnabledProperty);
+            set => SetValue(IsItemSelectionEnabledProperty, value);
+        }
+
         public IComparer? CustomSort
         {
             get => (IComparer?)GetValue(CustomSortProperty);
@@ -342,6 +368,33 @@ namespace OPNX.UI.WPF.Controls
 
         protected override void OnSelectionChanged(SelectionChangedEventArgs e)
         {
+            if (!IsItemSelectionEnabled && !_isClearingSelection && e.AddedItems.Count > 0)
+            {
+                base.OnSelectionChanged(e);
+
+                try
+                {
+                    _isClearingSelection = true;
+                    SetCurrentValue(SelectedIndexProperty, -1);
+                    SetCurrentValue(SelectedItemProperty, null);
+                    SetCurrentValue(SelectedValueProperty, null);
+                    SetCurrentValue(TextProperty, _searchText);
+                    if (EditableTextBox is not null)
+                    {
+                        EditableTextBox.SetCurrentValue(TextBox.TextProperty, _searchText);
+                        EditableTextBox.CaretIndex = _searchText.Length;
+                    }
+                    SetCurrentValue(IsDropDownOpenProperty, true);
+                }
+                finally
+                {
+                    _isClearingSelection = false;
+                }
+
+                UpdatePlaceholderState();
+                return;
+            }
+
             UpdatePlaceholderState();
 
             object? selectedItem = e.AddedItems.Count > 0 ? e.AddedItems[0] : null;
@@ -364,13 +417,18 @@ namespace OPNX.UI.WPF.Controls
         {
             base.OnDropDownClosed(e);
 
-            if (ClearSelectionOnDropDownClosed && SelectedIndex >= 0)
+            if (ClearSelectionOnDropDownClosed)
             {
-                SetCurrentValue(SelectedIndexProperty, -1);
-                SetCurrentValue(SelectedItemProperty, null);
-                SetCurrentValue(SelectedValueProperty, null);
+                if (SelectedIndex >= 0)
+                {
+                    SetCurrentValue(SelectedIndexProperty, -1);
+                    SetCurrentValue(SelectedItemProperty, null);
+                    SetCurrentValue(SelectedValueProperty, null);
+                }
+
                 SetCurrentValue(TextProperty, string.Empty);
                 ClearCurrentItem();
+                RefreshFilter();
             }
 
             UpdatePlaceholderState();
@@ -382,6 +440,12 @@ namespace OPNX.UI.WPF.Controls
             {
                 comboBox.RefreshFilter();
             }
+        }
+
+        private static void OnSearchMemberPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is OpnxComboBox comboBox)
+                comboBox.RefreshFilter();
         }
 
         private static void OnCustomSortChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -400,7 +464,10 @@ namespace OPNX.UI.WPF.Controls
                 return;
             }
 
-            if (IsKeyboardFocusWithin && Text.Length > 0)
+            if (!_isClearingSelection && SelectedIndex < 0)
+                _searchText = EditableTextBox?.Text ?? Text;
+
+            if (IsKeyboardFocusWithin && GetInputText().Length > 0)
             {
                 SetCurrentValue(IsDropDownOpenProperty, true);
             }
@@ -434,7 +501,7 @@ namespace OPNX.UI.WPF.Controls
 
         private void UpdatePlaceholderState()
         {
-            bool shouldShowPlaceholder = SelectedItem is null && SelectedValue is null && string.IsNullOrEmpty(Text);
+            bool shouldShowPlaceholder = SelectedItem is null && SelectedValue is null && string.IsNullOrEmpty(GetInputText());
             if (PlaceholderEnabled != shouldShowPlaceholder)
             {
                 SetCurrentValue(PlaceholderEnabledProperty, shouldShowPlaceholder);
@@ -443,6 +510,9 @@ namespace OPNX.UI.WPF.Controls
 
         private bool MatchesFilter(object? item)
         {
+            if (!MatchesSearch(item))
+                return false;
+
             string filterString = FilterString;
             if (string.IsNullOrWhiteSpace(filterString))
             {
@@ -476,6 +546,31 @@ namespace OPNX.UI.WPF.Controls
             }
 
             return false;
+        }
+
+        private bool MatchesSearch(object? item)
+        {
+            string searchMemberPath = SearchMemberPath;
+            string searchText = GetInputText();
+            if (string.IsNullOrWhiteSpace(searchMemberPath) || string.IsNullOrWhiteSpace(searchText))
+                return true;
+            if (item is null || !TryGetPropertyValue(item, searchMemberPath, out object? value, out _))
+                return false;
+
+            return Convert.ToString(value, CultureInfo.CurrentCulture)?.Contains(
+                searchText.Trim(),
+                StringComparison.CurrentCultureIgnoreCase) == true;
+        }
+
+        private string GetInputText()
+        {
+            if (!IsItemSelectionEnabled && IsEditable)
+                return _searchText;
+
+            if (IsEditable && EditableTextBox is not null)
+                return EditableTextBox.Text;
+
+            return Text;
         }
 
         private static bool EvaluateCondition(string condition, object item)
