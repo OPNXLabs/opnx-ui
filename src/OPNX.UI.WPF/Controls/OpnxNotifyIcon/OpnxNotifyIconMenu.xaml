@@ -1,0 +1,61 @@
+<UserControl x:Class="OPNX.UI.WPF.Controls.OpnxNotifyIconMenu"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="{Binding MenuWidth}">
+    <UserControl.Resources>
+        <Style x:Key="MenuItemStyle" TargetType="Button">
+            <Setter Property="Height" Value="{Binding MenuItemHeight}" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{Binding MenuForeground}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ItemBorder"
+                                Padding="{TemplateBinding Padding}"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background"
+                                        Value="{Binding MenuItemMouseOverBackground}" />
+                                <Setter Property="Foreground"
+                                        Value="{Binding MenuItemMouseOverForeground}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Padding="{Binding MenuPadding}"
+            Background="{Binding MenuBackground}"
+            BorderBrush="{Binding MenuBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="{Binding MenuCornerRadius}">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="16" Opacity="0.35" ShadowDepth="3" />
+        </Border.Effect>
+        <StackPanel>
+            <Button x:Name="OpenButton"
+                    Content="{Binding OpenText}"
+                    Click="OpenButton_Click"
+                    Style="{StaticResource MenuItemStyle}" />
+            <Border x:Name="Separator"
+                    Height="1"
+                    Margin="8,4"
+                    Background="{Binding MenuBorderBrush}" />
+            <Button x:Name="ExitButton"
+                    Content="{Binding ExitText}"
+                    Click="ExitButton_Click"
+                    Style="{StaticResource MenuItemStyle}" />
+        </StackPanel>
+    </Border>
+</UserControl>
