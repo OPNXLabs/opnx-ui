@@ -35,6 +35,7 @@
                       Margin="0,0,9,0"
                       Width="24"
                       Height="24"
+                      Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:OpnxDatePicker}}, Path=CalendarButtonVisibility}"
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center">
                     <Grid HorizontalAlignment="Center"

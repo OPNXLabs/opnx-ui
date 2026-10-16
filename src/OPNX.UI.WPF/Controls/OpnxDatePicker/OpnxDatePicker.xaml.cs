@@ -58,6 +58,12 @@ namespace OPNX.UI.WPF.Controls
             typeof(OpnxDatePicker),
             new PropertyMetadata(null));
 
+        public static readonly DependencyProperty CalendarButtonVisibilityProperty = DependencyProperty.Register(
+            nameof(CalendarButtonVisibility),
+            typeof(Visibility),
+            typeof(OpnxDatePicker),
+            new PropertyMetadata(Visibility.Visible));
+
         public static readonly DependencyProperty DisplayTextProperty = DependencyProperty.Register(
             nameof(DisplayText),
             typeof(string),
@@ -116,6 +122,12 @@ namespace OPNX.UI.WPF.Controls
         {
             get => (DataTemplate?)GetValue(CalendarButtonContentTemplateProperty);
             set => SetValue(CalendarButtonContentTemplateProperty, value);
+        }
+
+        public Visibility CalendarButtonVisibility
+        {
+            get => (Visibility)GetValue(CalendarButtonVisibilityProperty);
+            set => SetValue(CalendarButtonVisibilityProperty, value);
         }
 
         public string DisplayText
