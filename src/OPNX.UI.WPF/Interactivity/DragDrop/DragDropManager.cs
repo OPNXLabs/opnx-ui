@@ -28,9 +28,9 @@ namespace OPNX.UI.WPF.Interactivity.DragDrop
         private static Point _offsetPoint;
         private static DropPreviewAdorner? _overlayElt;
 
-        private static IDragSourceAdvisor? _currentDragSourceAdvisor { get; set; }
+        private static IDragSourceAdvisor? _currentDragSourceAdvisor;
 
-        private static IDropTargetAdvisor? _currentDropTargetAdvisor { get; set; }
+        private static IDropTargetAdvisor? _currentDropTargetAdvisor;
 
         public static void SetDragSourceAdvisor(DependencyObject depObj, IDragSourceAdvisor? advisor)
         {
