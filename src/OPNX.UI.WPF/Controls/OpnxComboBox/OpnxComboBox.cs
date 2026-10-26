@@ -16,7 +16,12 @@ namespace OPNX.UI.WPF.Controls
     public class OpnxComboBox : System.Windows.Controls.ComboBox
     {
         private const string EditableTextBoxPartName = "PART_EditableTextBox";
+        // WPF design-time compilation must also work without generated partial implementations.
+#pragma warning disable SYSLIB1045
         private static readonly Regex ConditionRegex = new(@"\[(?<path>.*?)\]\s*(?<operator>==|!=|<=|>=|<|>)\s*(?<value>.*)", RegexOptions.Compiled);
+        private static readonly Regex OrSeparatorRegex = new(@"\s+OR\s+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex AndSeparatorRegex = new(@"\s+AND\s+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+#pragma warning restore SYSLIB1045
 
         public static readonly DependencyProperty PlaceholderTextProperty = DependencyProperty.Register(
             nameof(PlaceholderText),
@@ -95,6 +100,26 @@ namespace OPNX.UI.WPF.Controls
             typeof(Brush),
             typeof(OpnxComboBox),
             new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x16, 0xAB, 0xBD))));
+
+        public static readonly DependencyProperty DropDownItemForegroundProperty = DependencyProperty.RegisterAttached(
+            nameof(DropDownItemForeground),
+            typeof(Brush),
+            typeof(OpnxComboBox),
+            new PropertyMetadata(null));
+
+        public static readonly DependencyProperty DropDownItemSelectedForegroundProperty = DependencyProperty.RegisterAttached(
+            nameof(DropDownItemSelectedForeground),
+            typeof(Brush),
+            typeof(OpnxComboBox),
+            new PropertyMetadata(Brushes.White));
+
+        public static PropertyPath DropDownItemForegroundPath => new(DropDownItemForegroundProperty);
+
+        public static PropertyPath DropDownItemSelectedForegroundPath => new(DropDownItemSelectedForegroundProperty);
+
+        public static PropertyPath DropDownItemMouseOverBackgroundPath => new(DropDownItemMouseOverBackgroundProperty);
+
+        public static PropertyPath DropDownItemSelectedBackgroundPath => new(DropDownItemSelectedBackgroundProperty);
 
         public static readonly DependencyProperty ClearSelectionOnDropDownClosedProperty = DependencyProperty.Register(
             nameof(ClearSelectionOnDropDownClosed),
@@ -235,6 +260,30 @@ namespace OPNX.UI.WPF.Controls
             set => SetValue(DropDownItemSelectedBackgroundProperty, value);
         }
 
+        public Brush DropDownItemForeground
+        {
+            get => (Brush)GetValue(DropDownItemForegroundProperty);
+            set => SetValue(DropDownItemForegroundProperty, value);
+        }
+
+        public Brush DropDownItemSelectedForeground
+        {
+            get => (Brush)GetValue(DropDownItemSelectedForegroundProperty);
+            set => SetValue(DropDownItemSelectedForegroundProperty, value);
+        }
+
+        public static Brush GetDropDownItemForeground(DependencyObject element) =>
+            (Brush)element.GetValue(DropDownItemForegroundProperty);
+
+        public static void SetDropDownItemForeground(DependencyObject element, Brush value) =>
+            element.SetValue(DropDownItemForegroundProperty, value);
+
+        public static Brush GetDropDownItemSelectedForeground(DependencyObject element) =>
+            (Brush)element.GetValue(DropDownItemSelectedForegroundProperty);
+
+        public static void SetDropDownItemSelectedForeground(DependencyObject element, Brush value) =>
+            element.SetValue(DropDownItemSelectedForegroundProperty, value);
+
         public static Brush GetDropDownItemMouseOverBackground(DependencyObject element) =>
             (Brush)element.GetValue(DropDownItemMouseOverBackgroundProperty);
 
@@ -364,6 +413,16 @@ namespace OPNX.UI.WPF.Controls
                 comboBoxItem,
                 DropDownItemSelectedBackgroundProperty,
                 new Binding(nameof(DropDownItemSelectedBackground)) { Source = this });
+
+            BindingOperations.SetBinding(
+                comboBoxItem,
+                DropDownItemForegroundProperty,
+                new Binding(nameof(DropDownItemForeground)) { Source = this });
+
+            BindingOperations.SetBinding(
+                comboBoxItem,
+                DropDownItemSelectedForegroundProperty,
+                new Binding(nameof(DropDownItemSelectedForeground)) { Source = this });
         }
 
         protected override void OnSelectionChanged(SelectionChangedEventArgs e)
@@ -524,10 +583,10 @@ namespace OPNX.UI.WPF.Controls
                 return false;
             }
 
-            string[] orGroups = Regex.Split(filterString, @"\s+OR\s+", RegexOptions.IgnoreCase);
+            string[] orGroups = OrSeparatorRegex.Split(filterString);
             foreach (string orGroup in orGroups)
             {
-                string[] andConditions = Regex.Split(orGroup, @"\s+AND\s+", RegexOptions.IgnoreCase);
+                string[] andConditions = AndSeparatorRegex.Split(orGroup);
                 bool allMatched = true;
 
                 foreach (string condition in andConditions)

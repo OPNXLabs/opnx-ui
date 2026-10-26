@@ -49,6 +49,7 @@
     <Style x:Key="DefaultOpnxComboBoxItemStyle"
            TargetType="{x:Type ComboBoxItem}">
         <Setter Property="MinHeight" Value="30" />
+        <Setter Property="Foreground" Value="{Binding Path={x:Static local:OpnxComboBox.DropDownItemForegroundPath}, RelativeSource={RelativeSource Self}}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -67,12 +68,12 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="ContentBorder"
                                     Property="Background"
-                                    Value="{Binding (local:OpnxComboBox.DropDownItemMouseOverBackground), RelativeSource={RelativeSource TemplatedParent}}" />
+                                    Value="{Binding Path={x:Static local:OpnxComboBox.DropDownItemMouseOverBackgroundPath}, RelativeSource={RelativeSource TemplatedParent}}" />
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="ContentBorder"
                                     Property="Background"
-                                    Value="{Binding (local:OpnxComboBox.DropDownItemSelectedBackground), RelativeSource={RelativeSource TemplatedParent}}" />
+                                    Value="{Binding Path={x:Static local:OpnxComboBox.DropDownItemSelectedBackgroundPath}, RelativeSource={RelativeSource TemplatedParent}}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="TextElement.Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
@@ -81,6 +82,12 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Foreground"
+                        Value="{Binding Path={x:Static local:OpnxComboBox.DropDownItemSelectedForegroundPath}, RelativeSource={RelativeSource Self}}" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <Style x:Key="DefaultOpnxComboBoxStyle"
@@ -97,6 +104,8 @@
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultOpnxComboBoxItemStyle}" />
+        <Setter Property="DropDownItemSelectedBackground" Value="{DynamicResource Common.Brush.Accent}" />
+        <Setter Property="DropDownItemForeground" Value="{Binding Foreground, RelativeSource={RelativeSource Self}}" />
         <Setter Property="DropDownButtonStyle" Value="{StaticResource DefaultOpnxComboBoxDropDownButtonStyle}" />
         <Setter Property="Template">
             <Setter.Value>
