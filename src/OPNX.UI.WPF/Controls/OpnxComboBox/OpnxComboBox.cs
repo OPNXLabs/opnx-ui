@@ -101,17 +101,9 @@ namespace OPNX.UI.WPF.Controls
             typeof(OpnxComboBox),
             new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x16, 0xAB, 0xBD))));
 
-        public static readonly DependencyProperty DropDownItemForegroundProperty = DependencyProperty.RegisterAttached(
-            nameof(DropDownItemForeground),
-            typeof(Brush),
-            typeof(OpnxComboBox),
-            new PropertyMetadata(null));
+        public static readonly DependencyProperty DropDownItemForegroundProperty = DependencyProperty.RegisterAttached(nameof(DropDownItemForeground), typeof(Brush), typeof(OpnxComboBox), new PropertyMetadata(null));
 
-        public static readonly DependencyProperty DropDownItemSelectedForegroundProperty = DependencyProperty.RegisterAttached(
-            nameof(DropDownItemSelectedForeground),
-            typeof(Brush),
-            typeof(OpnxComboBox),
-            new PropertyMetadata(Brushes.White));
+        public static readonly DependencyProperty DropDownItemSelectedForegroundProperty = DependencyProperty.RegisterAttached(nameof(DropDownItemSelectedForeground), typeof(Brush), typeof(OpnxComboBox), new PropertyMetadata(Brushes.White));
 
         public static PropertyPath DropDownItemForegroundPath => new(DropDownItemForegroundProperty);
 
@@ -272,17 +264,13 @@ namespace OPNX.UI.WPF.Controls
             set => SetValue(DropDownItemSelectedForegroundProperty, value);
         }
 
-        public static Brush GetDropDownItemForeground(DependencyObject element) =>
-            (Brush)element.GetValue(DropDownItemForegroundProperty);
+        public static Brush GetDropDownItemForeground(DependencyObject element) => (Brush)element.GetValue(DropDownItemForegroundProperty);
 
-        public static void SetDropDownItemForeground(DependencyObject element, Brush value) =>
-            element.SetValue(DropDownItemForegroundProperty, value);
+        public static void SetDropDownItemForeground(DependencyObject element, Brush value) => element.SetValue(DropDownItemForegroundProperty, value);
 
-        public static Brush GetDropDownItemSelectedForeground(DependencyObject element) =>
-            (Brush)element.GetValue(DropDownItemSelectedForegroundProperty);
+        public static Brush GetDropDownItemSelectedForeground(DependencyObject element) => (Brush)element.GetValue(DropDownItemSelectedForegroundProperty);
 
-        public static void SetDropDownItemSelectedForeground(DependencyObject element, Brush value) =>
-            element.SetValue(DropDownItemSelectedForegroundProperty, value);
+        public static void SetDropDownItemSelectedForeground(DependencyObject element, Brush value) => element.SetValue(DropDownItemSelectedForegroundProperty, value);
 
         public static Brush GetDropDownItemMouseOverBackground(DependencyObject element) =>
             (Brush)element.GetValue(DropDownItemMouseOverBackgroundProperty);
@@ -414,15 +402,9 @@ namespace OPNX.UI.WPF.Controls
                 DropDownItemSelectedBackgroundProperty,
                 new Binding(nameof(DropDownItemSelectedBackground)) { Source = this });
 
-            BindingOperations.SetBinding(
-                comboBoxItem,
-                DropDownItemForegroundProperty,
-                new Binding(nameof(DropDownItemForeground)) { Source = this });
+            BindingOperations.SetBinding(comboBoxItem, DropDownItemForegroundProperty, new Binding(nameof(DropDownItemForeground)) { Source = this });
 
-            BindingOperations.SetBinding(
-                comboBoxItem,
-                DropDownItemSelectedForegroundProperty,
-                new Binding(nameof(DropDownItemSelectedForeground)) { Source = this });
+            BindingOperations.SetBinding(comboBoxItem, DropDownItemSelectedForegroundProperty, new Binding(nameof(DropDownItemSelectedForeground)) { Source = this });
         }
 
         protected override void OnSelectionChanged(SelectionChangedEventArgs e)
