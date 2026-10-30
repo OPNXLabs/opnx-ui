@@ -27,6 +27,7 @@ dotnet add package OPNX.UI.WPF --prerelease
 Use [`OPNX.Samples.RtspMultiLiveViewer`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.RtspMultiLiveViewer) to evaluate live video and MultiView composition, or [`OPNX.Samples.PlaybackTimeline`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.PlaybackTimeline) to explore recorded ranges, events, selection, navigation, and styling.
 
 > **License:** OPNX.UI is source-available, not open-source. Learning, research, testing, and non-commercial evaluation are permitted under [LICENSE.txt](LICENSE.txt). Commercial use, production use, redistribution, and OEM integration require prior written permission from OPNX.
+> Internal non-production evaluation, proof of concept, and technical review by commercial organizations are also permitted. See the evaluation guidance below and the English license for scope.
 
 OPNX.UI is the reusable .NET UI foundation for OPNX video clients. The current implementation is `OPNX.UI.WPF`, a Windows WPF control library for VMS, NVR, monitoring, playback, and review applications.
 
@@ -125,10 +126,12 @@ OPNX.UI.WPF is more than a collection of video surfaces. It provides a themed co
 | Video presentation | `OpnxImage`, `OpnxImageViewer`, `OpnxMultiView`, `OpnxPlaybackTimeline` |
 | Data presentation | `OpnxTreeListView`, `OpnxPagingControl` |
 | Text and value input | `OpnxTextBox`, `OpnxPasswordBox`, `OpnxNumericBox`, `OpnxIpTextBox` |
-| Dates and selection | `OpnxComboBox`, `OpnxCheckBox`, `OpnxDatePicker`, `OpnxDateRangeSelector`, `OpnxStepSelector` |
+| Dates, time, and selection | `OpnxComboBox`, `OpnxCheckBox`, `OpnxRadioButton`, `OpnxDatePicker`, `OpnxTimePicker`, `OpnxDateRangeSelector`, `OpnxStepSelector` |
 | Commands | `OpnxButton`, `OpnxToggleButton`, `OpnxArcButton`, `OpnxRoundRectButton` |
 | Application structure | `OpnxNavigator`, `OpnxTabControl`, `OpnxTabItem`, `OpnxTitlebar` |
 | Progress and status | `OpnxRadialProgressBar` |
+| Notifications and tray | `OpnxNotification`, `OpnxNotificationService`, `OpnxNotifyIcon` |
+| Taskbar | `Infrastructure.WindowTaskbar` |
 | Shared foundations | `Controls.Primitives`, drag-and-drop, and selection building blocks |
 
 `OpnxTreeListView` supports parent/child tree presentation and a flat-list mode. With `RowSizingMode="FitViewport"` and `FitRowCount`, it can calculate row height so a fixed page size fills the current viewport, reducing excessive empty space on large displays and avoidable scrolling on smaller layouts.
@@ -149,6 +152,18 @@ OPNX.UI.WPF is more than a collection of video surfaces. It provides a themed co
 `OpnxPagingControl` preserves the external view model for `SelectedPageNumber` and `MaxPageNumber` while managing page items and Next/Previous state. Normal, selected, and disabled pages plus movement-button backgrounds, foregrounds, and mouse-over/pressed opacity can be themed independently.
 
 `OpnxComboBox` separates the main control and dropdown-panel backgrounds, borders, and interaction colors, making it suitable for dense checkable-filter interfaces. In addition to `PlaceholderTextMargin`, `TextMargin` controls the inset of ordinary selected text. `OpnxRadialProgressBar` provides determinate and indeterminate progress without application-specific behavior and can be used in splash screens, wait overlays, and long-running task indicators.
+
+`OpnxNavigatorItem` supports unread/status badges through `IsBadgeVisible`, `BadgeBrush`, `BadgeSize`, alignment, and margin options.
+
+### Notifications, Tray, And Time Input
+
+`OpnxNotificationService` manages desktop popups containing WPF content. Options include visible-item limits, duration, screen/position, spacing, and pause on mouse-over. These are WPF notification windows, separate from Windows system toast notifications.
+
+`OpnxNotifyIcon` provides a tray icon, Open/Exit menus, and window hide/restore behavior. `OpnxNotifyIconOptions` controls menu visibility and themes; dispose the icon when finished. `Infrastructure.WindowTaskbar` sets a window's application ID and flashes its taskbar entry.
+
+`OpnxTimePicker` exposes a `TimeSpan`-based `SelectedTime` with `Minimum`/`Maximum` bounds. `OpnxDatePicker` controls date presentation through `DisplayFormat` and `CalendarButtonVisibility`. `OpnxRadioButton` joins the themed selection controls.
+
+ComboBox separates main-control and dropdown-selection backgrounds; `DropDownItemForeground` and `DropDownItemSelectedForeground` configure normal/selected item text. Current source uses FFmpeg bindings `9.0.1.1`; native libraries must match the ABI and process architecture.
 
 ## Design Direction
 
@@ -175,6 +190,10 @@ Requirements: .NET 10 SDK and a Windows development environment with WPF support
 - `OPNX.UI.slnx` uses the configured published OPNX.Lib package.
 - `OPNX.UI.Dev.slnx` uses sibling local OPNX.Lib source projects for cross-repository development.
 
+## Source And Published Package Scope
+
+Capabilities in this README describe current repository source. Previously published preview NuGet packages may contain earlier APIs and dependencies; check the selected version and its dependency graph. Public Samples pin `0.1.0-preview.20260716.1` for reproducible execution and do not demonstrate every capability in current source.
+
 ## Samples And Documentation
 
 Runnable examples are maintained in [OPNX Samples](https://github.com/OPNXLabs/opnx-samples).
@@ -183,6 +202,14 @@ Runnable examples are maintained in [OPNX Samples](https://github.com/OPNXLabs/o
 - `OPNX.Samples.RtspMultiLiveViewer` — multi-view video, navigation, tree/list controls, and title-bar integration
 - `OPNX.Samples.EntityStore` — OPNX.Lib EntityStore integration
 - `OPNX.Samples.TcpChat` — OPNX.Lib networking integration
+
+## Evaluation And Code Reuse
+
+- Personal learning, research, testing, and non-commercial evaluation are permitted.
+- Internal non-production evaluation, proof of concept, and technical review by a commercial organization are also permitted under the license without separate written permission.
+- Production use, customer-facing services, commercial/OEM integration, and redistribution require prior written permission.
+- Permission to modify evaluation code does not grant permission to include it in a commercial product or redistribute modified copies.
+- OPNX-owned code and dependencies have separate licenses. The repository's English license controls the final terms.
 
 ## License And Support
 

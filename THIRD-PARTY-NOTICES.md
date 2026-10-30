@@ -19,7 +19,7 @@ Users who redistribute, package, or deploy software based on OPNX.UI.WPF are res
 ## OPNX.Lib
 
 - Component: `OPNX.Lib`
-- Version: `0.1.0-preview.20260716.1`
+- Package-mode version: `0.1.0-preview.20260716.1`; Dev solutions use sibling source projects
 - Project: [https://github.com/OPNXLabs/opnx-lib](https://github.com/OPNXLabs/opnx-lib)
 - License: OPNX source-available license for learning, evaluation, research, testing, and non-commercial use
 - Usage: common platform, networking, media, data, and streaming infrastructure used by `OPNX.UI.WPF`
@@ -38,7 +38,7 @@ The following packages are directly referenced by `OPNX.UI.WPF`.
 ## FFmpeg.AutoGen
 
 - Component: `FFmpeg.AutoGen`
-- Version: `8.1.0`
+- Version: `9.0.1.1`
 - Project: [https://www.nuget.org/packages/FFmpeg.AutoGen](https://www.nuget.org/packages/FFmpeg.AutoGen)
 - Upstream source: [https://github.com/Ruslan-B/FFmpeg.AutoGen](https://github.com/Ruslan-B/FFmpeg.AutoGen)
 - License: `MIT`
@@ -47,7 +47,7 @@ The following packages are directly referenced by `OPNX.UI.WPF`.
 
 The full MIT license text is provided in:
 
-- [third_party_licenses/MIT.txt](third_party_licenses/MIT.txt)
+- [third_party_licenses/FFmpeg.AutoGen-MIT.txt](third_party_licenses/FFmpeg.AutoGen-MIT.txt)
 
 ## SharpDX
 
@@ -64,7 +64,7 @@ The full MIT license text is provided in:
 
 The full MIT license text is provided in:
 
-- [third_party_licenses/MIT.txt](third_party_licenses/MIT.txt)
+- [third_party_licenses/SharpDX-MIT.txt](third_party_licenses/SharpDX-MIT.txt)
 
 ## Native Runtime Components
 
@@ -83,18 +83,25 @@ Important notes:
 - If you bundle, redistribute, or otherwise provide FFmpeg native binaries with your product or service, you are responsible for complying with the applicable FFmpeg license terms for the specific build you use.
 - FFmpeg is generally available under `LGPL-2.1-or-later`, but some builds or enabled components may cause `GPL` terms to apply.
 
+## Current Lib Source Runtime Requirements
+
+The current sibling Lib source uses Kestrel and the `Microsoft.AspNetCore.App` shared framework for WebRTC signaling. Framework-dependent applications using that SDK require the ASP.NET Core 10 runtime, or can be published self-contained. This is separate from the older pinned package's requirements.
+
+DataChannelDotnet's managed wrapper declares MIT; native libdatachannel and OpenSSL retain their own MPL-2.0 and Apache-2.0 terms. Review the Lib native-component notices and the actual runtime assets being shipped.
+
 ## Additional OPNX.Lib Third-Party Notices
 
 Because `OPNX.UI.WPF` is designed to work with `OPNX.Lib`, users should also review the third-party notices provided by the OPNX.Lib version they use.
 
-Those notices may include, among others:
+The list below describes current sibling Lib source. The pinned older Lib package can have a different graph, including legacy components such as SIPSorcery; use the notices shipped with that exact package rather than applying the current source list retroactively.
+
+Current source notices include, among others:
 
 - ZstdSharp.Port
 - Npgsql
 - MySqlConnector
 - OpenCvSharp4
 - SkiaSharp
-- SIPSorcery
 - DataChannelDotnet
 - SharpRTSP-derived source portions
 - FFmpeg native library reference materials

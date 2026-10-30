@@ -27,6 +27,7 @@ dotnet add package OPNX.UI.WPF --prerelease
 라이브 영상과 MultiView 구성을 평가하려면 [`OPNX.Samples.RtspMultiLiveViewer`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.RtspMultiLiveViewer)를, 녹화 구간·이벤트·선택·탐색·스타일을 확인하려면 [`OPNX.Samples.PlaybackTimeline`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.PlaybackTimeline)을 실행하세요.
 
 > **라이선스:** OPNX.UI는 오픈 소스가 아닌 source-available 소프트웨어입니다. [LICENSE.txt](LICENSE.txt)에 따라 학습, 연구, 테스트 및 비상업적 평가에 사용할 수 있습니다. 상업적 사용, 운영 환경 사용, 재배포 및 OEM 통합에는 OPNX의 사전 서면 허가가 필요합니다.
+> 기업 내부의 비운영 평가·PoC·기술 검토도 허용됩니다. 상세 범위는 아래 평가 안내와 영문 라이선스를 확인하세요.
 
 OPNX.UI는 OPNX 영상 클라이언트를 위한 재사용 가능한 .NET UI 기반입니다. 현재 구현체는 VMS, NVR, 모니터링, 재생 및 리뷰 애플리케이션을 위한 Windows WPF 컨트롤 라이브러리인 `OPNX.UI.WPF`입니다.
 
@@ -125,10 +126,12 @@ OPNX.UI.WPF는 영상 Surface만 제공하는 Library가 아닙니다. 로그인
 | 영상 표시 | `OpnxImage`, `OpnxImageViewer`, `OpnxMultiView`, `OpnxPlaybackTimeline` |
 | 데이터 표시 | `OpnxTreeListView`, `OpnxPagingControl` |
 | 텍스트·값 입력 | `OpnxTextBox`, `OpnxPasswordBox`, `OpnxNumericBox`, `OpnxIpTextBox` |
-| 날짜·선택 | `OpnxComboBox`, `OpnxCheckBox`, `OpnxDatePicker`, `OpnxDateRangeSelector`, `OpnxStepSelector` |
+| 날짜·시간·선택 | `OpnxComboBox`, `OpnxCheckBox`, `OpnxRadioButton`, `OpnxDatePicker`, `OpnxTimePicker`, `OpnxDateRangeSelector`, `OpnxStepSelector` |
 | 명령 | `OpnxButton`, `OpnxToggleButton`, `OpnxArcButton`, `OpnxRoundRectButton` |
 | 화면 구성 | `OpnxNavigator`, `OpnxTabControl`, `OpnxTabItem`, `OpnxTitlebar` |
 | 상태 표시 | `OpnxRadialProgressBar` |
+| 알림·트레이 | `OpnxNotification`, `OpnxNotificationService`, `OpnxNotifyIcon` |
+| 작업표시줄 | `Infrastructure.WindowTaskbar` |
 | 공통 기반 | `Controls.Primitives`, Drag-and-drop 및 Selection Building Block |
 
 `OpnxTreeListView`는 부모·자식 관계를 표현하는 Tree 모드와 일반 목록을 위한 Flat 모드를 제공하며, `RowSizingMode="FitViewport"`와 `FitRowCount`를 사용하면 고정된 페이지 항목 수가 현재 Viewport를 채우도록 Row 높이를 계산할 수 있습니다. 해상도가 커질 때 생기는 과도한 공백과 작은 화면에서 불필요하게 나타나는 Scroll을 줄이는 데 사용할 수 있습니다.
@@ -149,6 +152,18 @@ OPNX.UI.WPF는 영상 Surface만 제공하는 Library가 아닙니다. 로그인
 `OpnxPagingControl`은 외부 ViewModel의 `SelectedPageNumber`와 `MaxPageNumber`를 유지하면서 페이지 번호와 Next·Prev 상태를 관리합니다. 일반·선택·비활성 페이지와 이동 버튼의 Background, Foreground 및 MouseOver·Pressed Opacity를 각각 Theme으로 지정할 수 있습니다.
 
 `OpnxComboBox`는 본문과 DropDown Panel의 Background·Border 및 상태 색상을 독립적으로 설정할 수 있어 Checkable Filter 같은 밀도 높은 검색 UI에 적용할 수 있습니다. `PlaceholderTextMargin`과 별도로 `TextMargin`을 제공하므로 선택된 일반 Text의 내부 여백도 조정할 수 있습니다. `OpnxRadialProgressBar`는 별도 애플리케이션 로직 없이 Determinate와 Indeterminate 진행 상태를 표현하며 Splash, Wait Overlay 및 장시간 작업 표시에 사용할 수 있습니다.
+
+`OpnxNavigatorItem`은 `IsBadgeVisible`, `BadgeBrush`, `BadgeSize`, 정렬과 Margin으로 미읽음·상태 Badge를 표시할 수 있습니다.
+
+### 알림, 트레이와 시간 입력
+
+`OpnxNotificationService`는 WPF Content를 표시하는 데스크톱 팝업을 관리합니다. 최대 표시 개수, 표시 시간, 화면·위치, 간격과 MouseOver 시 일시 정지를 설정할 수 있습니다. Windows 시스템 Toast와는 별도의 WPF 알림 창입니다.
+
+`OpnxNotifyIcon`은 트레이 아이콘, 열기·종료 메뉴와 창 숨김·복원을 제공합니다. `OpnxNotifyIconOptions`로 메뉴 표시와 Theme을 조정하며 사용 종료 시 Dispose합니다. `Infrastructure.WindowTaskbar`는 창의 Application ID 지정과 작업표시줄 Flash를 제공합니다.
+
+`OpnxTimePicker`는 `TimeSpan` 기반 `SelectedTime`과 `Minimum`·`Maximum` 범위를 제공합니다. `OpnxDatePicker`는 `DisplayFormat`, `CalendarButtonVisibility`로 날짜 표시를 구성합니다. `OpnxRadioButton`도 공통 Theme을 사용하는 선택 컨트롤에 포함됩니다.
+
+ComboBox는 본문과 DropDown 선택 Background를 독립적으로 제어하고 `DropDownItemForeground`, `DropDownItemSelectedForeground`로 항목의 일반·선택 문자색을 지정할 수 있습니다. 현재 소스의 FFmpeg 바인딩은 `9.0.1.1`이며 실행 시 네이티브 라이브러리의 ABI와 아키텍처를 맞춰야 합니다.
 
 ## 설계 방향
 
@@ -175,6 +190,10 @@ dotnet pack .\src\OPNX.UI.WPF\OPNX.UI.WPF.csproj -c Release -p:Platform=x64
 - `OPNX.UI.slnx`는 설정된 OPNX.Lib NuGet 패키지를 사용합니다.
 - `OPNX.UI.Dev.slnx`는 여러 저장소를 함께 개발할 때 형제 OPNX.Lib 소스 프로젝트를 사용합니다.
 
+## 소스와 배포 패키지의 기능 범위
+
+이 README의 기능 설명은 현재 저장소 소스를 기준으로 합니다. 이미 게시된 Preview NuGet 패키지는 이전 API와 의존성을 포함할 수 있습니다. 패키지 설치 시 선택한 버전의 릴리스와 의존성을 확인하세요. 공개 Samples는 재현 가능한 실행을 위해 `0.1.0-preview.20260716.1`에 고정되어 있으며, 최신 소스 기능 전체를 보여주는 샘플 모음은 아닙니다.
+
 ## 샘플 및 문서
 
 실행 가능한 예제는 [OPNX Samples](https://github.com/OPNXLabs/opnx-samples)에서 관리합니다.
@@ -183,6 +202,14 @@ dotnet pack .\src\OPNX.UI.WPF\OPNX.UI.WPF.csproj -c Release -p:Platform=x64
 - `OPNX.Samples.RtspMultiLiveViewer` — MultiView 영상, Navigation, Tree/List 및 Titlebar 통합
 - `OPNX.Samples.EntityStore` — OPNX.Lib EntityStore 통합
 - `OPNX.Samples.TcpChat` — OPNX.Lib Network 통합
+
+## 평가와 코드 활용 범위
+
+- 개인 학습, 연구, 테스트와 비상업적 평가에 사용할 수 있습니다.
+- 기업 내부의 비운영 평가, PoC와 기술 검토도 라이선스에 따라 별도 서면 허가 없이 가능합니다.
+- 실제 운영, 고객 대상 서비스, 상용 제품·OEM 통합과 재배포에는 사전 서면 허가가 필요합니다.
+- 평가용 코드 수정 권한이 상용 제품에 코드를 포함하거나 수정본을 재배포할 권한까지 부여하지는 않습니다.
+- OPNX 소유 코드와 의존성의 라이선스는 각각 적용됩니다. 최종 조건은 저장소의 영문 라이선스를 확인하세요.
 
 ## 라이선스 및 지원
 
