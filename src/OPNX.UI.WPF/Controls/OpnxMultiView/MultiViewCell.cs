@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Input;
 using System.Windows.Media;
 
 namespace OPNX.UI.WPF.Controls
@@ -205,7 +204,7 @@ namespace OPNX.UI.WPF.Controls
 
         internal void UpdateElementSizeBinding()
         {
-            this.OnViewAreaUpdated(new EventArgs());
+            this.OnViewAreaUpdated(EventArgs.Empty);
         }
 
         internal static void UnbindElementSize(UIElement element)
@@ -238,8 +237,7 @@ namespace OPNX.UI.WPF.Controls
 
         internal void Add(UIElement element)
         {
-            AddElement(element);
-
+            this._grid?.Children.Add(element);
             this.UpdateElementSizeBinding();
 
             this.OnItemAdded(new CellElementChangedEventArgs(element));
@@ -247,12 +245,11 @@ namespace OPNX.UI.WPF.Controls
 
         internal void AddElement(UIElement element)
         {
-            this.UpdateElementSizeBinding();
-
             this._grid?.Children.Add(element);
+            this.UpdateElementSizeBinding();
         }
 
-        internal void Clear()
+        internal void Clear(bool disposeElements = true)
         {
             if (_grid == null) return;
 
@@ -260,7 +257,7 @@ namespace OPNX.UI.WPF.Controls
 
             for (int i = count - 1; i >= 0; i--)
             {
-                Remove(_grid.Children[i]);
+                Remove(_grid.Children[i], disposeElement: disposeElements);
             }
         }
 
@@ -273,7 +270,23 @@ namespace OPNX.UI.WPF.Controls
 
         internal List<UIElement> GetAllElements()
         {
-            return this._grid?.Children.Cast<UIElement>().ToList() ?? [];
+            var result = new List<UIElement>(_grid?.Children.Count ?? 0);
+            AppendElementsTo(result);
+            return result;
+        }
+
+        internal void AppendElementsTo(List<UIElement> elements)
+        {
+            if (_grid == null)
+                return;
+
+            foreach (UIElement element in _grid.Children)
+                elements.Add(element);
+        }
+
+        internal bool ContainsElement(UIElement element)
+        {
+            return _grid?.Children.Contains(element) == true;
         }
 
         internal UIElement? GetElement(int index)
@@ -290,13 +303,18 @@ namespace OPNX.UI.WPF.Controls
         {
             if (this._grid == null) return null;
 
-            return this._grid.Children.Cast<UIElement>().FirstOrDefault(x => x.Visibility == Visibility.Visible);
+            foreach (UIElement element in _grid.Children)
+            {
+                if (element.Visibility == Visibility.Visible)
+                    return element;
+            }
+            return null;
         }
-        internal void Remove(UIElement element, bool aEventOccurrence = true)
+        internal void Remove(UIElement element, bool aEventOccurrence = true, bool disposeElement = true)
         {
-            if (element == null) return;
+            if (element == null || !ContainsElement(element)) return;
 
-            if (element is IDisposable disposable)
+            if (disposeElement && element is IDisposable disposable)
             {
                 disposable.Dispose();
             }
@@ -306,7 +324,7 @@ namespace OPNX.UI.WPF.Controls
             if (!aEventOccurrence) return;
 
             this.OnItemRemoved(new CellElementChangedEventArgs(element));
-            this.OnViewAreaUpdated(new EventArgs());
+            this.OnViewAreaUpdated(EventArgs.Empty);
         }
 
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
@@ -324,21 +342,6 @@ namespace OPNX.UI.WPF.Controls
             {
                 OnViewAreaUpdated(EventArgs.Empty);
             }
-        }
-
-        protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
-        {
-            base.OnPreviewMouseDown(e);
-        }
-
-        protected override void OnPreviewMouseMove(MouseEventArgs e)
-        {
-            base.OnPreviewMouseMove(e);
-        }
-
-        protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
-        {
-            base.OnPreviewMouseUp(e);
         }
 
         public void Dispose()

@@ -8,7 +8,7 @@ using System.Windows.Threading;
 
 namespace OPNX.UI.WPF.Controls
 {
-    internal class MultiViewPanel : Canvas
+    internal partial class MultiViewPanel : Canvas
     {
         #region Constants and Fields
 
@@ -140,10 +140,13 @@ namespace OPNX.UI.WPF.Controls
         #region Methods
         private static void OnZoomCanvasChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is MultiViewPanel grid && e.NewValue is Canvas canvas)
-            {
+            if (d is not MultiViewPanel grid)
+                return;
+
+            if (e.OldValue is Canvas oldCanvas)
+                oldCanvas.MouseLeftButtonDown -= grid.Canvas_MouseLeftButtonDown;
+            if (e.NewValue is Canvas canvas)
                 canvas.MouseLeftButtonDown += grid.Canvas_MouseLeftButtonDown;
-            }
         }
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -212,17 +215,8 @@ namespace OPNX.UI.WPF.Controls
         internal void AddCell(MultiViewCell cell, Rect rect, bool isBack = false)
         {
             SetLocation(cell, rect);
-
             cell.Background = Brushes.Transparent;
-
-            cell.PreviewMouseDown += this.Cell_PreviewMouseDown;
-
-            cell.MouseEnter += this.Cell_MouseEnter;
-            cell.SelectedCell += this.Cell_SelectedCell;
-
-            cell.PreviewTouchDown += this.Cell_PreviewTouchDown;
-            cell.TouchEnter += this.Cell_TouchEnter;
-            cell.TouchDown += this.Cell_TouchDown;
+            AttachCellEvents(cell);
 
             if (isBack)
             {
@@ -297,7 +291,13 @@ namespace OPNX.UI.WPF.Controls
 
         internal List<MultiViewCell> GetAllCells()
         {
-            return [.. Children.OfType<MultiViewCell>()];
+            var cells = new List<MultiViewCell>(Children.Count);
+            foreach (UIElement child in Children)
+            {
+                if (child is MultiViewCell cell)
+                    cells.Add(cell);
+            }
+            return cells;
         }
 
         internal List<MultiViewCell> GetSelectedCells()
@@ -312,7 +312,11 @@ namespace OPNX.UI.WPF.Controls
                 return (-1, -1);
             }
 
-            List<MultiViewCell> cells = this.GetCells(this._selectionArea);
+            return GetSelectionGridCount(GetCells(_selectionArea));
+        }
+
+        internal static (int _rowCount, int _columnCount) GetSelectionGridCount(IList<MultiViewCell> cells)
+        {
             int cellCount = cells.Count;
 
             if (cellCount == 0)
@@ -475,7 +479,7 @@ namespace OPNX.UI.WPF.Controls
         {
             if (this._selectionArea.IsEmpty || this._selectionArea.Width <= 0 || this._selectionArea.Height <= 0)
             {
-                return [.. this.Children.OfType<MultiViewCell>()];
+                return GetAllCells();
             }
 
             var result = new List<MultiViewCell>(this.Children.Count);
@@ -608,6 +612,10 @@ namespace OPNX.UI.WPF.Controls
 
         protected override Size MeasureOverride(Size availableSize)
         {
+            const double edgeTolerance = 0.000001;
+            bool showOuterBorder = MultiView?.ShowOuterBorder ?? true;
+            double borderThickness = MultiView?.CellBorderThickness ?? 1d;
+
             foreach (UIElement child in this.InternalChildren)
             {
                 Size childDesiredSize;
@@ -617,9 +625,6 @@ namespace OPNX.UI.WPF.Controls
                     Rect loc = GetLocation(cell);
 
                     // Locations use the normalized layout extent, including merged cells.
-                    const double edgeTolerance = 0.000001;
-                    bool showOuterBorder = MultiView?.ShowOuterBorder ?? true;
-                    double borderThickness = MultiView?.CellBorderThickness ?? 1d;
                     // Each internal boundary is owned by the tile to its right/bottom.
                     // Unlike half-width borders, this avoids rounding two fractional strokes.
                     cell.UpdateBorderThickness(new Thickness(
@@ -905,6 +910,9 @@ namespace OPNX.UI.WPF.Controls
 
         private void Cell_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (e.Handled || _boundaryResize != null)
+                return;
+
             this.MouseDownCell = sender as MultiViewCell;
 
             e.Handled = false;
@@ -1007,29 +1015,24 @@ namespace OPNX.UI.WPF.Controls
 
             Rect tmpSelectionArea = Rect.Union(this._selectionArea, rect);
 
-            var containedCells = new HashSet<MultiViewCell>();
-            var intersectedCells = new HashSet<MultiViewCell>();
-
             foreach (MultiViewCell cell in this.Children)
             {
                 Rect cellRect = GetLocation(cell);
-
-                if (RegionHelper.IsRectContains(tmpSelectionArea, cellRect, 0))
-                    containedCells.Add(cell);
-
-                if (RegionHelper.IsRectIntersectWith(tmpSelectionArea, cellRect, 0))
-                    intersectedCells.Add(cell);
+                bool contained = RegionHelper.IsRectContains(tmpSelectionArea, cellRect, 0);
+                bool intersected = RegionHelper.IsRectIntersectWith(tmpSelectionArea, cellRect, 0);
+                if (contained != intersected)
+                    return false;
             }
 
-            // A valid rectangular selection must not partially intersect any cell.
-            return containedCells.SetEquals(intersectedCells);
+            return true;
         }
 
         private void ClearInternal()
         {
+            CompleteBoundaryResize(true);
             this._zoomedCell = null;
 
-            var removedList = this.Children.OfType<MultiViewCell>().ToList();
+            var removedList = GetAllCells();
 
             foreach (var cell in removedList)
                 cell.Clear();
@@ -1073,9 +1076,25 @@ namespace OPNX.UI.WPF.Controls
                 return [];
             }
 
-            return [..this.Children
-                .OfType<MultiViewCell>()
-                .Where(item => RegionHelper.IsRectContains(area, GetLocation(item), 0))];
+            var cells = new List<MultiViewCell>();
+            foreach (UIElement child in Children)
+            {
+                if (child is MultiViewCell cell && RegionHelper.IsRectContains(area, GetLocation(cell), 0))
+                    cells.Add(cell);
+            }
+            return cells;
+        }
+
+        private void AttachCellEvents(MultiViewCell cell)
+        {
+            cell.PreviewMouseDown += this.Cell_PreviewMouseDown;
+
+            cell.MouseEnter += this.Cell_MouseEnter;
+            cell.SelectedCell += Cell_SelectedCell;
+
+            cell.PreviewTouchDown += this.Cell_PreviewTouchDown;
+            cell.TouchDown += this.Cell_TouchDown;
+            cell.TouchEnter += this.Cell_TouchEnter;
         }
 
         private MultiViewCell MakeNewCell(double left, double top, double width, double height, bool isBack = false)
@@ -1085,14 +1104,7 @@ namespace OPNX.UI.WPF.Controls
                 Background = Brushes.Yellow
             };
 
-            cell.PreviewMouseDown += this.Cell_PreviewMouseDown;
-
-            cell.MouseEnter += this.Cell_MouseEnter;
-            cell.SelectedCell += Cell_SelectedCell;
-
-            cell.PreviewTouchDown += this.Cell_PreviewTouchDown;
-            cell.TouchDown += this.Cell_TouchDown;
-            cell.TouchEnter += this.Cell_TouchEnter;
+            AttachCellEvents(cell);
 
             if (isBack)
             {
@@ -1196,11 +1208,6 @@ namespace OPNX.UI.WPF.Controls
             cell.TouchDown -= Cell_TouchDown;
             cell.TouchEnter -= Cell_TouchEnter;
 
-            foreach (var control in cell.GetAllElements().OfType<OpnxControl>())
-            {
-                control.Dispose();
-            }
-
             cell.Dispose();
 
             Children.Remove(cell);
@@ -1221,17 +1228,41 @@ namespace OPNX.UI.WPF.Controls
 
         internal MultiViewCell? GetNextEmptyCell()
         {
-            return GetAllCells()
-            .FirstOrDefault(cell => cell.GetAllElements().Count <= 0);
+            foreach (UIElement child in Children)
+            {
+                if (child is MultiViewCell cell && cell.GetElementCount() == 0)
+                    return cell;
+            }
+            return null;
         }
 
         internal MultiViewCell? GetNextTopLeftEmptyCell()
         {
-            return GetAllCells()
-                .Where(cell => cell.GetAllElements().Count == 0)
-                .OrderBy(cell => GetLocation(cell).Y)
-                .ThenBy(cell => GetLocation(cell).X)
-                .FirstOrDefault();
+            MultiViewCell? result = null;
+            Rect first = Rect.Empty;
+            foreach (UIElement child in Children)
+            {
+                if (child is not MultiViewCell cell || cell.GetElementCount() != 0)
+                    continue;
+
+                Rect rect = GetLocation(cell);
+                if (result == null || rect.Top < first.Top || (rect.Top == first.Top && rect.Left < first.Left))
+                {
+                    result = cell;
+                    first = rect;
+                }
+            }
+            return result;
+        }
+
+        internal MultiViewCell? GetCell(Guid syncId)
+        {
+            foreach (UIElement child in Children)
+            {
+                if (child is MultiViewCell cell && cell.SyncId == syncId)
+                    return cell;
+            }
+            return null;
         }
 
         internal MultiViewCell? GetCell(int row, int col)
@@ -1278,8 +1309,12 @@ namespace OPNX.UI.WPF.Controls
 
         internal MultiViewCell? GetCell(UIElement uiElement)
         {
-            return GetAllCells()
-                 .FirstOrDefault(cell => cell.GetAllElements().Contains(uiElement));
+            foreach (UIElement child in Children)
+            {
+                if (child is MultiViewCell cell && cell.ContainsElement(uiElement))
+                    return cell;
+            }
+            return null;
         }
 
         #endregion

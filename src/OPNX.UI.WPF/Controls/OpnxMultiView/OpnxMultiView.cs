@@ -143,6 +143,31 @@ namespace OPNX.UI.WPF.Controls
         #endregion
 
         #region Properties
+        /// <summary>Gets or sets whether connected internal boundaries can be dragged.</summary>
+        public bool IsBoundaryResizeEnabled
+        {
+            get => (bool)GetValue(IsBoundaryResizeEnabledProperty);
+            set => SetValue(IsBoundaryResizeEnabledProperty, value);
+        }
+
+        public static readonly DependencyProperty IsBoundaryResizeEnabledProperty =
+            DependencyProperty.Register(
+                nameof(IsBoundaryResizeEnabled), typeof(bool), typeof(OpnxMultiView),
+                new FrameworkPropertyMetadata(true));
+
+        /// <summary>Gets or sets the minimum tile width and height during boundary resizing, in device-independent units.</summary>
+        public double MinimumCellSize
+        {
+            get => (double)GetValue(MinimumCellSizeProperty);
+            set => SetValue(MinimumCellSizeProperty, value);
+        }
+
+        public static readonly DependencyProperty MinimumCellSizeProperty =
+            DependencyProperty.Register(
+                nameof(MinimumCellSize), typeof(double), typeof(OpnxMultiView),
+                new FrameworkPropertyMetadata(48d),
+                value => value is double size && double.IsFinite(size) && size > 0d);
+
         public bool IsEnabledDragDrop { get; set; } = true;
         public bool IsCellSelected
         {
@@ -214,17 +239,9 @@ namespace OPNX.UI.WPF.Controls
                 return;
             }
 
-            foreach (var cell in panel.GetAllCells())
-            {
-                foreach (var element in cell.GetAllElements())
-                {
-                    if (ReferenceEquals(element, elementToFind))
-                    {
-                        panel.SelectCell(cell);
-                        return;
-                    }
-                }
-            }
+            var cell = panel.GetCell(elementToFind);
+            if (cell != null)
+                panel.SelectCell(cell);
         }
 
         public void Show(bool isShow)
@@ -294,7 +311,7 @@ namespace OPNX.UI.WPF.Controls
                 return;
             }
 
-            this._multiViewPanel.ZoomedCell = this._multiViewPanel.GetAllCells().FirstOrDefault(cell => cell.SyncId == cellSyncId);
+            this._multiViewPanel.ZoomedCell = this._multiViewPanel.GetCell(cellSyncId);
 
         }
 
@@ -340,7 +357,7 @@ namespace OPNX.UI.WPF.Controls
 
         public List<UIElement> GetCellElementsByGuid(Guid guid)
         {
-            return this._multiViewPanel?.GetAllCells().FirstOrDefault(cell => cell.SyncId == guid)?.GetAllElements() ?? [];
+            return this._multiViewPanel?.GetCell(guid)?.GetAllElements() ?? [];
         }
 
         public static List<UIElement> GetCellElements(MultiViewCell cell)
@@ -393,12 +410,23 @@ namespace OPNX.UI.WPF.Controls
 
         public List<UIElement> GetSelectionElements()
         {
-            return this._multiViewPanel?.GetSelectedCells().SelectMany(cell => cell.GetAllElements()).ToList() ?? [];
+            var result = new List<UIElement>();
+            if (_multiViewPanel != null)
+            {
+                foreach (var cell in _multiViewPanel.GetSelectedCells())
+                    cell.AppendElementsTo(result);
+            }
+            return result;
         }
 
         public List<UIElement> GetAllElements()
         {
-            var result = this._multiViewPanel?.GetAllCells().SelectMany(cell => cell.GetAllElements()).ToList() ?? [];
+            var result = new List<UIElement>();
+            if (_multiViewPanel != null)
+            {
+                foreach (var cell in _multiViewPanel.GetAllCells())
+                    cell.AppendElementsTo(result);
+            }
             var zoomElements = GetZoomedElements();
             if (zoomElements.Count > 0)
                 result.AddRange(zoomElements);
@@ -408,7 +436,14 @@ namespace OPNX.UI.WPF.Controls
 
         public List<UIElement> GetZoomedElements()
         {
-            return this._multiViewPanel?.ZoomCanvas?.Children.Cast<UIElement>().ToList() ?? [];
+            var children = _multiViewPanel?.ZoomCanvas?.Children;
+            var result = new List<UIElement>(children?.Count ?? 0);
+            if (children != null)
+            {
+                foreach (UIElement child in children)
+                    result.Add(child);
+            }
+            return result;
         }
 
         public void Init(int rowCount, int columnCount, bool isSelectionAll, FrameworkElement? initElement)
@@ -517,15 +552,22 @@ namespace OPNX.UI.WPF.Controls
             {
                 foreach (MultiViewCell selectedCell in selectedCellList)
                 {
+                    if (!selectedCell.ContainsElement(element))
+                        continue;
+
                     selectedCell.Remove(element);
+                    break;
                 }
             }
 
-            var existElementList = selectedCellList.SelectMany(cell => cell.GetAllElements()).ToList();
+            var existElementList = new List<UIElement>();
+            foreach (var selectedCell in selectedCellList)
+                selectedCell.AppendElementsTo(existElementList);
 
             foreach (var selectedCell in selectedCellList)
             {
-                selectedCell.Clear();
+                // Preserve removal notifications while keeping elements alive for redistribution.
+                selectedCell.Clear(disposeElements: false);
             }
 
             if (existElementList.Count > 0)
@@ -816,7 +858,7 @@ namespace OPNX.UI.WPF.Controls
 
         private void Item_VideoElementCreated(object sender, EventArgs e)
         {
-            this.CellClicked?.Invoke(this, new EventArgs());
+            this.CellClicked?.Invoke(this, EventArgs.Empty);
         }
 
         private void Item_DropCompleted(object? sender, DropTargetAdvisorDropCompletedEventArgs e)
@@ -854,11 +896,6 @@ namespace OPNX.UI.WPF.Controls
 
         private static void DeleteCellElements(MultiViewCell cell)
         {
-            foreach (var element in cell.GetAllElements())
-            {
-                (element as IDisposable)?.Dispose();
-            }
-
             cell.Clear();
         }
 
@@ -1033,7 +1070,7 @@ namespace OPNX.UI.WPF.Controls
                 ? cells[0].GetAllElements()
                 : [];
 
-            var (rowCount, columnCount) = mg.GetSelectionGridCount();
+            var (rowCount, columnCount) = MultiViewPanel.GetSelectionGridCount(selectedCells ?? []);
 
             CellSelectionChanged?.Invoke(
                 sender,
@@ -1046,7 +1083,7 @@ namespace OPNX.UI.WPF.Controls
 
         private void MultiViewPanel_CellClicked(object? sender, EventArgs e)
         {
-            this.CellClicked?.Invoke(this, new EventArgs());
+            this.CellClicked?.Invoke(this, EventArgs.Empty);
         }
 
         private void MultiViewPanel_ZoomedCellChanged(object? sender, ZoomedCellChangeEventArgs e)
@@ -1086,7 +1123,7 @@ namespace OPNX.UI.WPF.Controls
             this.SelectionVisibility = Visibility.Hidden;
         }
 
-        private void RaiseLayoutChanged()
+        internal void RaiseLayoutChanged()
         {
             var syncId = this.SyncId;
             this.LayoutChanged?.Invoke(this, new OpnxMultiViewLayoutChangedEventArgs(syncId));
