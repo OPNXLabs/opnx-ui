@@ -580,6 +580,53 @@ namespace OPNX.UI.WPF.Controls
             }
         }
 
+        /// <summary>
+        /// Exits zoom mode, then detaches an element without disposing it or raising
+        /// CellElementRemoved. The caller takes ownership of the detached element.
+        /// Must be called on the UI thread.
+        /// </summary>
+        /// <returns>
+        /// True if detached; false if the element is absent, zoom is transitioning,
+        /// or zoom hold prevents restoring the normal layout.
+        /// </returns>
+        public async Task<bool> DetachCellElementAsync(UIElement element)
+        {
+            Dispatcher.VerifyAccess();
+            ArgumentNullException.ThrowIfNull(element);
+
+            var panel = _multiViewPanel;
+            if (panel == null || panel.IsBusyForZoom)
+                return false;
+
+            // A zoomed element is hosted on the zoom canvas rather than in its cell.
+            if (panel.GetCell(element) == null && !GetZoomedElements().Contains(element))
+                return false;
+
+            if (IsZoomed)
+            {
+                if (panel.IsHoldButtonClicked)
+                    return false;
+
+                var restored = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+                panel.ZoomOutCell(() => restored.TrySetResult());
+                await restored.Task;
+            }
+
+            // Recheck after the animation: the layout may have changed while awaiting it.
+            if (!ReferenceEquals(panel, _multiViewPanel) || panel.IsBusyForZoom || IsZoomed)
+                return false;
+
+            var cell = panel.GetCell(element);
+            if (cell == null)
+                return false;
+
+            cell.Remove(element, aEventOccurrence: false, disposeElement: false);
+            MultiViewCell.UnbindElementSize(element);
+            cell.UpdateElementSizeBinding();
+            SendSyncData();
+            return true;
+        }
+
         public void RemoveCellElement(UIElement element)
         {
             var cell = _multiViewPanel?.GetCell(element);
