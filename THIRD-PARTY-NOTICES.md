@@ -19,7 +19,7 @@ Users who redistribute, package, or deploy software based on OPNX.UI.WPF are res
 ## OPNX.Lib
 
 - Component: `OPNX.Lib`
-- Package-mode version: `0.1.0-preview.20260716.1`; Dev solutions use sibling source projects
+- Package-mode version: `0.1.0-preview.20261106.3`; Dev solutions use sibling source projects
 - Project: [https://github.com/OPNXLabs/opnx-lib](https://github.com/OPNXLabs/opnx-lib)
 - License: OPNX source-available license for learning, evaluation, research, testing, and non-commercial use
 - Usage: common platform, networking, media, data, and streaming infrastructure used by `OPNX.UI.WPF`
@@ -33,7 +33,7 @@ Important notes:
 
 ## Direct NuGet Package References
 
-The following packages are directly referenced by `OPNX.UI.WPF`.
+The following packages are directly referenced by `OPNX.UI.WPF`. Their versions match the current project references; the generated package manifest and restored assets determine the shipped dependency graph.
 
 ## FFmpeg.AutoGen
 
@@ -47,7 +47,7 @@ The following packages are directly referenced by `OPNX.UI.WPF`.
 
 The full MIT license text is provided in:
 
-- [third_party_licenses/FFmpeg.AutoGen-MIT.txt](third_party_licenses/FFmpeg.AutoGen-MIT.txt)
+- [third_party_licenses/FFmpeg.AutoGen-MIT.txt](https://github.com/OPNXLabs/opnx-ui/blob/master/third_party_licenses/FFmpeg.AutoGen-MIT.txt)
 
 ## SharpDX
 
@@ -64,7 +64,7 @@ The full MIT license text is provided in:
 
 The full MIT license text is provided in:
 
-- [third_party_licenses/SharpDX-MIT.txt](third_party_licenses/SharpDX-MIT.txt)
+- [third_party_licenses/SharpDX-MIT.txt](https://github.com/OPNXLabs/opnx-ui/blob/master/third_party_licenses/SharpDX-MIT.txt)
 
 ## Native Runtime Components
 
@@ -83,19 +83,19 @@ Important notes:
 - If you bundle, redistribute, or otherwise provide FFmpeg native binaries with your product or service, you are responsible for complying with the applicable FFmpeg license terms for the specific build you use.
 - FFmpeg is generally available under `LGPL-2.1-or-later`, but some builds or enabled components may cause `GPL` terms to apply.
 
-## Current Lib Source Runtime Requirements
+## Lib Package Runtime Requirements
 
-The current sibling Lib source uses Kestrel and the `Microsoft.AspNetCore.App` shared framework for WebRTC signaling. Framework-dependent applications using that SDK require the ASP.NET Core 10 runtime, or can be published self-contained. This is separate from the older pinned package's requirements.
+The referenced Lib package uses Kestrel and declares the `Microsoft.AspNetCore.App` shared framework for WebRTC signaling. Framework-dependent applications consuming this package require the ASP.NET Core 10 runtime, or can be published self-contained.
 
-DataChannelDotnet's managed wrapper declares MIT; native libdatachannel and OpenSSL retain their own MPL-2.0 and Apache-2.0 terms. Review the Lib native-component notices and the actual runtime assets being shipped.
+DataChannelDotnet's managed wrapper declares MIT; native libdatachannel and OpenSSL retain their own MPL-2.0 and Apache-2.0 terms. Review the Lib native-component notices and the actual runtime assets being shipped. When distributing those binaries, preserve their upstream notices and identify the corresponding native build and source availability information described by the selected Lib package. The managed wrapper's MIT declaration does not cover all native assets.
 
 ## Additional OPNX.Lib Third-Party Notices
 
 Because `OPNX.UI.WPF` is designed to work with `OPNX.Lib`, users should also review the third-party notices provided by the OPNX.Lib version they use.
 
-The list below describes current sibling Lib source. The pinned older Lib package can have a different graph, including legacy components such as SIPSorcery; use the notices shipped with that exact package rather than applying the current source list retroactively.
+The list below describes the configured Lib package. Earlier published versions can have a different graph; use the notices shipped with the exact package being deployed.
 
-Current source notices include, among others:
+Lib package notices include, among others:
 
 - ZstdSharp.Port
 - Npgsql

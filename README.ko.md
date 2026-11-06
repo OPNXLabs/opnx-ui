@@ -1,6 +1,6 @@
 # OPNX.UI
 
-[English](README.md)
+[English](https://github.com/OPNXLabs/opnx-ui/blob/master/README.md)
 
 **영상 모니터링, 다채널 재생 및 영상 보안 데스크톱 애플리케이션을 위한 WPF 컨트롤입니다.**
 
@@ -8,13 +8,13 @@ Direct3D 영상 표시 · MultiView · 재생 타임라인 · 장치 탐색 · �
 
 [NuGet](https://www.nuget.org/packages/OPNX.UI.WPF) · [RTSP 샘플 실행](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#rtsp-multi-live-viewer-실행) · [타임라인 샘플 실행](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#playback-timeline-실행) · [상업 라이선스 및 OEM 문의](#라이선스-및-지원)
 
-![OPNX.UI.WPF로 개발 중인 OPNX.V 다채널 모니터링 화면](docs/images/opnx-v-live-monitoring.png)
+![OPNX.UI.WPF로 개발 중인 OPNX.V 다채널 모니터링 화면](https://raw.githubusercontent.com/OPNXLabs/opnx-ui/master/docs/images/opnx-v-live-monitoring.png)
 
 ## 실제 VMS에서 사용하는 OPNX.UI
 
 OPNX.V는 Windows 모니터링 및 관리 클라이언트에 OPNX.UI.WPF를 사용합니다. 위 화면의 MultiView, 영상 표시, 탐색, 선택 및 운영 흐름의 기반은 별도의 UI 목업이 아니라 이 저장소에서 제공하는 재사용 가능한 컨트롤입니다.
 
-![OPNX.V 저장영상 검색 및 다채널 재생 화면](docs/images/opnx-v-recorded-video-search.png)
+![OPNX.V 저장영상 검색 및 다채널 재생 화면](https://raw.githubusercontent.com/OPNXLabs/opnx-ui/master/docs/images/opnx-v-recorded-video-search.png)
 
 저장영상 검색 화면은 다채널 영상 검토와 `OpnxPlaybackTimeline`, 채널별 녹화 구간, 시간 탐색, 재생 배속 선택 및 애플리케이션 계층의 동기 재생 오케스트레이션을 결합합니다.
 
@@ -26,7 +26,7 @@ dotnet add package OPNX.UI.WPF --prerelease
 
 라이브 영상과 MultiView 구성을 평가하려면 [`OPNX.Samples.RtspMultiLiveViewer`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.RtspMultiLiveViewer)를, 녹화 구간·이벤트·선택·탐색·스타일을 확인하려면 [`OPNX.Samples.PlaybackTimeline`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.PlaybackTimeline)을 실행하세요.
 
-> **라이선스:** OPNX.UI는 오픈 소스가 아닌 source-available 소프트웨어입니다. [LICENSE.txt](LICENSE.txt)에 따라 학습, 연구, 테스트 및 비상업적 평가에 사용할 수 있습니다. 상업적 사용, 운영 환경 사용, 재배포 및 OEM 통합에는 OPNX의 사전 서면 허가가 필요합니다.
+> **라이선스:** OPNX.UI는 오픈 소스가 아닌 source-available 소프트웨어입니다. [LICENSE.txt](https://github.com/OPNXLabs/opnx-ui/blob/master/LICENSE.txt)에 따라 학습, 연구, 테스트 및 비상업적 평가에 사용할 수 있습니다. 상업적 사용, 운영 환경 사용, 재배포 및 OEM 통합에는 OPNX의 사전 서면 허가가 필요합니다.
 > 기업 내부의 비운영 평가·PoC·기술 검토도 허용됩니다. 상세 범위는 아래 평가 안내와 영문 라이선스를 확인하세요.
 
 OPNX.UI는 OPNX 영상 클라이언트를 위한 재사용 가능한 .NET UI 기반입니다. 현재 구현체는 VMS, NVR, 모니터링, 재생 및 리뷰 애플리케이션을 위한 Windows WPF 컨트롤 라이브러리인 `OPNX.UI.WPF`입니다.
@@ -81,6 +81,8 @@ OPNX.UI는 VMS나 NVR 제품마다 반복해서 개발되는 어렵고 도메인
 - Cell별 Entity 연결과 변경 이벤트
 - `CellBorderBrush`와 `CellBorderThickness`를 통한 타일 경계선 Theme
 - `ShowOuterBorder`를 통한 외곽선 독립 표시 제어
+- `IsBoundaryResizeEnabled`를 통한 연결된 내부 경계선 드래그와 `MinimumCellSize`를 통한 타일 최소 크기 설정
+- `DetachCellElementAsync`를 통한 요소를 Dispose하지 않는 분리
 
 Layout과 Cell 상태가 별도 모델로 유지되므로 화면을 다시 만들지 않고 View 구성을 변경하거나 사용자 Layout을 저장할 수 있습니다. Live Monitor뿐 아니라 Playback Review, Event Wall 및 다중 출력 화면의 기반으로 사용할 수 있습니다.
 
@@ -92,6 +94,10 @@ Layout과 Cell 상태가 별도 모델로 유지되므로 화면을 다시 만�
                     CellBorderThickness="1"
                     ShowOuterBorder="False" />
 ```
+
+경계선 크기 조절은 기본적으로 활성화되며 타일 최소 너비·높이는 48 DIP입니다. 병합 타일을 포함한 Layout에서 연결된 경계선을 함께 이동하고 완료된 변경은 Layout 동기화에 반영합니다. `IsBoundaryResizeEnabled="False"`로 크기 조절을 비활성화할 수 있습니다.
+
+`DetachCellElementAsync`는 UI 스레드에서 호출하고 반환값을 확인한 뒤 요소를 다른 Host에 배치합니다. 성공 시 요소를 Dispose하거나 제거 이벤트를 발생시키지 않고 셀에서 분리하며 크기 Binding을 해제합니다. 확대된 View는 먼저 복원하며 확대 전환 중이거나 고정된 확대 상태 등에서는 `false`를 반환할 수 있습니다. 분리한 요소의 새 Host와 최종 Dispose는 애플리케이션에서 관리합니다. 별도 창 생성과 재결합 흐름은 애플리케이션의 역할입니다.
 
 ### 다채널 Playback Timeline
 
@@ -185,7 +191,13 @@ dotnet build OPNX.UI.slnx -c Debug
 dotnet pack .\src\OPNX.UI.WPF\OPNX.UI.WPF.csproj -c Release -p:Platform=x64
 ```
 
-요구 사항은 .NET 10 SDK와 WPF를 지원하는 Windows 개발 환경입니다.
+요구 사항은 .NET 10 SDK와 WPF를 지원하는 Windows 개발 환경입니다. 대상 Framework는 `net10.0-windows7.0`이며 이 이름만으로 .NET 런타임과 네이티브 의존성이 모든 Windows 버전을 지원한다는 의미는 아닙니다.
+
+Release는 최적화 빌드 구성이며 버전의 `-preview` 접미사는 패키지를 사전 릴리스로 유지합니다. 패키지 날짜 기본값은 로컬 빌드 날짜입니다. 패키징 버전을 고정하려면 `-p:PreviewDate=yyyyMMdd -p:PreviewRevision=1`에 실제 날짜를 지정하고, 같은 날짜에 다른 패키지를 게시할 때는 Revision을 올립니다. UI의 Revision은 Lib 패키지의 Revision과 별개입니다.
+
+현재 `OpnxLibVersion` 기본값은 `0.1.0-preview.20261106.3`입니다. 새 Lib 패키지를 검증하려면 패키지 폴더를 로컬 NuGet Source로 추가하고 `-p:OpnxLibVersion=<version>`으로 정확한 버전을 지정하며 Restore와 Build·Pack에 같은 값을 사용합니다. UI 게시 전에는 기본 Lib 참조도 검증한 버전으로 갱신하고 생성된 `.nuspec`의 의존성을 확인합니다. Dev 솔루션 빌드만으로는 NuGet 소비 경로를 검증할 수 없습니다.
+
+패키징 후에는 두 README, `LICENSE.txt`, `LICENSE.ko.txt`, `THIRD-PARTY-NOTICES.md`와 참조한 서드파티 라이선스 파일이 포함됐는지 확인합니다. README 이미지는 NuGet.org가 지원하는 공개 절대 URL을 사용하며, 패키지 업로드 전에 연결된 저장소 파일을 공개하고 NuGet.org의 README 미리보기를 확인합니다.
 
 - `OPNX.UI.slnx`는 설정된 OPNX.Lib NuGet 패키지를 사용합니다.
 - `OPNX.UI.Dev.slnx`는 여러 저장소를 함께 개발할 때 형제 OPNX.Lib 소스 프로젝트를 사용합니다.
@@ -213,12 +225,12 @@ dotnet pack .\src\OPNX.UI.WPF\OPNX.UI.WPF.csproj -c Release -p:Platform=x64
 
 ## 라이선스 및 지원
 
-OPNX.UI는 source-available이지만 permissive 오픈 소스 라이선스가 아닙니다. 상업적 사용, 재배포, OEM 통합 또는 상용 제품 포함에는 OPNX의 사전 서면 허가가 필요합니다. [LICENSE.txt](LICENSE.txt), [LICENSE.ko.txt](LICENSE.ko.txt), [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)를 확인하십시오.
+OPNX.UI는 source-available이지만 permissive 오픈 소스 라이선스가 아닙니다. 상업적 사용, 재배포, OEM 통합 또는 상용 제품 포함에는 OPNX의 사전 서면 허가가 필요합니다. [LICENSE.txt](https://github.com/OPNXLabs/opnx-ui/blob/master/LICENSE.txt), [LICENSE.ko.txt](https://github.com/OPNXLabs/opnx-ui/blob/master/LICENSE.ko.txt), [THIRD-PARTY-NOTICES.md](https://github.com/OPNXLabs/opnx-ui/blob/master/THIRD-PARTY-NOTICES.md)를 확인하십시오.
 
 - 웹사이트: [https://www.opnx.kr/](https://www.opnx.kr/)
 - 문의: `opnx@opnx.kr`
-- 보안: [SECURITY.ko.md](SECURITY.ko.md)
-- 기여: [CONTRIBUTING.ko.md](CONTRIBUTING.ko.md)
+- 보안: [SECURITY.ko.md](https://github.com/OPNXLabs/opnx-ui/blob/master/SECURITY.ko.md)
+- 기여: [CONTRIBUTING.ko.md](https://github.com/OPNXLabs/opnx-ui/blob/master/CONTRIBUTING.ko.md)
 
 ## 관련 프로젝트
 

@@ -1,6 +1,6 @@
 # OPNX.UI
 
-[한국어](README.ko.md)
+[한국어](https://github.com/OPNXLabs/opnx-ui/blob/master/README.ko.md)
 
 **WPF controls for video monitoring, multi-channel playback, and surveillance-oriented desktop applications.**
 
@@ -8,13 +8,13 @@ Direct3D video · Multi-view · Playback timeline · Device navigation · Operat
 
 [NuGet](https://www.nuget.org/packages/OPNX.UI.WPF) · [Run the RTSP sample](https://github.com/OPNXLabs/opnx-samples#run-rtsp-multi-live-viewer) · [Run the timeline sample](https://github.com/OPNXLabs/opnx-samples#run-playback-timeline) · [Commercial and OEM inquiries](#license-and-support)
 
-![OPNX.V multi-channel monitoring interface built with OPNX.UI.WPF](docs/images/opnx-v-live-monitoring.png)
+![OPNX.V multi-channel monitoring interface built with OPNX.UI.WPF](https://raw.githubusercontent.com/OPNXLabs/opnx-ui/master/docs/images/opnx-v-live-monitoring.png)
 
 ## OPNX.UI In A Real VMS
 
 OPNX.V uses OPNX.UI.WPF for its Windows monitoring and management clients. The controls shown above are the same reusable multi-view, video-presentation, navigation, selection, and operator-workflow foundations provided by this repository—not a disconnected UI mockup.
 
-![OPNX.V recorded-video search and multi-channel playback](docs/images/opnx-v-recorded-video-search.png)
+![OPNX.V recorded-video search and multi-channel playback](https://raw.githubusercontent.com/OPNXLabs/opnx-ui/master/docs/images/opnx-v-recorded-video-search.png)
 
 The recorded-video search screen combines multi-channel video review with `OpnxPlaybackTimeline`, channel recording ranges, time navigation, playback-rate selection, and synchronized playback orchestration supplied by the application layer.
 
@@ -26,7 +26,7 @@ dotnet add package OPNX.UI.WPF --prerelease
 
 Use [`OPNX.Samples.RtspMultiLiveViewer`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.RtspMultiLiveViewer) to evaluate live video and MultiView composition, or [`OPNX.Samples.PlaybackTimeline`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.PlaybackTimeline) to explore recorded ranges, events, selection, navigation, and styling.
 
-> **License:** OPNX.UI is source-available, not open-source. Learning, research, testing, and non-commercial evaluation are permitted under [LICENSE.txt](LICENSE.txt). Commercial use, production use, redistribution, and OEM integration require prior written permission from OPNX.
+> **License:** OPNX.UI is source-available, not open-source. Learning, research, testing, and non-commercial evaluation are permitted under [LICENSE.txt](https://github.com/OPNXLabs/opnx-ui/blob/master/LICENSE.txt). Commercial use, production use, redistribution, and OEM integration require prior written permission from OPNX.
 > Internal non-production evaluation, proof of concept, and technical review by commercial organizations are also permitted. See the evaluation guidance below and the English license for scope.
 
 OPNX.UI is the reusable .NET UI foundation for OPNX video clients. The current implementation is `OPNX.UI.WPF`, a Windows WPF control library for VMS, NVR, monitoring, playback, and review applications.
@@ -81,6 +81,8 @@ Frame decoding, conversion, and ownership remain in the OPNX.Lib media layer, wh
 - Per-cell entity association and change events
 - Tile-boundary theming through `CellBorderBrush` and `CellBorderThickness`
 - Independent outer-edge control through `ShowOuterBorder`
+- Connected internal-boundary dragging through `IsBoundaryResizeEnabled` and minimum tile sizing through `MinimumCellSize`
+- Element transfer without disposal through `DetachCellElementAsync`
 
 Layout and cell state remain in dedicated models, allowing applications to change views or persist user layouts without rebuilding the screen. The control can serve live monitoring, playback review, event walls, and multi-output workspaces.
 
@@ -92,6 +94,10 @@ Tile borders are arranged without doubling the shared edge between adjacent cell
                     CellBorderThickness="1"
                     ShowOuterBorder="False" />
 ```
+
+Boundary resizing is enabled by default, with a minimum tile width and height of 48 device-independent units. Connected boundaries move together, including merged-tile layouts; completed changes update layout synchronization. Set `IsBoundaryResizeEnabled="False"` to disable resizing.
+
+Call `DetachCellElementAsync` on the UI thread and check its Boolean result before rehosting an element. On success, it detaches the element and its size bindings without disposing it or raising the removal event. A zoomed view is restored first; detachment can return `false` while zoom transitions or a held zoom prevent it. Applications manage the detached element's new host and eventual disposal. Separate-window creation and reattachment are application responsibilities.
 
 ### Multi-Channel Playback Timeline
 
@@ -185,7 +191,13 @@ dotnet build OPNX.UI.slnx -c Debug
 dotnet pack .\src\OPNX.UI.WPF\OPNX.UI.WPF.csproj -c Release -p:Platform=x64
 ```
 
-Requirements: .NET 10 SDK and a Windows development environment with WPF support.
+Requirements: .NET 10 SDK and a Windows development environment with WPF support. The library targets `net10.0-windows7.0`; the target framework name alone does not guarantee that the .NET runtime and native dependencies support every Windows version.
+
+Release selects the optimized build configuration; the `-preview` version suffix keeps the package a prerelease. The package date defaults to the local build date. For repeatable packaging, pass `-p:PreviewDate=yyyyMMdd -p:PreviewRevision=1` with the intended date; use a higher revision for another package on that date. The revision is independent of the Lib package revision.
+
+The default `OpnxLibVersion` is currently `0.1.0-preview.20261106.3`. To validate a newer Lib package, add its folder as a local NuGet source, select its exact version through `-p:OpnxLibVersion=<version>`, and use the same value for restore and build/pack. Before publishing UI, update its default Lib reference to the validated version and check the generated `.nuspec` dependency. Dev-solution builds alone do not validate NuGet consumption.
+
+After packaging, check that the archive includes both READMEs, `LICENSE.txt`, `LICENSE.ko.txt`, `THIRD-PARTY-NOTICES.md`, and the referenced third-party license files. README images use public absolute URLs supported by NuGet.org; publish the linked repository files before uploading the package and preview the README on NuGet.org.
 
 - `OPNX.UI.slnx` uses the configured published OPNX.Lib package.
 - `OPNX.UI.Dev.slnx` uses sibling local OPNX.Lib source projects for cross-repository development.
@@ -213,12 +225,12 @@ Runnable examples are maintained in [OPNX Samples](https://github.com/OPNXLabs/o
 
 ## License And Support
 
-OPNX.UI is source-available but is not permissively licensed open-source software. Commercial use, redistribution, OEM integration, or inclusion in commercial products requires prior written permission from OPNX. See [LICENSE.txt](LICENSE.txt), [LICENSE.ko.txt](LICENSE.ko.txt), and [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+OPNX.UI is source-available but is not permissively licensed open-source software. Commercial use, redistribution, OEM integration, or inclusion in commercial products requires prior written permission from OPNX. See [LICENSE.txt](https://github.com/OPNXLabs/opnx-ui/blob/master/LICENSE.txt), [LICENSE.ko.txt](https://github.com/OPNXLabs/opnx-ui/blob/master/LICENSE.ko.txt), and [THIRD-PARTY-NOTICES.md](https://github.com/OPNXLabs/opnx-ui/blob/master/THIRD-PARTY-NOTICES.md).
 
 - Website: [https://www.opnx.kr/](https://www.opnx.kr/)
 - Contact: `opnx@opnx.kr`
-- Security: [SECURITY.md](SECURITY.md)
-- Contributions: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Security: [SECURITY.md](https://github.com/OPNXLabs/opnx-ui/blob/master/SECURITY.md)
+- Contributions: [CONTRIBUTING.md](https://github.com/OPNXLabs/opnx-ui/blob/master/CONTRIBUTING.md)
 
 ## Related Projects
 
