@@ -6,7 +6,7 @@
 
 Direct3D 영상 표시 · MultiView · 재생 타임라인 · 장치 탐색 · 운영 UI 컨트롤
 
-[NuGet](https://www.nuget.org/packages/OPNX.UI.WPF) · [RTSP 샘플 실행](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#rtsp-multi-live-viewer-실행) · [타임라인 샘플 실행](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#playback-timeline-실행) · [상업 라이선스 및 OEM 문의](#라이선스-및-지원)
+[NuGet](https://www.nuget.org/packages/OPNX.UI.WPF) · [RTSP 샘플 실행](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#rtsp-viewer-실행) · [타임라인 샘플 실행](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#playback-timeline-실행) · [상업 라이선스 및 OEM 문의](#라이선스-및-지원)
 
 ![OPNX.UI.WPF로 개발 중인 OPNX.V 다채널 모니터링 화면](https://raw.githubusercontent.com/OPNXLabs/opnx-ui/master/docs/images/opnx-v-live-monitoring.png)
 
@@ -24,7 +24,7 @@ OPNX.V는 Windows 모니터링 및 관리 클라이언트에 OPNX.UI.WPF를 사�
 dotnet add package OPNX.UI.WPF --prerelease
 ```
 
-라이브 영상과 MultiView 구성을 평가하려면 [`OPNX.Samples.RtspMultiLiveViewer`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.RtspMultiLiveViewer)를, 녹화 구간·이벤트·선택·탐색·스타일을 확인하려면 [`OPNX.Samples.PlaybackTimeline`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.PlaybackTimeline)을 실행하세요.
+라이브 영상과 MultiView 구성을 평가하려면 [`OPNX.Samples.RtspViewer`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.RtspViewer)를, 녹화 구간·이벤트·선택·탐색·스타일을 확인하려면 [`OPNX.Samples.PlaybackTimeline`](https://github.com/OPNXLabs/opnx-samples/tree/master/src/OPNX.Samples.PlaybackTimeline)을 실행하세요.
 
 > **라이선스:** OPNX.UI는 오픈 소스가 아닌 source-available 소프트웨어입니다. [LICENSE.txt](https://github.com/OPNXLabs/opnx-ui/blob/master/LICENSE.txt)에 따라 학습, 연구, 테스트 및 비상업적 평가에 사용할 수 있습니다. 상업적 사용, 운영 환경 사용, 재배포 및 OEM 통합에는 OPNX의 사전 서면 허가가 필요합니다.
 > 기업 내부의 비운영 평가·PoC·기술 검토도 허용됩니다. 상세 범위는 아래 평가 안내와 영문 라이선스를 확인하세요.
@@ -204,16 +204,23 @@ Release는 최적화 빌드 구성이며 버전의 `-preview` 접미사는 패�
 
 ## 소스와 배포 패키지의 기능 범위
 
-이 README의 기능 설명은 현재 저장소 소스를 기준으로 합니다. 이미 게시된 Preview NuGet 패키지는 이전 API와 의존성을 포함할 수 있습니다. 패키지 설치 시 선택한 버전의 릴리스와 의존성을 확인하세요. 공개 Samples는 재현 가능한 실행을 위해 `0.1.0-preview.20260716.1`에 고정되어 있으며, 최신 소스 기능 전체를 보여주는 샘플 모음은 아닙니다.
+이 README의 기능 설명은 현재 저장소 소스를 기준으로 합니다. 이미 게시된 Preview NuGet 패키지는 이전 API와 의존성을 포함할 수 있습니다. 패키지 설치 시 선택한 버전의 릴리스와 의존성을 확인하세요. 공개 Samples는 재현 가능한 실행을 위해 OPNX.Lib `0.1.0-preview.20261106.3`과 OPNX.UI.WPF `0.1.0-preview.20261107.1`을 사용합니다. 현재 기준 버전은 Samples의 [Directory.Build.props](https://github.com/OPNXLabs/opnx-samples/blob/master/Directory.Build.props)를 확인하세요. 최신 소스 기능 전체를 보여주는 샘플 모음은 아닙니다.
 
 ## 샘플 및 문서
 
-실행 가능한 예제는 [OPNX Samples](https://github.com/OPNXLabs/opnx-samples)에서 관리합니다.
+공개 NuGet을 사용하는 7개 실행 예제와 현재 UI 캡처는 [OPNX Samples](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md)에서 확인할 수 있습니다. 비공개 OPNX.V 프로젝트는 필요하지 않습니다.
 
-- `OPNX.Samples.PlaybackTimeline` — 타임라인 배치, 녹화·이벤트 구간, 스타일, 선택 및 이동
-- `OPNX.Samples.RtspMultiLiveViewer` — MultiView 영상, Navigation, Tree/List 및 Titlebar 통합
-- `OPNX.Samples.EntityStore` — OPNX.Lib EntityStore 통합
-- `OPNX.Samples.TcpChat` — OPNX.Lib Network 통합
+| 샘플 | 확인할 기능 |
+| --- | --- |
+| [`RtspViewer`](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#rtsp-viewer-실행) | RTSP 수신·FFmpeg 디코딩·MultiView 배치·줌·캡처·영상 창 분리 |
+| [`WebRtcViewer`](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#webrtc-viewer-실행) | H.264 RTSP→WebRTC 중계·WebView2/브라우저 재생·수신 통계 |
+| [`PlaybackTimeline`](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#playback-timeline-실행) | 모의 다채널 녹화·이벤트·시간 탐색·선택·표시 설정 |
+| [`ControlGallery`](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#control-gallery-실행) | WPF 입력·선택·날짜/시간·트리/목록 검색·페이징·알림·트레이 |
+| [`SystemMonitoring`](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#system-monitoring-실행) | 실시간 CPU·메모리·현재 프로세스·네트워크·디스크 용량·지원 GPU 지표 |
+| [`ProtocolChat`](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#protocol-chat-실행) | TCP·Named Pipe·SharedMemory 공통 채팅·요청응답·시간 초과·취소 |
+| [`EntityStore`](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#entitystore-실행) | 인메모리 CRUD·불변 변경 정보·속성 알림·추적 객체 동일성 |
+
+다섯 WPF 샘플은 OPNX.UI 공통 스타일과 OPNX.V Dark / Graphite / Light 테마, Blue / Teal / Amber 강조색을 사용합니다. WebRtcViewer의 영상 재생은 WebView2의 HTML `<video>`가 담당하며, ProtocolChat과 EntityStore는 콘솔 예제입니다. RtspViewer는 호환되는 FFmpeg 네이티브 DLL이 필요하고 WebRtcViewer는 WebView2 Runtime과 H.264 소스가 필요합니다. PlaybackTimeline은 모의 데이터 UI이며 실제 녹화 영상은 재생하지 않습니다.
 
 ## 평가와 코드 활용 범위
 
