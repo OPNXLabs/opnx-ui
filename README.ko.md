@@ -60,6 +60,8 @@ OPNX.UI는 VMS나 NVR 제품마다 반복해서 개발되는 어렵고 도메인
 - 운영 Navigation, 커스텀 Titlebar, 입력 Primitive 및 Drag-and-drop
 - OPNX.Lib 기반 Media, Network, Streaming 및 Data 계층 통합
 
+GIS 공급자 어댑터와 브라우저 런타임은 OPNX.V 애플리케이션 계층에서 관리하며, OPNX.UI.WPF는 카카오 지도나 CEF를 포함하지 않습니다.
+
 ## 핵심 영상 UI
 
 ### Direct3D 기반 고속 영상 표시

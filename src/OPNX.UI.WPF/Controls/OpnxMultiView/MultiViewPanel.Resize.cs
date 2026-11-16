@@ -1,3 +1,6 @@
+using OPNX.UI.WPF.Utilities;
+using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 using System.Windows;
 using System.Windows.Input;
 
@@ -12,6 +15,11 @@ namespace OPNX.UI.WPF.Controls
 
         protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
         {
+            if (e.OriginalSource is Thumb || e.OriginalSource is Visual source && UIHelper.FindParent<Thumb>(source) != null)
+            {
+                base.OnPreviewMouseDown(e);
+                return;
+            }
             if (e.ChangedButton == MouseButton.Left && FindBoundary(e.GetPosition(this)) is BoundaryHit hit)
             {
                 if (CaptureMouse())

@@ -60,6 +60,8 @@ Video clients repeatedly need dense multi-channel layouts, rendering-oriented im
 - Operational navigation, custom title bars, input primitives, and drag-and-drop
 - Integration with OPNX.Lib-based media, networking, streaming, and data layers
 
+GIS provider adapters and their browser runtimes belong to the OPNX.V application layer; OPNX.UI.WPF does not bundle Kakao or CEF.
+
 ## Core Video UI
 
 ### Direct3D Video Presentation
