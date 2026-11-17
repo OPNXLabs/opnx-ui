@@ -49,4 +49,7 @@
     <None Include="..\..\third_party_licenses\SharpDX-MIT.txt" Pack="true" PackagePath="third_party_licenses/" Visible="false" />
     <None Include="..\..\third_party_licenses\FFmpeg.AutoGen-MIT.txt" Pack="true" PackagePath="third_party_licenses/" Visible="false" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controls\Opnx2DMapControl\Resources\rotate.cur" />
+  </ItemGroup>
 </Project>

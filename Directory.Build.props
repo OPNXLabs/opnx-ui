@@ -14,7 +14,7 @@
     <!-- Common version: the date follows the local build date; increment only PreviewRevision manually. -->
     <BaseVersion>0.1.0</BaseVersion>
     <PreviewDate>$([System.DateTime]::Now.ToString('yyyyMMdd'))</PreviewDate>
-    <PreviewRevision>1</PreviewRevision>
+    <PreviewRevision>3</PreviewRevision>
     <Version>$(BaseVersion)-preview.$(PreviewDate).$(PreviewRevision)</Version>
     <AssemblyVersion>0.1.0.0</AssemblyVersion>
     <FileVersion>0.1.0.0</FileVersion>
