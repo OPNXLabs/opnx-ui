@@ -239,7 +239,7 @@ Requirements: .NET 10 SDK and a Windows development environment with WPF support
 
 Release selects the optimized build configuration; the `-preview` version suffix keeps the package a prerelease. The package date defaults to the local build date. For repeatable packaging, pass `-p:PreviewDate=yyyyMMdd -p:PreviewRevision=1` with the intended date; use a higher revision for another package on that date. The revision is independent of the Lib package revision.
 
-The default `OpnxLibVersion` is currently `0.1.0-preview.20261106.3`. To validate a newer Lib package, add its folder as a local NuGet source, select its exact version through `-p:OpnxLibVersion=<version>`, and use the same value for restore and build/pack. Before publishing UI, update its default Lib reference to the validated version and check the generated `.nuspec` dependency. Dev-solution builds alone do not validate NuGet consumption.
+The default `OpnxLibVersion` is currently `0.1.0-preview.20261119.1`. To validate a newer Lib package, add its folder as a local NuGet source, select its exact version through `-p:OpnxLibVersion=<version>`, and use the same value for restore and build/pack. Before publishing UI, update its default Lib reference to the validated version and check the generated `.nuspec` dependency. Dev-solution builds alone do not validate NuGet consumption.
 
 After packaging, check that the archive includes both READMEs, `LICENSE.txt`, `LICENSE.ko.txt`, `THIRD-PARTY-NOTICES.md`, and the referenced third-party license files. README images use public absolute URLs supported by NuGet.org; publish the linked repository files before uploading the package and preview the README on NuGet.org.
 

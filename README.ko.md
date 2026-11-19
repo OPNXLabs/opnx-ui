@@ -239,7 +239,7 @@ dotnet pack .\src\OPNX.UI.WPF\OPNX.UI.WPF.csproj -c Release -p:Platform=x64
 
 Release는 최적화 빌드 구성이며 버전의 `-preview` 접미사는 패키지를 사전 릴리스로 유지합니다. 패키지 날짜 기본값은 로컬 빌드 날짜입니다. 패키징 버전을 고정하려면 `-p:PreviewDate=yyyyMMdd -p:PreviewRevision=1`에 실제 날짜를 지정하고, 같은 날짜에 다른 패키지를 게시할 때는 Revision을 올립니다. UI의 Revision은 Lib 패키지의 Revision과 별개입니다.
 
-현재 `OpnxLibVersion` 기본값은 `0.1.0-preview.20261106.3`입니다. 새 Lib 패키지를 검증하려면 패키지 폴더를 로컬 NuGet Source로 추가하고 `-p:OpnxLibVersion=<version>`으로 정확한 버전을 지정하며 Restore와 Build·Pack에 같은 값을 사용합니다. UI 게시 전에는 기본 Lib 참조도 검증한 버전으로 갱신하고 생성된 `.nuspec`의 의존성을 확인합니다. Dev 솔루션 빌드만으로는 NuGet 소비 경로를 검증할 수 없습니다.
+현재 `OpnxLibVersion` 기본값은 `0.1.0-preview.20261119.1`입니다. 새 Lib 패키지를 검증하려면 패키지 폴더를 로컬 NuGet Source로 추가하고 `-p:OpnxLibVersion=<version>`으로 정확한 버전을 지정하며 Restore와 Build·Pack에 같은 값을 사용합니다. UI 게시 전에는 기본 Lib 참조도 검증한 버전으로 갱신하고 생성된 `.nuspec`의 의존성을 확인합니다. Dev 솔루션 빌드만으로는 NuGet 소비 경로를 검증할 수 없습니다.
 
 패키징 후에는 두 README, `LICENSE.txt`, `LICENSE.ko.txt`, `THIRD-PARTY-NOTICES.md`와 참조한 서드파티 라이선스 파일이 포함됐는지 확인합니다. README 이미지는 NuGet.org가 지원하는 공개 절대 URL을 사용하며, 패키지 업로드 전에 연결된 저장소 파일을 공개하고 NuGet.org의 README 미리보기를 확인합니다.
 
