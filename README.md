@@ -4,7 +4,7 @@
 
 **WPF controls for video monitoring, multi-channel playback, and surveillance-oriented desktop applications.**
 
-Direct3D video · Multi-view · Playback timeline · Device navigation · Operational controls
+Direct3D video · Multi-view · Playback timeline · 2D floor plans · Device navigation · Operational controls
 
 [NuGet](https://www.nuget.org/packages/OPNX.UI.WPF) · [Run the RTSP sample](https://github.com/OPNXLabs/opnx-samples#run-rtsp-viewer) · [Run the timeline sample](https://github.com/OPNXLabs/opnx-samples#run-playback-timeline) · [Commercial and OEM inquiries](#license-and-support)
 
@@ -38,6 +38,7 @@ OPNX.UI packages difficult, domain-specific controls that are commonly rebuilt i
 - **Direct3D video presentation for WPF** — `OpnxImage` integrates Direct3D 9 surfaces through `D3DImage` for hardware-oriented frame presentation, with a double-buffered `WriteableBitmap` path for environments such as remote sessions.
 - **A real playback timeline** — `OpnxPlaybackTimeline` presents recording ranges and event data across multiple channels, supports time-range navigation and selection, and exposes styling and layout controls for review applications.
 - **Operational multi-view, not a uniform grid** — `OpnxMultiView` supports configurable and irregular cell layouts, split/merge-style layout operations, cell selection, zoom/full-screen flows, synchronized layout state, thumbnails, and Drag-and-drop content placement.
+- **Reusable 2D floor-plan editing** — `Opnx2DMapControl` draws embedded backgrounds, shapes, images, text and point-by-point polylines with SkiaSharp, with editing and read-only modes.
 - **Controls for dense operator workflows** — hierarchical TreeList, paging, navigation, custom window chrome, selection primitives, and shared Drag-and-drop infrastructure complete the screens around the video itself.
 
 These controls are reusable library components rather than screenshots or application-specific prototypes. They are designed to be composed with OPNX.Lib media, streaming, networking, and entity infrastructure.
@@ -116,6 +117,46 @@ Call `DetachCellElementAsync` on the UI thread and check its Boolean result befo
 
 The control does not need to own an entire recording history. It can request data for the currently visible time range, making it suitable for long-duration archives and multi-channel review workflows.
 
+### 2D Map Editing And Display
+
+`Opnx2DMapControl` is self-contained under `Controls/Opnx2DMapControl`; it does not use GIS coordinates, a map provider, CEF or DevExpress. The application supplies device artwork and interprets optional `Map2DItem.DataKey` associations.
+
+- Background images, cursor-centered zoom, pan, fit-to-view and 100% view
+- Rectangles, ellipses, lines, polygons, SVG path geometry, embedded images, text and polylines
+- Move, resize, rotate, stacking order, lock, fill/stroke/opacity/font settings, undo and redo
+- Point-by-point polyline drawing: Enter/double-click to finish, Esc to cancel, Backspace to remove the last vertex
+- `ItemClick`, `ItemDoubleClick`, `SelectionChanged`, `DocumentChanged`, `ViewChanged` and `DrawingModeChanged`
+- `IsBlinking` / `SetItemBlinking` and transient `DisplayScale` in read-only views; these visual states are not serialized
+- JSON persistence with embedded image data; separate dependency properties for viewport and document base colors
+
+```xml
+<opnx:Opnx2DMapControl xmlns:opnx="clr-namespace:OPNX.UI.WPF.Controls;assembly=OPNX.UI.WPF"
+                     x:Name="MapSurface"
+                     IsEditMode="True"
+                     ViewportBackgroundColor="#191E27"
+                     DocumentBackgroundColor="#F1F4F8" />
+```
+
+```csharp
+MapSurface.SetBackgroundImage(File.ReadAllBytes("floor-plan.png"));
+MapSurface.AddItem(new Map2DItem
+{
+    Kind = Map2DItemKind.Rectangle, X = 100, Y = 80, Width = 160, Height = 90,
+    Fill = "#5538BDF8", Stroke = "#087FBC", DataKey = "application-defined-key"
+});
+MapSurface.BeginPolyline();
+MapSurface.AddPolylinePoint(new Point(100, 200));
+MapSurface.AddPolylinePoint(new Point(300, 200));
+MapSurface.AddPolylinePoint(new Point(300, 400));
+MapSurface.CompletePolyline();
+string json = MapSurface.SaveDocument();
+MapSurface.LoadDocument(json);
+```
+
+The example assumes `System.IO`, `System.Windows` and `OPNX.UI.WPF.Controls` imports; declare `xmlns:x` on the containing XAML view. SVG support is path data, not an SVG document/script engine. Fonts are referenced by family name and must exist on the target system. Database persistence, file transfer, device lookup, alarms and popups remain application responsibilities.
+
+The `2DMap` sample uses an English UI, OPNX window/button controls and a generated demo plan. See its [run instructions](https://github.com/OPNXLabs/opnx-samples#run-2d-map) for setup and usage.
+
 ## Main Components
 
 | Component | Purpose |
@@ -123,6 +164,7 @@ The control does not need to own an entire recording history. It can request dat
 | `OpnxMultiView` | Configurable video-cell layouts, selection, zoom, synchronization, thumbnails, and Drag-and-drop |
 | `OpnxImage` | Direct3D/D3DImage video surfaces with a remote-session-compatible buffered path |
 | `OpnxImageViewer` | Video presentation and interaction built around `OpnxImage` |
+| `Opnx2DMapControl` | SkiaSharp floor-plan display/editing, shapes/images/text/polylines and JSON documents |
 | `OpnxPlaybackTimeline` | Multi-channel recording ranges, events, selection, time navigation, styling, and playback review |
 
 ## Supporting Operational Controls
@@ -206,11 +248,11 @@ After packaging, check that the archive includes both READMEs, `LICENSE.txt`, `L
 
 ## Source And Published Package Scope
 
-Capabilities in this README describe current repository source. Previously published preview NuGet packages may contain earlier APIs and dependencies; check the selected version and its dependency graph. Public Samples use OPNX.Lib `0.1.0-preview.20261106.3` and OPNX.UI.WPF `0.1.0-preview.20261107.1` for reproducible execution. Check the Samples [Directory.Build.props](https://github.com/OPNXLabs/opnx-samples/blob/master/Directory.Build.props) for the current pins; the samples do not demonstrate every capability in current source.
+Capabilities in this README describe current repository source. Previously published preview NuGet packages may contain earlier APIs and dependencies; check the selected version and its dependency graph. Public Samples use OPNX.Lib `0.1.0-preview.20261106.3` and OPNX.UI.WPF `0.1.0-preview.20261107.1` for reproducible execution. Individual projects such as `2DMap` can override the default package pin. Check the Samples [Directory.Build.props](https://github.com/OPNXLabs/opnx-samples/blob/master/Directory.Build.props) for the current pins; the samples do not demonstrate every capability in current source.
 
 ## Samples And Documentation
 
-Find seven runnable examples and current UI screenshots in [OPNX Samples](https://github.com/OPNXLabs/opnx-samples). They consume published NuGet packages and do not require private OPNX.V projects.
+Find eight NuGet-based examples in [OPNX Samples](https://github.com/OPNXLabs/opnx-samples), including `2DMap`. No private OPNX.V project is required.
 
 | Sample | What to evaluate |
 | --- | --- |
@@ -219,10 +261,11 @@ Find seven runnable examples and current UI screenshots in [OPNX Samples](https:
 | [`PlaybackTimeline`](https://github.com/OPNXLabs/opnx-samples#run-playback-timeline) | Simulated multi-channel recordings/events, time navigation, selection and appearance settings |
 | [`ControlGallery`](https://github.com/OPNXLabs/opnx-samples#run-control-gallery) | WPF input, selection, dates/time, tree/list search, paging, notifications and tray integration |
 | [`SystemMonitoring`](https://github.com/OPNXLabs/opnx-samples#run-system-monitoring) | Live CPU, memory, current-process, network, disk-capacity and supported GPU metrics |
+| [`2DMap`](https://github.com/OPNXLabs/opnx-samples#run-2d-map) | Floor-plan editing, shapes/images/text, polylines, JSON, undo/redo and blinking |
 | [`ProtocolChat`](https://github.com/OPNXLabs/opnx-samples#run-protocol-chat) | TCP / Named Pipe / SharedMemory chat, shared request/response, timeout and cancellation logic |
 | [`EntityStore`](https://github.com/OPNXLabs/opnx-samples#run-entitystore) | In-memory CRUD, immutable row changes, property notifications and tracked-instance identity |
 
-The five WPF samples share OPNX.UI styles, OPNX.V Dark / Graphite / Light themes and Blue / Teal / Amber accents. WebRtcViewer uses an HTML `<video>` player in WebView2; ProtocolChat and EntityStore are console examples. RtspViewer requires compatible FFmpeg native DLLs; WebRtcViewer requires the WebView2 Runtime and an H.264 source. PlaybackTimeline uses simulated data and does not play recorded media.
+The original five WPF samples share OPNX.UI styles, OPNX.V Dark / Graphite / Light themes and Blue / Teal / Amber accents. WebRtcViewer uses an HTML `<video>` player in WebView2; ProtocolChat and EntityStore are console examples. RtspViewer requires compatible FFmpeg native DLLs; WebRtcViewer requires the WebView2 Runtime and an H.264 source. PlaybackTimeline uses simulated data and does not play recorded media.
 
 ## Evaluation And Code Reuse
 

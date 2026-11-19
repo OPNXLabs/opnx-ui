@@ -1,23 +1,29 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace OPNX.UI.WPF.Controls;
 
-public enum Map2DItemKind { Rectangle, Ellipse, Line, Polygon, Image, Text, Path }
+public enum Map2DItemKind { Rectangle, Ellipse, Line, Polygon, Image, Text, Path, Polyline }
 
 /// <summary>One item in document coordinates. X/Y are the unrotated top-left; rotation is clockwise about its center.</summary>
 public sealed class Map2DItem : INotifyPropertyChanged
 {
     #region Fields
     private string _id = Guid.NewGuid().ToString("N"), _text = "Text", _fill = "#5538BDF8", _stroke = "#38BDF8", _fontFamily = "Malgun Gothic";
-    private string? _imageData, _pathData, _toolTip;
+    private string? _imageData, _pathData, _toolTip, _dataKey;
+    private Map2DPoint[]? _points;
     private double _x, _y, _width = 100, _height = 70, _rotation, _strokeWidth = 2, _opacity = 1, _fontSize = 24;
+    private double _displayScale = 1;
     private bool _isLocked, _isBlinking;
     private Map2DItemKind _kind;
 
     #endregion
 
     #region Properties
+    /// <summary>Optional application-defined association. Independent of the item identity.</summary>
+    public string? DataKey { get => _dataKey; set => Set(ref _dataKey, value); }
+    /// <summary>Polyline vertices in normalized local coordinates (0..1), scaled with the item bounds.</summary>
+    public Map2DPoint[]? Points { get => _points; set => Set(ref _points, value); }
     public string Id { get => _id; set => Set(ref _id, value); }
     public Map2DItemKind Kind { get => _kind; set => Set(ref _kind, value); }
     public double X { get => _x; set => Set(ref _x, value); }
@@ -37,6 +43,13 @@ public sealed class Map2DItem : INotifyPropertyChanged
     /// <summary>SVG path data, fitted into this item's bounds. No SVG document or scripts are executed.</summary>
     public string? PathData { get => _pathData; set => Set(ref _pathData, value); }
     public string? ToolTip { get => _toolTip; set => Set(ref _toolTip, value); }
+    /// <summary>Transient visual scale in read-only views. Does not change document geometry.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public double DisplayScale
+    {
+        get => _displayScale;
+        set => Set(ref _displayScale, double.IsFinite(value) ? Math.Clamp(value, 0.1, 10) : 1);
+    }
     public bool IsLocked { get => _isLocked; set => Set(ref _isLocked, value); }
     [System.Text.Json.Serialization.JsonIgnore]
     public bool IsBlinking { get => _isBlinking; set => Set(ref _isBlinking, value); }
@@ -56,3 +69,6 @@ public sealed class Map2DItem : INotifyPropertyChanged
     }
     #endregion
 }
+
+/// <summary>A normalized local point in a polyline.</summary>
+public readonly record struct Map2DPoint(double X, double Y);

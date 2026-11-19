@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SkiaSharp;
@@ -24,11 +24,13 @@ public sealed partial class Opnx2DMapControl
             using var surface = SKSurface.Create(new SKImageInfo(width, height, SKColorType.Bgra8888, SKAlphaType.Premul),
                 _surface.BackBuffer, _surface.BackBufferStride);
             var canvas = surface.Canvas;
-            canvas.Clear(new SKColor(25, 30, 39));
+            var viewportColor = ViewportBackgroundColor;
+            canvas.Clear(new SKColor(viewportColor.R, viewportColor.G, viewportColor.B, viewportColor.A));
             canvas.Scale((float)dpi.DpiScaleX, (float)dpi.DpiScaleY);
             canvas.Translate((float)_offset.X, (float)_offset.Y);
             canvas.Scale((float)_zoom);
-            using var paper = new SKPaint { Color = new SKColor(241, 244, 248) };
+            var documentColor = DocumentBackgroundColor;
+            using var paper = new SKPaint { Color = new SKColor(documentColor.R, documentColor.G, documentColor.B, documentColor.A) };
             canvas.DrawRect(0, 0, (float)_documentWidth, (float)_documentHeight, paper);
             canvas.Save();
             canvas.ClipRect(new SKRect(0, 0, (float)_documentWidth, (float)_documentHeight));
@@ -38,6 +40,7 @@ public sealed partial class Opnx2DMapControl
                 canvas.DrawBitmap(_background, 0, 0, new SKSamplingOptions(SKFilterMode.Linear));
             }
             foreach (var item in Items) DrawItem(canvas, item);
+            DrawPolylinePreview(canvas);
             canvas.Restore();
             if (IsEditMode && SelectedItem is { } selected) DrawSelection(canvas, selected);
             canvas.Flush();
@@ -47,15 +50,38 @@ public sealed partial class Opnx2DMapControl
         drawingContext.DrawImage(_surface, new Rect(0, 0, ActualWidth, ActualHeight));
     }
 
+    private void DrawPolylinePreview(SKCanvas canvas)
+    {
+        if (!IsDrawingPolyline || _polylinePoints.Count == 0) return;
+        using var stroke = new SKPaint { Color = SKColor.Parse("#087FBC"), IsAntialias = true,
+            Style = SKPaintStyle.Stroke, StrokeWidth = (float)(2 / _zoom), StrokeCap = SKStrokeCap.Round };
+        using var builder = new SKPathBuilder();
+        builder.MoveTo((float)_polylinePoints[0].X, (float)_polylinePoints[0].Y);
+        foreach (var point in _polylinePoints.Skip(1)) builder.LineTo((float)point.X, (float)point.Y);
+        if (_polylinePointer is { } pointer) builder.LineTo((float)pointer.X, (float)pointer.Y);
+        using var path = builder.Detach();
+        canvas.DrawPath(path, stroke);
+        using var fill = new SKPaint { Color = SKColors.White, IsAntialias = true };
+        foreach (var point in _polylinePoints)
+        {
+            canvas.DrawCircle((float)point.X, (float)point.Y, (float)(4 / _zoom), fill);
+            canvas.DrawCircle((float)point.X, (float)point.Y, (float)(4 / _zoom), stroke);
+        }
+    }
+
     private void DrawItem(SKCanvas canvas, Map2DItem item)
     {
-        if (!double.IsFinite(item.Width) || !double.IsFinite(item.Height) || item.Width <= 0 || item.Height <= 0) return;
+        if (item.Opacity <= 0 || !double.IsFinite(item.Width) || !double.IsFinite(item.Height) || item.Width <= 0 || item.Height <= 0) return;
         canvas.Save();
         try
         {
             canvas.Translate((float)(item.X + item.Width / 2), (float)(item.Y + item.Height / 2));
             canvas.RotateDegrees((float)item.Rotation);
+            if (!IsEditMode) canvas.Scale((float)item.DisplayScale);
             canvas.Translate((float)(-item.Width / 2), (float)(-item.Height / 2));
+            // Reject clipped items before allocating paints, paths, fonts or decoding images.
+            float padding = (float)(item.StrokeWidth * 2 + 2 / _zoom);
+            if (canvas.QuickReject(new SKRect(-padding, -padding, (float)item.Width + padding, (float)item.Height + padding))) return;
             float alpha = (float)Math.Clamp(item.Opacity, 0, 1);
             if (item.IsBlinking && Environment.TickCount64 % 1000 < 500) alpha *= .25f;
             SKColor.TryParse(item.Fill, out var fillColor);
@@ -68,6 +94,17 @@ public sealed partial class Opnx2DMapControl
             {
                 case Map2DItemKind.Rectangle: canvas.DrawRect(rect, fill); if (item.StrokeWidth > 0) canvas.DrawRect(rect, stroke); break;
                 case Map2DItemKind.Ellipse: canvas.DrawOval(rect, fill); if (item.StrokeWidth > 0) canvas.DrawOval(rect, stroke); break;
+                case Map2DItemKind.Polyline:
+                    if (item.Points is { Length: >= 2 } points && item.StrokeWidth > 0)
+                    {
+                        using var builder = new SKPathBuilder();
+                        builder.MoveTo((float)(points[0].X * item.Width), (float)(points[0].Y * item.Height));
+                        for (int i = 1; i < points.Length; i++) builder.LineTo((float)(points[i].X * item.Width), (float)(points[i].Y * item.Height));
+                        using var line = builder.Detach();
+                        stroke.StrokeCap = SKStrokeCap.Round; stroke.StrokeJoin = SKStrokeJoin.Round;
+                        canvas.DrawPath(line, stroke);
+                    }
+                    break;
                 case Map2DItemKind.Line: if (item.StrokeWidth > 0) canvas.DrawLine(0, 0, rect.Right, rect.Bottom, stroke); break;
                 case Map2DItemKind.Polygon:
                 case Map2DItemKind.Path:

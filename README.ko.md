@@ -38,6 +38,7 @@ OPNX.UI는 VMS나 NVR 제품마다 반복해서 개발되는 어렵고 도메인
 - **WPF를 위한 Direct3D 영상 표시** — `OpnxImage`는 `D3DImage`를 통해 Direct3D 9 Surface를 WPF에 통합하며, 원격 세션 같은 환경을 위한 `WriteableBitmap` 이중 Buffer 경로도 제공합니다.
 - **실제 운영을 위한 Playback Timeline** — `OpnxPlaybackTimeline`은 여러 채널의 녹화 구간과 Event 데이터를 표시하고, 시간 범위 이동·선택과 Review 화면에 필요한 Style·Layout 설정을 제공합니다.
 - **단순 균등 Grid가 아닌 운영용 MultiView** — `OpnxMultiView`는 정형·비정형 Cell Layout, 분할·병합형 Layout 동작, Cell 선택, 확대·전체 화면 흐름, Layout 상태 동기화, Thumbnail 및 Drag-and-drop 배치를 지원합니다.
+- **재사용 가능한 2D 도면 편집** — `Opnx2DMapControl`은 SkiaSharp로 내장 배경·도형·이미지·문자·점 지정 폴리라인을 표시하며 편집 모드와 읽기 전용 모드를 제공합니다.
 - **밀도 높은 운영 화면용 Control** — 계층형 TreeList, Paging, Navigation, Custom Window Chrome, Selection Primitive 및 공통 Drag-and-drop 인프라가 영상 주변의 실제 운영 화면을 구성합니다.
 
 이 기능들은 화면 시안이나 특정 애플리케이션 전용 Prototype이 아니라 재사용 가능한 Library Component입니다. OPNX.Lib의 Media, Streaming, Network 및 Entity 인프라와 조합하도록 설계되어 있습니다.
@@ -116,6 +117,46 @@ Layout과 Cell 상태가 별도 모델로 유지되므로 화면을 다시 만�
 
 Control이 모든 녹화 데이터를 소유하지 않고 현재 보이는 시간 범위를 기준으로 데이터를 요청할 수 있어, 장기간 녹화 기록과 다채널 Review 화면에도 적용할 수 있습니다.
 
+### 2D맵 편집 및 표시
+
+`Opnx2DMapControl`은 `Controls/Opnx2DMapControl` 아래에 독립적으로 구성하며 GIS 좌표·지도 공급자·CEF·DevExpress를 사용하지 않습니다. 장치 아이콘과 `Map2DItem.DataKey`의 의미는 애플리케이션이 지정합니다.
+
+- 배경 이미지, 커서 기준 줌, 이동, 전체 보기와 100% 보기
+- 사각형·타원·직선·다각형·SVG 경로·내장 이미지·문자·폴리라인
+- 이동·리사이즈·회전·쌓임 순서·잠금·채우기·외곽선·투명도·글꼴과 Undo/Redo
+- 점 지정 폴리라인: Enter/더블클릭 완료, Esc 취소, Backspace로 마지막 꼭짓점 제거
+- `ItemClick`, `ItemDoubleClick`, `SelectionChanged`, `DocumentChanged`, `ViewChanged`, `DrawingModeChanged`
+- `IsBlinking` / `SetItemBlinking`과 읽기 전용 표시용 `DisplayScale`; 이 임시 효과는 저장하지 않음
+- 이미지 데이터를 내장하는 JSON 저장과 Viewport·도면 바탕색을 각각 지정하는 Dependency Property
+
+```xml
+<opnx:Opnx2DMapControl xmlns:opnx="clr-namespace:OPNX.UI.WPF.Controls;assembly=OPNX.UI.WPF"
+                     x:Name="MapSurface"
+                     IsEditMode="True"
+                     ViewportBackgroundColor="#191E27"
+                     DocumentBackgroundColor="#F1F4F8" />
+```
+
+```csharp
+MapSurface.SetBackgroundImage(File.ReadAllBytes("floor-plan.png"));
+MapSurface.AddItem(new Map2DItem
+{
+    Kind = Map2DItemKind.Rectangle, X = 100, Y = 80, Width = 160, Height = 90,
+    Fill = "#5538BDF8", Stroke = "#087FBC", DataKey = "application-defined-key"
+});
+MapSurface.BeginPolyline();
+MapSurface.AddPolylinePoint(new Point(100, 200));
+MapSurface.AddPolylinePoint(new Point(300, 200));
+MapSurface.AddPolylinePoint(new Point(300, 400));
+MapSurface.CompletePolyline();
+string json = MapSurface.SaveDocument();
+MapSurface.LoadDocument(json);
+```
+
+예제는 `System.IO`, `System.Windows`, `OPNX.UI.WPF.Controls`를 사용하며 상위 XAML View에 `xmlns:x` 선언이 필요합니다. SVG 지원 범위는 경로 데이터이며 SVG 문서·스크립트 실행기가 아닙니다. 글꼴은 Family 이름으로 참조하므로 대상 시스템에 설치되어 있어야 합니다. DB 저장·파일 전송·장치 조회·알람·팝업은 애플리케이션이 담당합니다.
+
+영문 UI와 OPNX 창·버튼 및 자체 생성 데모 도면을 사용하는 `2DMap` 샘플은 [실행 안내](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#2dmap-실행)를 확인하세요.
+
 ## 주요 컴포넌트
 
 | 컴포넌트 | 역할 |
@@ -123,6 +164,7 @@ Control이 모든 녹화 데이터를 소유하지 않고 현재 보이는 시�
 | `OpnxMultiView` | 영상 Cell Layout, 선택, 확대, 동기화, Thumbnail 및 Drag-and-drop |
 | `OpnxImage` | Direct3D/D3DImage 영상 Surface와 원격 세션 호환 Buffer 경로 |
 | `OpnxImageViewer` | `OpnxImage`를 사용하는 영상 표시·상호작용 Viewer |
+| `Opnx2DMapControl` | SkiaSharp 기반 도면 표시·편집, 도형·이미지·문자·폴리라인과 JSON 문서 |
 | `OpnxPlaybackTimeline` | 다채널 녹화 구간, Event, 선택, 시간 이동, Style 및 Playback Review |
 
 ## 보조 운영 컨트롤
@@ -206,11 +248,11 @@ Release는 최적화 빌드 구성이며 버전의 `-preview` 접미사는 패�
 
 ## 소스와 배포 패키지의 기능 범위
 
-이 README의 기능 설명은 현재 저장소 소스를 기준으로 합니다. 이미 게시된 Preview NuGet 패키지는 이전 API와 의존성을 포함할 수 있습니다. 패키지 설치 시 선택한 버전의 릴리스와 의존성을 확인하세요. 공개 Samples는 재현 가능한 실행을 위해 OPNX.Lib `0.1.0-preview.20261106.3`과 OPNX.UI.WPF `0.1.0-preview.20261107.1`을 사용합니다. 현재 기준 버전은 Samples의 [Directory.Build.props](https://github.com/OPNXLabs/opnx-samples/blob/master/Directory.Build.props)를 확인하세요. 최신 소스 기능 전체를 보여주는 샘플 모음은 아닙니다.
+이 README의 기능 설명은 현재 저장소 소스를 기준으로 합니다. 이미 게시된 Preview NuGet 패키지는 이전 API와 의존성을 포함할 수 있습니다. 패키지 설치 시 선택한 버전의 릴리스와 의존성을 확인하세요. 공개 Samples는 재현 가능한 실행을 위해 OPNX.Lib `0.1.0-preview.20261106.3`과 OPNX.UI.WPF `0.1.0-preview.20261107.1`을 사용합니다. `2DMap`처럼 개별 프로젝트에서 패키지 버전을 재정의할 수 있습니다. 현재 기준 버전은 Samples의 [Directory.Build.props](https://github.com/OPNXLabs/opnx-samples/blob/master/Directory.Build.props)를 확인하세요. 최신 소스 기능 전체를 보여주는 샘플 모음은 아닙니다.
 
 ## 샘플 및 문서
 
-공개 NuGet을 사용하는 7개 실행 예제와 현재 UI 캡처는 [OPNX Samples](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md)에서 확인할 수 있습니다. 비공개 OPNX.V 프로젝트는 필요하지 않습니다.
+`2DMap`을 포함한 8개 NuGet 기반 예제는 [OPNX Samples](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md)에서 확인할 수 있습니다. 비공개 OPNX.V 프로젝트는 필요하지 않습니다.
 
 | 샘플 | 확인할 기능 |
 | --- | --- |
@@ -219,10 +261,11 @@ Release는 최적화 빌드 구성이며 버전의 `-preview` 접미사는 패�
 | [`PlaybackTimeline`](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#playback-timeline-실행) | 모의 다채널 녹화·이벤트·시간 탐색·선택·표시 설정 |
 | [`ControlGallery`](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#control-gallery-실행) | WPF 입력·선택·날짜/시간·트리/목록 검색·페이징·알림·트레이 |
 | [`SystemMonitoring`](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#system-monitoring-실행) | 실시간 CPU·메모리·현재 프로세스·네트워크·디스크 용량·지원 GPU 지표 |
+| [`2DMap`](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#2dmap-실행) | 도면 편집·도형·이미지·문자·폴리라인·JSON·Undo/Redo·깜빡임 |
 | [`ProtocolChat`](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#protocol-chat-실행) | TCP·Named Pipe·SharedMemory 공통 채팅·요청응답·시간 초과·취소 |
 | [`EntityStore`](https://github.com/OPNXLabs/opnx-samples/blob/master/README.ko.md#entitystore-실행) | 인메모리 CRUD·불변 변경 정보·속성 알림·추적 객체 동일성 |
 
-다섯 WPF 샘플은 OPNX.UI 공통 스타일과 OPNX.V Dark / Graphite / Light 테마, Blue / Teal / Amber 강조색을 사용합니다. WebRtcViewer의 영상 재생은 WebView2의 HTML `<video>`가 담당하며, ProtocolChat과 EntityStore는 콘솔 예제입니다. RtspViewer는 호환되는 FFmpeg 네이티브 DLL이 필요하고 WebRtcViewer는 WebView2 Runtime과 H.264 소스가 필요합니다. PlaybackTimeline은 모의 데이터 UI이며 실제 녹화 영상은 재생하지 않습니다.
+기존 다섯 WPF 샘플은 OPNX.UI 공통 스타일과 OPNX.V Dark / Graphite / Light 테마, Blue / Teal / Amber 강조색을 사용합니다. WebRtcViewer의 영상 재생은 WebView2의 HTML `<video>`가 담당하며, ProtocolChat과 EntityStore는 콘솔 예제입니다. RtspViewer는 호환되는 FFmpeg 네이티브 DLL이 필요하고 WebRtcViewer는 WebView2 Runtime과 H.264 소스가 필요합니다. PlaybackTimeline은 모의 데이터 UI이며 실제 녹화 영상은 재생하지 않습니다.
 
 ## 평가와 코드 활용 범위
 

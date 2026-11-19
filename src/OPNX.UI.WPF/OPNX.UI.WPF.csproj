@@ -48,6 +48,8 @@
     <None Include="..\..\third_party_licenses\MIT.txt" Pack="true" PackagePath="third_party_licenses/" Visible="false" />
     <None Include="..\..\third_party_licenses\SharpDX-MIT.txt" Pack="true" PackagePath="third_party_licenses/" Visible="false" />
     <None Include="..\..\third_party_licenses\FFmpeg.AutoGen-MIT.txt" Pack="true" PackagePath="third_party_licenses/" Visible="false" />
+    <None Include="..\..\third_party_licenses\SkiaSharp-MIT.txt" Pack="true" PackagePath="third_party_licenses/" Visible="false" />
+    <None Include="..\..\third_party_licenses\SkiaSharp-Native-THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="third_party_licenses/" Visible="false" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Controls\Opnx2DMapControl\Resources\rotate.cur" />

@@ -66,6 +66,16 @@ The full MIT license text is provided in:
 
 - [third_party_licenses/SharpDX-MIT.txt](https://github.com/OPNXLabs/opnx-ui/blob/master/third_party_licenses/SharpDX-MIT.txt)
 
+## SkiaSharp And 2D Map Rendering
+
+- Components: `SkiaSharp` and the selected native Skia runtime assets (Windows builds use `SkiaSharp.NativeAssets.Win32`).
+- Dependency: supplied through OPNX.Lib/OPNX.Lib.Media; the restored graph determines the exact version. Current Lib source declares `4.156.0`; older published OPNX packages can differ.
+- License: SkiaSharp's MIT text is preserved in [third_party_licenses/SkiaSharp-MIT.txt](third_party_licenses/SkiaSharp-MIT.txt).
+- Native notices: [third_party_licenses/SkiaSharp-Native-THIRD-PARTY-NOTICES.txt](third_party_licenses/SkiaSharp-Native-THIRD-PARTY-NOTICES.txt), copied unchanged from the Windows native-assets `4.156.0` package. Match these notices to the actual runtime shipped when changing dependency versions.
+- Usage: `Opnx2DMapControl` renders backgrounds, shapes, images, text and polylines. It does not bundle a GIS SDK, map tiles or a browser runtime.
+
+The original `rotate.svg` / `rotate.cur` assets under `Controls/Opnx2DMapControl/Resources` are OPNX source assets, not extracted Windows cursor files. Imported floor plans, user images, SVG path artwork and installed font files are not granted rights by the OPNX license. The control stores font family names and image bytes; it does not bundle Windows fonts or transfer ownership of imported content.
+
 ## Native Runtime Components
 
 ## FFmpeg Native Libraries

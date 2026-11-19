@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
@@ -45,10 +45,30 @@ public sealed partial class Opnx2DMapControl : FrameworkElement
     #endregion
 
     #region Properties
+    /// <summary>The color of the viewport outside the document bounds.</summary>
+    public static readonly DependencyProperty ViewportBackgroundColorProperty = DependencyProperty.Register(
+        nameof(ViewportBackgroundColor), typeof(Color), typeof(Opnx2DMapControl),
+        new FrameworkPropertyMetadata(Color.FromRgb(25, 30, 39), FrameworkPropertyMetadataOptions.AffectsRender));
+    public Color ViewportBackgroundColor
+    {
+        get => (Color)GetValue(ViewportBackgroundColorProperty);
+        set => SetValue(ViewportBackgroundColorProperty, value);
+    }
+
+    /// <summary>The document base color, also visible through transparent background-image pixels.</summary>
+    public static readonly DependencyProperty DocumentBackgroundColorProperty = DependencyProperty.Register(
+        nameof(DocumentBackgroundColor), typeof(Color), typeof(Opnx2DMapControl),
+        new FrameworkPropertyMetadata(Color.FromRgb(241, 244, 248), FrameworkPropertyMetadataOptions.AffectsRender));
+    public Color DocumentBackgroundColor
+    {
+        get => (Color)GetValue(DocumentBackgroundColorProperty);
+        set => SetValue(DocumentBackgroundColorProperty, value);
+    }
+
     public ObservableCollection<Map2DItem> Items { get; } = [];
     public static readonly DependencyProperty IsEditModeProperty = DependencyProperty.Register(
         nameof(IsEditMode), typeof(bool), typeof(Opnx2DMapControl), new FrameworkPropertyMetadata(true, (d, _) =>
-        { var map = (Opnx2DMapControl)d; map.CancelInteraction(); map.InvalidateVisual(); }));
+        { var map = (Opnx2DMapControl)d; map.CancelInteraction(); map.CancelPolyline(); map.InvalidateVisual(); }));
     public bool IsEditMode { get => (bool)GetValue(IsEditModeProperty); set => SetValue(IsEditModeProperty, value); }
     public Map2DItem? SelectedItem
     {
@@ -63,6 +83,7 @@ public sealed partial class Opnx2DMapControl : FrameworkElement
             SelectionChanged?.Invoke(this, EventArgs.Empty);
         }
     }
+    public bool IsDrawingPolyline { get; private set; }
     public double Zoom => _zoom;
     public double DocumentWidth => _documentWidth;
     public double DocumentHeight => _documentHeight;
@@ -74,6 +95,7 @@ public sealed partial class Opnx2DMapControl : FrameworkElement
     public event EventHandler? SelectionChanged;
     public event EventHandler? DocumentChanged;
     public event EventHandler? ViewChanged;
+    public event EventHandler? DrawingModeChanged;
     public event EventHandler<Map2DItemEventArgs>? ItemClick;
     public event EventHandler<Map2DItemEventArgs>? ItemDoubleClick;
     #endregion
@@ -101,6 +123,17 @@ public sealed partial class Opnx2DMapControl : FrameworkElement
         CenterView();
     }
 
+    /// <summary>Centers a document point in the viewport without changing the zoom.</summary>
+    public void CenterOn(Point documentPoint)
+    {
+        VerifyAccess();
+        if (!double.IsFinite(documentPoint.X) || !double.IsFinite(documentPoint.Y))
+            throw new ArgumentOutOfRangeException(nameof(documentPoint));
+        CancelInteraction();
+        _offset = new Vector(ActualWidth / 2 - documentPoint.X * _zoom, ActualHeight / 2 - documentPoint.Y * _zoom);
+        NotifyView();
+    }
+
     public void ResetView() { VerifyAccess(); _zoom = 1; CenterView(); }
 
     public void SetBackgroundImage(byte[]? imageBytes)
@@ -108,6 +141,7 @@ public sealed partial class Opnx2DMapControl : FrameworkElement
         VerifyAccess();
         CancelInteraction();
         using var image = imageBytes == null ? null : Decode(imageBytes);
+        CancelPolyline();
         string before = SaveDocument();
         _backgroundData = imageBytes == null ? null : Convert.ToBase64String(imageBytes);
         _background?.Dispose();
@@ -193,13 +227,13 @@ public sealed partial class Opnx2DMapControl : FrameworkElement
 
     public void Undo()
     {
-        VerifyAccess(); CancelInteraction();
+        VerifyAccess(); CancelInteraction(); CancelPolyline();
         if (!_undo.TryPop(out string? json)) return;
         _redo.Push(SaveDocument()); Restore(json, true);
     }
     public void Redo()
     {
-        VerifyAccess(); CancelInteraction();
+        VerifyAccess(); CancelInteraction(); CancelPolyline();
         if (!_redo.TryPop(out string? json)) return;
         _undo.Push(SaveDocument()); Restore(json, true);
     }
@@ -235,6 +269,14 @@ public sealed partial class Opnx2DMapControl : FrameworkElement
             !double.IsFinite(item.Opacity) || item.Opacity is < 0 or > 1 || !Positive(item.FontSize) || string.IsNullOrWhiteSpace(item.FontFamily) ||
             !SKColor.TryParse(item.Fill, out _) || !SKColor.TryParse(item.Stroke, out _))
             throw new InvalidDataException("Invalid item geometry or style.");
+        if (item.DataKey?.Length > 256) throw new InvalidDataException("The data key is too long.");
+        if (item.Kind == Map2DItemKind.Polyline)
+        {
+            if (item.Points is not { Length: >= 2 and <= 4096 } points || points.Any(p =>
+                !double.IsFinite(p.X) || !double.IsFinite(p.Y) || p.X is < 0 or > 1 || p.Y is < 0 or > 1) ||
+                points.All(p => p == points[0]))
+                throw new InvalidDataException("A polyline requires at least two distinct normalized points.");
+        }
         if (item.Kind == Map2DItemKind.Image)
         {
             if (string.IsNullOrWhiteSpace(item.ImageData)) throw new InvalidDataException("Image data is required.");
@@ -249,6 +291,7 @@ public sealed partial class Opnx2DMapControl : FrameworkElement
 
     private void ApplyDocument(Map2DDocument document)
     {
+        CancelPolyline();
         _restoring = true;
         try
         {
@@ -296,17 +339,49 @@ public sealed partial class Opnx2DMapControl : FrameworkElement
 
     private void Items_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        foreach (var old in _observed.Where(x => !Items.Contains(x)).ToArray()) { old.PropertyChanged -= Item_Changed; _observed.Remove(old); }
-        foreach (var item in Items) if (_observed.Add(item)) item.PropertyChanged += Item_Changed;
-        if (_selected != null && !Items.Contains(_selected)) SelectedItem = null;
-        PruneImages(); UpdateAnimation(); InvalidateVisual();
+        bool removed = e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace or NotifyCollectionChangedAction.Reset;
+        bool blinkingChanged = false;
+        if (e.Action == NotifyCollectionChangedAction.Reset)
+        {
+            foreach (var item in _observed) item.PropertyChanged -= Item_Changed;
+            _observed.Clear();
+            foreach (var item in Items)
+                if (_observed.Add(item)) item.PropertyChanged += Item_Changed;
+            blinkingChanged = true;
+        }
+        else if (e.Action != NotifyCollectionChangedAction.Move)
+        {
+            if (e.OldItems != null)
+                foreach (Map2DItem item in e.OldItems)
+                {
+                    if (!Items.Contains(item) && _observed.Remove(item)) item.PropertyChanged -= Item_Changed;
+                    blinkingChanged |= item.IsBlinking;
+                }
+            if (e.NewItems != null)
+                foreach (Map2DItem item in e.NewItems)
+                {
+                    if (_observed.Add(item)) item.PropertyChanged += Item_Changed;
+                    blinkingChanged |= item.IsBlinking;
+                }
+        }
+        if (removed && _selected != null && !_observed.Contains(_selected)) SelectedItem = null;
+        if (!_restoring)
+        {
+            if (removed) PruneImages();
+            if (blinkingChanged) UpdateAnimation();
+            InvalidateVisual();
+        }
     }
 
     private void Item_Changed(object? sender, PropertyChangedEventArgs e)
     {
         VerifyAccess();
         if (e.PropertyName == nameof(Map2DItem.ImageData)) PruneImages();
-        if (e.PropertyName == nameof(Map2DItem.IsBlinking)) UpdateAnimation();
+        if (e.PropertyName == nameof(Map2DItem.IsBlinking) && !_restoring)
+        {
+            if (IsLoaded && sender is Map2DItem { IsBlinking: true }) _animation.Start();
+            else UpdateAnimation();
+        }
         InvalidateVisual();
     }
 
